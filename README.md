@@ -1,3 +1,9 @@
-# network-service-mesh-manager
+# network-service-mesh-manager (NSMM)
 
-Network Service Mesh Manager (NSMM)
+## Architecture
+![](docs/architecture.png)
+
+
+# SBI
+First design of SBI is a Postman Collection:
+[Readme](sbi/README.md)

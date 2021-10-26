@@ -1,0 +1,1094 @@
+{
+	"info": {
+		"_postman_id": "02b9d5a5-f7aa-48c5-977a-402734cea6b1",
+		"name": "NetworkServiceMeshManager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Network pre-provisioning",
+			"item": [
+				{
+					"name": "Create network",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let status=pm.response.code;",
+									"console.log(status);",
+									"",
+									"",
+									"pm.test(`*** CREATE NETWORK ***`, () => {",
+									"        pm.expect(status).to.equal(201)",
+									"        // pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+									"    })",
+									"",
+									"",
+									"if (status == 201) {",
+									"    pm.test(`***Retrieve network_id ***`, () => {",
+									"        let jsonResponse = pm.response.json();",
+									"        console.log(jsonResponse.network.id)",
+									"        pm.expect(jsonResponse.network).to.have.property('id');",
+									"        let network_id = jsonResponse.network.id;",
+									"        pm.collectionVariables.set(\"network_id\", network_id);",
+									"        //",
+									"        let network_name = jsonResponse.network.name;",
+									"        pm.collectionVariables.set(\"network_name\", network_name);",
+									"    })",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"network\": {\n        \"name\": \"{{network_name}}\",\n        \"admin_state_up\": true,\n        \"mtu\": 1500,\n        \"project_id\": \"7953babdca974e7ab44cc6c69f093956\",\n        \"router:external\": false,\n        \"shared\": false,\n        \"tenant_id\": \"7953babdca974e7ab44cc6c69f093956\",\n        \"description\": \"{{network_name}}\",\n        \"availability_zone_hints\": [\n            \"nova\"\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/networks/",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{NEUTRON_PORT}}",
+							"path": [
+								"v2.0",
+								"networks",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create subnet",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let status=pm.response.code;",
+									"console.log(status);",
+									"",
+									"pm.test(`*** CREATE SUBNET ***`, () => {",
+									"        pm.expect(status).to.equal(201)",
+									"    })",
+									"",
+									"if (status == 201) {",
+									"    pm.test(`***Retrieve subnet_id ***`, () => {",
+									"        let jsonResponse = pm.response.json();",
+									"        let subnetObject = jsonResponse.subnet;",
+									"        pm.expect(subnetObject).to.have.property('id');",
+									"        let id = subnetObject.id;",
+									"        console.log(id)",
+									"        pm.collectionVariables.set(\"subnet_id\", id);",
+									"        let subnet_name = subnetObject.name;",
+									"        pm.collectionVariables.set(\"subnet_name\", subnet_name);",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"subnet\": {\r\n        \"tenant_id\": \"7953babdca974e7ab44cc6c69f093956\",\r\n        \"project_id\": \"7953babdca974e7ab44cc6c69f093956\",\r\n        \"name\": \"{{subnet_name}}\",\r\n        \"enable_dhcp\": true,\r\n        \"network_id\": \"{{network_id}}\",\r\n        \"ip_version\": 4,\r\n        \"description\": \"test\",\r\n        \"cidr\": \"192.168.1.8/29\"\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/subnets",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{NEUTRON_PORT}}",
+							"path": [
+								"v2.0",
+								"subnets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete network",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let status=pm.response.code;",
+									"console.log(status);",
+									"",
+									"pm.test(`*** DELETE NETWORK ***`, () => {",
+									"        pm.expect(status).to.equal(204)",
+									"    })"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/networks/{{network_id}}",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{NEUTRON_PORT}}",
+							"path": [
+								"v2.0",
+								"networks",
+								"{{network_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete subnet",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let status=pm.response.code;",
+									"console.log(status);",
+									"",
+									"pm.test(`*** DELETE SUBNET ***`, () => {",
+									"        pm.expect(status).to.equal(204)",
+									"    })"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Auth-Token",
+								"value": "{{TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/subnets/{{subnet_id}}",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{NEUTRON_PORT}}",
+							"path": [
+								"v2.0",
+								"subnets",
+								"{{subnet_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Auth. with unscoped authorization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonResponse=pm.response.json();",
+									"let status=pm.response.code;",
+									"console.log(jsonResponse);",
+									"console.log(status);",
+									"",
+									"",
+									"pm.test(`*** AUTHENTICATION ***`, () => {",
+									"        pm.expect(status).to.equal(201)",
+									"        // pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+									"    })",
+									"",
+									"",
+									"if (status == 201) {",
+									"    pm.test(\"X-Subject-Token is present\", function () {",
+									"        pm.response.to.have.header(\"X-Subject-Token\");",
+									"    });",
+									"    if(pm.response.to.have.header(\"X-Subject-Token\")){",
+									"        let token=pm.response.headers.get(\"X-Subject-Token\")",
+									"        pm.environment.set(\"TOKEN\", token);",
+									"    } ",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"auth\": {\n        \"identity\": {\n            \"methods\": [\n                \"password\"\n            ],\n            \"password\": {\n                \"user\": {\n                    \"name\": \"{{OS_USERNAME}}\",\n                    \"domain\": {\n                        \"id\": \"default\"\n                    },\n                    \"password\": \"{{OS_PASSWORD}}\"\n                }\n            }\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "http://{{IP}}:{{KEYSTONE_PORT}}/v3/auth/tokens",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{KEYSTONE_PORT}}",
+							"path": [
+								"v3",
+								"auth",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth. with scoped authorization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonResponse=pm.response.json();",
+									"let status=pm.response.code;",
+									"console.log(jsonResponse);",
+									"console.log(status);",
+									"",
+									"",
+									"pm.test(`*** AUTHENTICATION ***`, () => {",
+									"        pm.expect(status).to.equal(201)",
+									"        // pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+									"    })",
+									"",
+									"",
+									"if (status == 201) {",
+									"    pm.test(\"X-Subject-Token is present\", function () {",
+									"        pm.response.to.have.header(\"X-Subject-Token\");",
+									"    });",
+									"    if(pm.response.to.have.header(\"X-Subject-Token\")){",
+									"        let token=pm.response.headers.get(\"X-Subject-Token\")",
+									"        pm.environment.set(\"TOKEN\", token);",
+									"        console.log(\"TOKEN SET\");",
+									"    } ",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"auth\": {\r\n        \"identity\": {\r\n            \"methods\": [\r\n                \"password\"\r\n            ],\r\n            \"password\": {\r\n                \"user\": {\r\n                    \"name\": \"{{OS_USERNAME}}\",\r\n                    \"domain\": {\r\n                        \"id\": \"default\"\r\n                    },\r\n                    \"password\": \"{{OS_PASSWORD}}\"\r\n                }\r\n            }\r\n        },\r\n        \"scope\": {\r\n            \"project\": {\r\n                \"id\": \"{{OS_TENANT_ID}}\"\r\n            }\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://{{IP}}:{{KEYSTONE_PORT}}/v3/auth/tokens",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{KEYSTONE_PORT}}",
+							"path": [
+								"v3",
+								"auth",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let status=pm.response.code;",
+									"console.log(status);",
+									"",
+									"pm.test(`*** REVOKE TOKEN ***`, () => {",
+									"        pm.expect(status).to.equal(204)",
+									"    })",
+									"",
+									"if (status == 204) {",
+									"    pm.environment.set(\"TOKEN\", \"\");",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Auth-Token",
+								"value": "{{TOKEN}}"
+							},
+							{
+								"key": "X-Subject-Token",
+								"value": "{{TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://{{IP}}:{{KEYSTONE_PORT}}/v3/auth/tokens",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{KEYSTONE_PORT}}",
+							"path": [
+								"v3",
+								"auth",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Show network details",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"postman.setEnvironmentVariable(\"network_id\", \"SETME\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/networks/",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"networks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show network detail",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/networks?name={{network_name}}",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"networks"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "{{network_name}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show network details of tenant",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/networks?project_id=OS_TENANT_ID",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"networks"
+					],
+					"query": [
+						{
+							"key": "project_id",
+							"value": "OS_TENANT_ID"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show shared network details",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/networks?shared=true",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"networks"
+					],
+					"query": [
+						{
+							"key": "shared",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List routers",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/routers",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"routers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show router details",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"postman.setEnvironmentVariable(\"router_id\", \"variable_value\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/routers/{{router_id}}",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"routers",
+						"{{router_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List subnets",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/subnets?shared=false",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"subnets"
+					],
+					"query": [
+						{
+							"key": "shared",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show subnet details",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"postman.setEnvironmentVariable(\"subnet_id\", \"variable_value\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/subnets?name=test_subnet",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"subnets"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "test_subnet"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create router",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let status=pm.response.code;",
+							"console.log(status);",
+							"",
+							"pm.test(`*** CREATE ROUTER ***`, () => {",
+							"        pm.expect(status).to.equal(201)",
+							"    })",
+							"",
+							"if (status == 201) {",
+							"    pm.test(`***Retrieve router_id ***`, () => {",
+							"        let jsonResponse = pm.response.json();",
+							"        let routerObject = jsonResponse.router;",
+							"        pm.expect(routerObject).to.have.property('id');",
+							"        let id = routerObject.id;",
+							"        console.log(id)",
+							"        pm.collectionVariables.set(\"router_id\", id);",
+							"        let router_name = routerObject.name;",
+							"        pm.collectionVariables.set(\"router_name\", router_name);",
+							"    })",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"router\": {\r\n        \"name\": \"{{router_name}}\",\r\n        \"description\": \"{{router_name}}\",\r\n        \"tenant_id\": \"7953babdca974e7ab44cc6c69f093956\",\r\n        \"project_id\": \"7953babdca974e7ab44cc6c69f093956\",\r\n        \"external_gateway_info\": {\r\n            \"network_id\": \"{{floating_int_network_id}}\"\r\n        },\r\n        \"admin_state_up\": true,\r\n        \"availability_zone_hints\": [\r\n            \"nova\"\r\n        ]\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/routers",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"routers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete router",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let status=pm.response.code;",
+							"console.log(status);",
+							"",
+							"pm.test(`*** DELETE ROUTER ***`, () => {",
+							"        pm.expect(status).to.equal(204)",
+							"    })"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/routers/{{router_id}}",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"routers",
+						"{{router_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add interface to router",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let status=pm.response.code;",
+							"console.log(status);",
+							"",
+							"pm.test(`*** ADD Interface to Router ***`, () => {",
+							"        pm.expect(status).to.equal(200)",
+							"    })"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"subnet_id\": \"{{subnet_id}}\"\r\n}"
+				},
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/routers/{{router_id}}/add_router_interface",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"routers",
+						"{{router_id}}",
+						"add_router_interface"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove interface from router",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let status=pm.response.code;",
+							"console.log(status);",
+							"",
+							"pm.test(`*** REMOVE Interface from Router ***`, () => {",
+							"        pm.expect(status).to.equal(200)",
+							"    })"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"subnet_id\": \"{{subnet_id}}\"\r\n}"
+				},
+				"url": {
+					"raw": "http://{{IP}}:{{NEUTRON_PORT}}/v2.0/routers/{{router_id}}/remove_router_interface",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NEUTRON_PORT}}",
+					"path": [
+						"v2.0",
+						"routers",
+						"{{router_id}}",
+						"remove_router_interface"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "network_name",
+			"value": "api_test_network"
+		},
+		{
+			"key": "network_id",
+			"value": "5f863b74-3e6c-4025-81ac-d9520e68ebaf"
+		},
+		{
+			"key": "subnet_name",
+			"value": "api_test_subnet"
+		},
+		{
+			"key": "subnet_id",
+			"value": "bc21a2d7-cf4a-4fc8-8f9e-69a8c05ee379"
+		},
+		{
+			"key": "router_name",
+			"value": "api_router"
+		},
+		{
+			"key": "router_id",
+			"value": ""
+		},
+		{
+			"key": "floating_int_network_name",
+			"value": "floating_int"
+		},
+		{
+			"key": "floating_int_network_id",
+			"value": "85e329ed-1bed-4bb6-8b1c-a11a7eb133fa"
+		},
+		{
+			"key": "floating_int_subnet_name",
+			"value": "floating_int_subnet",
+			"disabled": true
+		},
+		{
+			"key": "floating_int_subnet_id",
+			"value": "077f0976-f934-47a1-a0a3-d931f6a4bb18",
+			"disabled": true
+		}
+	]
+}

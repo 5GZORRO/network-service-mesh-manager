@@ -3,6 +3,8 @@
 ## Architecture
 ![](docs/architecture.png)
 
+# NetworkManager
+
 
 # SBI
 First design of SBI is a Postman Collection:

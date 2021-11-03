@@ -1,10 +1,13 @@
 import openstack
+import openstack_functions as op
+import logging
+from flask import Flask, Response, make_response, request
 
-# Global params
-project_id='7953babdca974e7ab44cc6c69f093956'
-is_shared=False
-admin_state=True
-availability_zone=['nova']
+
+logging.basicConfig(format='[%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
+module_name = "NSMM"
+logger = logging.getLogger(module_name)
+
 
 # Initialize and turn on debug logging
 openstack.enable_logging(debug=True, http_debug=True)
@@ -12,61 +15,56 @@ openstack.enable_logging(debug=True, http_debug=True)
 # Initialize connection with OS
 conn = openstack.connect(cloud='local')
 
-# Function to create a network and a subnet
-# TODO create subnet
-def create_network(conn, network_name, cidr):
-    print("create_network: "+network_name)
-    network = conn.network.create_network(name=network_name,
-                                            is_shared=is_shared,
-                                            is_admin_state_up=admin_state,
-                                            project_id=project_id,
-                                            availability_zone_hints=availability_zone)
-    return network
 
-# Function to retrieve a network by its name
-def retrieve_network(conn, network_name):
-    print("retrieve_network: "+network_name)
-    
-    gen = conn.network.networks(name=network_name,is_shared=False)
-    nets = list(gen)
-    if len(nets) == 0:
-        print("No network with name "+network_name+" found")
-        return None
-
-    elif len(nets) == 1:
-        print("Network with name "+network_name+" found")
-        return nets[0]
-    else:
-        print("More than one network with name "+network_name+" found")
-        return None
-
-# TODO: explicit delete of subnet
-def delete_network(conn, network_name):
-    print("delete_network: "+network_name)
-
-    gen = conn.network.networks(name=network_name,is_shared=False)
-    nets = list(gen)
-    if len(nets) == 0:
-        print("No network with name "+network_name+" found")
-        return False
-
-    elif len(nets) == 1:
-        print("Network with name "+network_name+" found")
-        conn.network.delete_network(nets[0],ignore_missing=True)
-        return True
-    else:
-        print("More than one network with name "+network_name+" found")
-        return False
+app = Flask(__name__)
 
 
-print("")
-print("Retrieve_network")
-network = create_network(conn,"test_network","")
-print(network.to_dict())
-network = retrieve_network(conn,"test_network")
-print(network.to_dict())
-result = delete_network(conn,"test_network")
-print(result)
 
-conn.close()
+@app.route('/network', methods=['POST', 'DELETE', 'GET'])
+def networks():
+    response = Response()
+    if request.method == 'POST':
+        response.status_code = 200
+        network_name = request.args.get('name', None)
+        if network_name is not None:
+            data = request.get_json()
+            network_nameB = data.get("name")
+            network_cidr = data.get("cidr")
+            if network_name == network_nameB:
+                logger.info("create_network : name: "+network_name+" cidr: "+network_cidr)
+                # TODO call to create
+                result = op.create_network(conn,network_name,cidr=network_cidr)
+                if not result:
+                    response.status_code = 404
+            else:
+                response.status_code = 400
+        else:
+            response.status_code = 400
+        return response
+    elif request.method == 'DELETE':
+        logger.debug("delete_network")
+        network_name = request.args.get('name', None)
+        if network_name is not None:
+            result = op.delete_network(conn,network_name)
+            if result:
+                response.status_code = 200
+            else:
+                response.status_code = 404
+        else:
+            response.status_code = 400
+        return response
+    elif request.method == 'GET':
+        logger.debug("retrieve_network")
+        network_name = request.args.get('name', None)
+        if network_name is not None:
+            network = op.retrieve_network(conn,network_name)
+            if network is not None:
+                return network 
+            else:
+                response.status_code = 404
+        else:
+            response.status_code = 400
+        return response
 
+app.run(host='0.0.0.0', port=8080, debug=True)
+# conn.close()

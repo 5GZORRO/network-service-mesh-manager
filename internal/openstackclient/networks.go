@@ -17,7 +17,7 @@ var adminStateUp = true
 // subnet global params
 var enableDHCP = true
 
-// Function to create a Network and its subnet
+// CreateNetwork creates a Network and its subnet, using some global fixed params
 func (client *OpenStackClient) CreateNetwork(name string, cidr string) (*networks.Network, *subnets.Subnet, error) {
 	createOpts := networks.CreateOpts{
 		Name:                  name,
@@ -43,27 +43,7 @@ func (client *OpenStackClient) CreateNetwork(name string, cidr string) (*network
 	return network, subnet, nil
 }
 
-// Function to create a Subnet
-func (client *OpenStackClient) createSubnet(name string, networkID string, cidr string) (*subnets.Subnet, error) {
-	createOpts := subnets.CreateOpts{
-		NetworkID:  networkID,
-		Name:       name,
-		TenantID:   client.TenantID,
-		EnableDHCP: &enableDHCP,
-		IPVersion:  4,
-		CIDR:       cidr,
-	}
-
-	subnet, err := subnets.Create(client.networkClient, createOpts).Extract()
-	if err != nil {
-		log.Error("Error creating Subnet " + name)
-		return nil, err
-	}
-	return subnet, nil
-
-}
-
-// Function to retrieve a Network by name
+// RetrieveNetwork retrieves a Network by its name
 func (client *OpenStackClient) RetrieveNetwork(name string) (*networks.Network, error) {
 	sharedNetworks := false
 	listOpts := networks.ListOpts{
@@ -98,8 +78,7 @@ func (client *OpenStackClient) RetrieveNetwork(name string) (*networks.Network, 
 	}
 }
 
-// Function to delete a network by name (not ID) and its subnet,
-// assuming only one subnet
+// DeleteNetwork deletes a network by name (not ID) and its subnet, assuming only one subnet
 func (client *OpenStackClient) DeleteNetwork(name string) error {
 	network, err := client.RetrieveNetwork(name)
 	if err != nil {
@@ -127,27 +106,5 @@ func (client *OpenStackClient) DeleteNetwork(name string) error {
 		return err
 	}
 	log.Info("Network " + name + " deleted ")
-	return nil
-}
-
-func (client *OpenStackClient) deleteSubnet(id string) error {
-	err := subnets.Delete(client.networkClient, id).ExtractErr()
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	log.Info("SubnetID " + id + " deleted ")
-	return nil
-}
-
-// TODO
-func (client *OpenStackClient) CreateRouter() error {
-	log.Info("Creating router")
-	return nil
-}
-
-// TODO
-func (client *OpenStackClient) DeleteRouter() error {
-	log.Info("Creating router")
 	return nil
 }

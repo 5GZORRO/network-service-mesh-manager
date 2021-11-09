@@ -20,7 +20,7 @@ In order to execute REST calls, a token should be provided in each request using
 - Unscopen Token
 - Scoped Token
 
-The token is generated authenticating with the two POST calls in the `Authentication` folder of the Postman Collection. The test script saves the token in the `TOKEN` environment variable.
+The token is generated authenticating with one of the two POST calls in the `Authentication` folder of the Postman Collection. The test script saves the token in the `TOKEN` environment variable.
 
 The token can be revoked with the `Revoke Token` REST call.
 

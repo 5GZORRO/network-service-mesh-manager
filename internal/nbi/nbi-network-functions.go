@@ -1,17 +1,23 @@
-package main
+package nbi
 
 import (
 	// "fmt"
-	"net/http"
-
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+	"net/http"
+	"nextworks/nsm/internal/openstackclient"
 )
 
 type Network struct {
 	Name string `json:"name" binding:"required"`
 	CIDR string `json:"cidr" binding:"required"`
+}
+
+// Env object should contain the environment used by the functions
+// associated to REST API, such as a ConnectionPool to a DB or a
+// Provider to OpenStackAPI
+type Env struct {
+	Client *openstackclient.OpenStackClient
 }
 
 // /network?name=name
@@ -22,7 +28,7 @@ type Network struct {
 // }
 // Query name parameters should be equal to name in the JSON body
 // This method first creates the Network, then it creates the Subnet associated to it
-func createNetwork(c *gin.Context) {
+func (env *Env) CreateNetwork(c *gin.Context) {
 	networkName := c.Query("name")
 
 	var json Network
@@ -39,7 +45,7 @@ func createNetwork(c *gin.Context) {
 		return
 	}
 	// logic
-	network, subnet, err := CreateNetwork(networkName, json.CIDR)
+	network, subnet, err := env.Client.CreateNetwork(networkName, json.CIDR)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -49,11 +55,11 @@ func createNetwork(c *gin.Context) {
 }
 
 // /network?name=name
-func deleteNetwork(c *gin.Context) {
+func (env *Env) DeleteNetwork(c *gin.Context) {
 	networkName := c.Query("name")
 
 	log.Info("deleteNetwork:" + networkName)
-	err := DeleteNetwork(networkName)
+	err := env.Client.DeleteNetwork(networkName)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -63,11 +69,11 @@ func deleteNetwork(c *gin.Context) {
 }
 
 // /network?name=name
-func retrieveNetwork(c *gin.Context) {
+func (env *Env) RetrieveNetwork(c *gin.Context) {
 	networkName := c.Query("name")
 	log.Info("retrieveNetwork:" + networkName)
 	// logic
-	network, err := RetrieveNetwork(networkName)
+	network, err := env.Client.RetrieveNetwork(networkName)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -75,4 +81,10 @@ func retrieveNetwork(c *gin.Context) {
 		log.Info(*network)
 		c.JSON(http.StatusOK, network)
 	}
+}
+
+// /test endpoint
+func (env *Env) Test(c *gin.Context) {
+	log.Info("Test:" + env.Client.TenantID)
+
 }

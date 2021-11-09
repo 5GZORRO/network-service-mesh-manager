@@ -1,4 +1,4 @@
-module nextworks/network-manager
+module nextworks/nsm
 
 go 1.17
 

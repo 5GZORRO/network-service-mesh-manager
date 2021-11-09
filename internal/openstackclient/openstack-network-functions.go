@@ -1,20 +1,13 @@
-package main
+package openstackclient
 
 import (
 	"errors"
-
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack"
-	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
+	// "github.com/gophercloud/gophercloud"
+	// "github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	log "github.com/sirupsen/logrus"
 )
-
-// Global variables to access OpenStack API
-var Provider *gophercloud.ProviderClient
-var IdentityClient *gophercloud.ServiceClient
-var NetworkClient *gophercloud.ServiceClient
 
 // network global params
 var sharedNetworks bool = false
@@ -24,53 +17,17 @@ var adminStateUp = true
 // subnet global params
 var enableDHCP = true
 
-func Init() {
-	log.Info("Init function")
-	var err error
-
-	opts := gophercloud.AuthOptions{
-		IdentityEndpoint: "http://10.30.7.10:5000/v3",
-		Username:         "timeo",
-		Password:         "nextworks",
-		TenantID:         TenantID,
-		DomainID:         "default",
-	}
-
-	Provider, err = openstack.AuthenticatedClient(opts)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Info("Authentication Token: " + Provider.TokenID)
-	IdentityClient, err = openstack.NewIdentityV3(Provider, gophercloud.EndpointOpts{
-		Region: "RegionOne",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Info("Identity Endpoint: " + IdentityClient.IdentityEndpoint)
-
-	NetworkClient, err = openstack.NewNetworkV2(Provider, gophercloud.EndpointOpts{
-		Name:   "neutron",
-		Region: "RegionOne",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Info("Network Endpoint " + NetworkClient.Endpoint)
-}
-
 // Function to create a Network and its subnet
-func CreateNetwork(name string, cidr string) (*networks.Network, *subnets.Subnet, error) {
+func (client *OpenStackClient) CreateNetwork(name string, cidr string) (*networks.Network, *subnets.Subnet, error) {
 	createOpts := networks.CreateOpts{
 		Name:                  name,
 		AdminStateUp:          &adminStateUp,
 		Shared:                &sharedNetworks,
-		TenantID:              TenantID,
+		TenantID:              client.TenantID,
 		AvailabilityZoneHints: availabilityZoneHints,
 	}
 
-	network, err := networks.Create(NetworkClient, createOpts).Extract()
+	network, err := networks.Create(client.networkClient, createOpts).Extract()
 	if err != nil {
 		log.Error("Error creating Network " + name)
 		return nil, nil, err
@@ -78,7 +35,7 @@ func CreateNetwork(name string, cidr string) (*networks.Network, *subnets.Subnet
 	// Create subnet
 	subnetName := name + "_subnet"
 	log.Info("Creating Subnet " + subnetName)
-	subnet, err := CreateSubnet(subnetName, network.ID, cidr)
+	subnet, err := client.createSubnet(subnetName, network.ID, cidr)
 	if err != nil {
 		log.Error("Error creating Subnet " + subnetName)
 		return nil, nil, err
@@ -87,17 +44,17 @@ func CreateNetwork(name string, cidr string) (*networks.Network, *subnets.Subnet
 }
 
 // Function to create a Subnet
-func CreateSubnet(name string, networkID string, cidr string) (*subnets.Subnet, error) {
+func (client *OpenStackClient) createSubnet(name string, networkID string, cidr string) (*subnets.Subnet, error) {
 	createOpts := subnets.CreateOpts{
 		NetworkID:  networkID,
 		Name:       name,
-		TenantID:   TenantID,
+		TenantID:   client.TenantID,
 		EnableDHCP: &enableDHCP,
 		IPVersion:  4,
 		CIDR:       cidr,
 	}
 
-	subnet, err := subnets.Create(NetworkClient, createOpts).Extract()
+	subnet, err := subnets.Create(client.networkClient, createOpts).Extract()
 	if err != nil {
 		log.Error("Error creating Subnet " + name)
 		return nil, err
@@ -107,15 +64,15 @@ func CreateSubnet(name string, networkID string, cidr string) (*subnets.Subnet, 
 }
 
 // Function to retrieve a Network by name
-func RetrieveNetwork(name string) (*networks.Network, error) {
+func (client *OpenStackClient) RetrieveNetwork(name string) (*networks.Network, error) {
 	sharedNetworks := false
 	listOpts := networks.ListOpts{
-		TenantID: TenantID,
+		TenantID: client.TenantID,
 		Name:     name,
 		Shared:   &sharedNetworks,
 	}
 
-	allPages, err := networks.List(NetworkClient, listOpts).AllPages()
+	allPages, err := networks.List(client.networkClient, listOpts).AllPages()
 	if err != nil {
 		panic(err)
 	}
@@ -143,8 +100,8 @@ func RetrieveNetwork(name string) (*networks.Network, error) {
 
 // Function to delete a network by name (not ID) and its subnet,
 // assuming only one subnet
-func DeleteNetwork(name string) error {
-	network, err := RetrieveNetwork(name)
+func (client *OpenStackClient) DeleteNetwork(name string) error {
+	network, err := client.RetrieveNetwork(name)
 	if err != nil {
 		return err
 	}
@@ -155,7 +112,7 @@ func DeleteNetwork(name string) error {
 		log.Info("No subnets to be deleted")
 	} else if numSubnets == 1 {
 		log.Info("1 Subnet to be deleted: " + network.Subnets[0])
-		err = DeleteSubnet(network.Subnets[0])
+		err = client.deleteSubnet(network.Subnets[0])
 		if err != nil {
 			log.Error("Error deleting subnet")
 			return err
@@ -164,7 +121,7 @@ func DeleteNetwork(name string) error {
 		log.Error("Network "+name+" has %d subnets", numSubnets)
 		return errors.New("expected exactly one subnet in the network")
 	}
-	err = networks.Delete(NetworkClient, network.ID).ExtractErr()
+	err = networks.Delete(client.networkClient, network.ID).ExtractErr()
 	if err != nil {
 		log.Error(err)
 		return err
@@ -173,8 +130,8 @@ func DeleteNetwork(name string) error {
 	return nil
 }
 
-func DeleteSubnet(id string) error {
-	err := subnets.Delete(NetworkClient, id).ExtractErr()
+func (client *OpenStackClient) deleteSubnet(id string) error {
+	err := subnets.Delete(client.networkClient, id).ExtractErr()
 	if err != nil {
 		log.Error(err)
 		return err
@@ -183,16 +140,14 @@ func DeleteSubnet(id string) error {
 	return nil
 }
 
-// Function to "close the connection with OS" which is
-// revoking the token created in the initial phase
-func Close() {
-	// Revoke token
-	log.Info("Revoking Token...")
-	token, err := tokens.Revoke(IdentityClient, Provider.TokenID).Extract()
-	if err != nil {
-		log.Error(err)
-	}
-	log.Info(*token)
+// TODO
+func (client *OpenStackClient) CreateRouter() error {
+	log.Info("Creating router")
+	return nil
+}
 
-	// TBT: token seems still valid with a GET /networks/
+// TODO
+func (client *OpenStackClient) DeleteRouter() error {
+	log.Info("Creating router")
+	return nil
 }

@@ -1,23 +1,23 @@
+// Package nbi provides struct and methods used in the server routes
+// It defines an Env struct which stores the global status for the calls
+// (such as DB connection pool or OpenStack sessions)
+// Each Gin server routes corresponds to a Env method
 package nbi
 
 import (
 	// "fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"nextworks/nsm/internal/openstackclient"
 )
+
+// TODO 1 add a sliceId param in all the network request
+// TODO 2 resources associated to a slice should be saved somewhere
 
 type Network struct {
 	Name string `json:"name" binding:"required"`
 	CIDR string `json:"cidr" binding:"required"`
-}
-
-// Env object should contain the environment used by the functions
-// associated to REST API, such as a ConnectionPool to a DB or a
-// Provider to OpenStackAPI
-type Env struct {
-	Client *openstackclient.OpenStackClient
 }
 
 // /network?name=name

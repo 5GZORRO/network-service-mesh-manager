@@ -53,6 +53,22 @@ go build
 ## Terminate
 Terminate the program with <CTRL+C> to revoke the token
 
+## Test
+Execute all the tests files
+```
+go test ./...
+```
+
+Execute only one test file
+```
+go test test/provisioning_test.go
+```
+
+Execute a function
+```
+go test packageName -run NameOfTest
+go test ./... -run "GatewayConnectivityRetrieve" -v
+```
 
 
 # SBI

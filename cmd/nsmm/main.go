@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"nextworks/nsm/internal/nbi"
 	"nextworks/nsm/internal/openstackclient"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // Global variables
@@ -33,10 +34,16 @@ func setupRouter(client *openstackclient.OpenStackClient) *gin.Engine {
 	// Build Env oject
 	env := new(nbi.Env)
 	env.Client = client
-	// // routes
+
+	// pre-provisioning routes (related to create required networks)
 	router.GET("/network", env.RetrieveNetwork)
 	router.POST("/network", env.CreateNetwork)
 	router.DELETE("/network", env.DeleteNetwork)
+	// provisioning routes (related to gateway connectivity)
+	router.GET("gateway/connectivity", env.RetrieveGatewayConnectivity)
+	router.POST("gateway/connectivity", env.CreateGatewayConnectivity)
+	router.DELETE("gateway/connectivity", env.DeleteGatewayConnectivity)
+	// test
 	router.GET("/test", env.Test)
 
 	return router

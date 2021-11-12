@@ -38,7 +38,7 @@ func (env *Env) CreateNetwork(c *gin.Context) {
 	}
 
 	// check params
-	log.Println("createNetwork: " + networkName + " " + json.Name)
+	log.Println("createNetwork: creating a network with name: " + json.Name + " and CIDR: " + json.CIDR)
 	if networkName != json.Name {
 		log.Error("Wrong parameters: network name in the URL is different from network name in JSON body ")
 		c.Status(http.StatusBadRequest)

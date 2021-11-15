@@ -27,7 +27,7 @@ func (env *Env) AddSliceConnectivity(sliceID string) (*GatewayConnectivity, erro
 	// add the new slice
 	gc := GatewayConnectivity{SliceID: sliceID}
 	env.DB = append(env.DB, gc)
-	log.Info("Inserted a new slice with name ", sliceID, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "]")
+	log.Info("Inserted a new slice with name ", sliceID, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
 	return &gc, nil
 }
 
@@ -49,11 +49,11 @@ func (env *Env) RemoveSliceConnectivity(sliceID string) (*GatewayConnectivity, e
 	ret := make([]GatewayConnectivity, 0)
 	ret = append(ret, env.DB[:index]...)
 	env.DB = append(ret, env.DB[index+1:]...)
-	log.Info("Deleted slice with name ", sliceID, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "]")
+	log.Info("Deleted slice with name ", sliceID, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
 	return slice, nil
 }
 
-func (env *Env) UpdateSliceConnectivity(sliceID string, privnetID string, subnetID string, routerID string) (*GatewayConnectivity, error) {
+func (env *Env) UpdateSliceConnectivity(sliceID string, privnetID string, subnetID string, routerID string, portID string) (*GatewayConnectivity, error) {
 	_, slice, err := env.RetrieveSliceConnectivity(sliceID)
 	if err != nil {
 		return nil, errors.New("slice not found")
@@ -61,5 +61,7 @@ func (env *Env) UpdateSliceConnectivity(sliceID string, privnetID string, subnet
 	slice.PrivNetID = privnetID
 	slice.SubnetID = subnetID
 	slice.RouterID = routerID
+	slice.InterfaceID = portID
+	log.Info("Updated ", sliceID, " slice: ", slice, " \nDB:", env.DB)
 	return slice, nil
 }

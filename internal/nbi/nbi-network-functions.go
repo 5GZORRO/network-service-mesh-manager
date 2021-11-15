@@ -59,7 +59,7 @@ func (env *Env) DeleteNetwork(c *gin.Context) {
 	networkName := c.Query("name")
 
 	log.Info("deleteNetwork:" + networkName)
-	err := env.Client.DeleteNetwork(networkName)
+	err := env.Client.DeleteNetworkByName(networkName)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -86,5 +86,4 @@ func (env *Env) RetrieveNetwork(c *gin.Context) {
 // /test endpoint
 func (env *Env) Test(c *gin.Context) {
 	log.Info("Test:" + env.Client.TenantID)
-
 }

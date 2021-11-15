@@ -8,8 +8,9 @@ package nbi
 // a gateway vm
 // a floating ip
 type GatewayConnectivity struct {
-	SliceID   string
-	PrivNetID string
-	SubnetID  string
-	RouterID  string
+	SliceID     string
+	PrivNetID   string
+	SubnetID    string
+	RouterID    string
+	InterfaceID string
 }

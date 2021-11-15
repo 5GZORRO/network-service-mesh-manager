@@ -17,10 +17,9 @@ var routerGatewayInfo = routers.GatewayInfo{
 	NetworkID: floatingNetID,
 }
 
-// TODO
 // CreateRouters creates a router on the OpenStack TenantID and
 // connects it to a private_net passed as params
-func (client *OpenStackClient) CreateRouter(routerName string) (*routers.Router, error) {
+func (client *OpenStackClient) CreateRouter(routerName string, subnetID string) (*routers.Router, *routers.InterfaceInfo, error) {
 	log.Info("Creating router...")
 
 	createOpts := routers.CreateOpts{
@@ -32,16 +31,40 @@ func (client *OpenStackClient) CreateRouter(routerName string) (*routers.Router,
 
 	router, err := routers.Create(client.networkClient, createOpts).Extract()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return router, nil
+
+	// Add interface to router connecting it to the privatesubnet
+	intOpts := routers.AddInterfaceOpts{
+		SubnetID: subnetID,
+	}
+
+	port, err := routers.AddInterface(client.networkClient, router.ID, intOpts).Extract()
+	if err != nil {
+		return nil, nil, err
+	}
+	log.Info("Added interface to router :", port.PortID)
+	return router, port, nil
 }
 
-// TODO
-func (client *OpenStackClient) DeleteRouter(routerID string) error {
-	log.Info("Deleting router")
-	err := routers.Delete(client.networkClient, routerID).ExtractErr()
+// DeleteRouter deletes the router passed as params removing before its interface
+func (client *OpenStackClient) DeleteRouter(routerID string, subnetID string) error {
+	log.Info("Deleting router and its interface")
+
+	// Delete interface
+	intOpts := routers.RemoveInterfaceOpts{
+		SubnetID: subnetID,
+	}
+
+	_, err := routers.RemoveInterface(client.networkClient, routerID, intOpts).Extract()
 	if err != nil {
+		log.Error("Error deleting interface router with subnetID " + subnetID)
+		return err
+	}
+	// delete router
+	err = routers.Delete(client.networkClient, routerID).ExtractErr()
+	if err != nil {
+		log.Error("Error deleting router with ID " + routerID)
 		return err
 	}
 	return nil

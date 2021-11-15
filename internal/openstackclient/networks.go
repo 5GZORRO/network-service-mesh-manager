@@ -79,7 +79,7 @@ func (client *OpenStackClient) RetrieveNetwork(name string) (*networks.Network, 
 }
 
 // DeleteNetwork deletes a network by name (not ID) and its subnet, assuming only one subnet
-func (client *OpenStackClient) DeleteNetwork(name string) error {
+func (client *OpenStackClient) DeleteNetworkByName(name string) error {
 	network, err := client.RetrieveNetwork(name)
 	if err != nil {
 		return err
@@ -106,5 +106,16 @@ func (client *OpenStackClient) DeleteNetwork(name string) error {
 		return err
 	}
 	log.Info("Network " + name + " deleted ")
+	return nil
+}
+
+// DeleteNetwork deletes a network by name (not ID) and its subnet, assuming only one subnet
+func (client *OpenStackClient) DeleteNetworkByID(networkID string) error {
+	err := networks.Delete(client.networkClient, networkID).ExtractErr()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	log.Info("Network with ID" + networkID + " deleted ")
 	return nil
 }

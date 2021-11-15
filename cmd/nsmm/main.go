@@ -18,10 +18,8 @@ var password string = "nextworks"
 var tenantID string = "7953babdca974e7ab44cc6c69f093956"
 var domainID string = "default"
 
-// // Global variables to access OpenStack API
-// var Provider *gophercloud.ProviderClient
-// var IdentityClient *gophercloud.ServiceClient
-// var NetworkClient *gophercloud.ServiceClient
+// TODO: how to manage API tokens and auth
+// TODO: thread safe object?
 
 func setupRouter(client *openstackclient.OpenStackClient) *gin.Engine {
 	router := gin.Default()

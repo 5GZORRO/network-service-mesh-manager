@@ -74,9 +74,14 @@ func (env *Env) RetrieveGatewayConnectivity(c *gin.Context) {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	} else {
-		c.JSON(http.StatusOK, gin.H{"gatewayConnectivity": slice})
 	}
+	// Retrieve network and subnet object
+	network, _ := env.Client.RetrieveNetworkById(slice.PrivNetID)
+	subnet, _ := env.Client.RetrieveSubnetById(slice.SubnetID)
+
+	// Retrieve router and port object
+	router, _ := env.Client.RetrieveRouterById(slice.RouterID)
+	c.JSON(http.StatusOK, gin.H{"sliceId": sliceId, "network": network, "subnet": subnet, "router": router})
 }
 
 // DELETE gateway/connectivity
@@ -116,11 +121,19 @@ func (env *Env) DeleteGatewayConnectivity(c *gin.Context) {
 	}
 
 	// if everything is ok
-	slice, err := env.RemoveSliceConnectivity(sliceId)
+	_, err = env.RemoveSliceConnectivity(sliceId)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"slice": slice})
+		c.Status(http.StatusOK)
 	}
+}
+
+// TODO retrieves the floating IP associated to a VM, which is the gateway VM
+// it is deployed by OSM connected with 2 networks: the private and the ones to be able to assign FIP
+// the floating IP is assumed allocated by OSM
+// so, the func retrieves and returns it, saving it also in the DB
+func (env *Env) RetriveGatewayFloatingIP(c *gin.Context) {
+
 }

@@ -29,6 +29,17 @@ func (client *OpenStackClient) createSubnet(name string, networkID string, cidr 
 
 }
 
+// RetrieveSubnet retrieves the subnet associated to the id
+// passed as params
+func (client *OpenStackClient) RetrieveSubnetById(id string) (*subnets.Subnet, error) {
+	subnet, err := subnets.Get(client.networkClient, id).Extract()
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return subnet, nil
+}
+
 func (client *OpenStackClient) deleteSubnet(id string) error {
 	err := subnets.Delete(client.networkClient, id).ExtractErr()
 	if err != nil {

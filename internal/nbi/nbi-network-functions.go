@@ -73,7 +73,7 @@ func (env *Env) RetrieveNetwork(c *gin.Context) {
 	networkName := c.Query("name")
 	log.Info("retrieveNetwork:" + networkName)
 	// logic
-	network, err := env.Client.RetrieveNetwork(networkName)
+	network, err := env.Client.RetrieveNetworkByName(networkName)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -81,9 +81,4 @@ func (env *Env) RetrieveNetwork(c *gin.Context) {
 		log.Info(*network)
 		c.JSON(http.StatusOK, network)
 	}
-}
-
-// /test endpoint
-func (env *Env) Test(c *gin.Context) {
-	log.Info("Test:" + env.Client.TenantID)
 }

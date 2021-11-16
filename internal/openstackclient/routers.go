@@ -47,9 +47,38 @@ func (client *OpenStackClient) CreateRouter(routerName string, subnetID string) 
 	return router, port, nil
 }
 
+// RetrieveRouter retrieve info associated to a router
+// passing as params its ID
+func (client *OpenStackClient) RetrieveRouterById(routerID string) (*routers.Router, error) {
+	router, err := routers.Get(client.networkClient, routerID).Extract()
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return router, nil
+}
+
 // DeleteRouter deletes the router passed as params removing before its interface
 func (client *OpenStackClient) DeleteRouter(routerID string, subnetID string) error {
-	log.Info("Deleting router and its interface")
+
+	if subnetID != "" {
+		log.Info("Deleting router with ID ", routerID, " with port on subnetID ", subnetID)
+		_ = client.deleteInterface(routerID, subnetID)
+	} else {
+		log.Info("Deleting router with ID ", routerID, " - No port to be deleted")
+	}
+	// delete router
+	err := routers.Delete(client.networkClient, routerID).ExtractErr()
+	if err != nil {
+		log.Error("Error deleting router with ID " + routerID)
+		return err
+	}
+	return nil
+}
+
+// DeleteRouter deletes the router passed as params removing before its interface
+func (client *OpenStackClient) deleteInterface(routerID string, subnetID string) error {
+	log.Info("Deleting router interface of router ", routerID)
 
 	// Delete interface
 	intOpts := routers.RemoveInterfaceOpts{
@@ -59,12 +88,6 @@ func (client *OpenStackClient) DeleteRouter(routerID string, subnetID string) er
 	_, err := routers.RemoveInterface(client.networkClient, routerID, intOpts).Extract()
 	if err != nil {
 		log.Error("Error deleting interface router with subnetID " + subnetID)
-		return err
-	}
-	// delete router
-	err = routers.Delete(client.networkClient, routerID).ExtractErr()
-	if err != nil {
-		log.Error("Error deleting router with ID " + routerID)
 		return err
 	}
 	return nil

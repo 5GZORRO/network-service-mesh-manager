@@ -44,7 +44,7 @@ func (client *OpenStackClient) CreateNetwork(name string, cidr string) (*network
 }
 
 // RetrieveNetwork retrieves a Network by its name
-func (client *OpenStackClient) RetrieveNetwork(name string) (*networks.Network, error) {
+func (client *OpenStackClient) RetrieveNetworkByName(name string) (*networks.Network, error) {
 	sharedNetworks := false
 	listOpts := networks.ListOpts{
 		TenantID: client.TenantID,
@@ -54,14 +54,16 @@ func (client *OpenStackClient) RetrieveNetwork(name string) (*networks.Network, 
 
 	allPages, err := networks.List(client.networkClient, listOpts).AllPages()
 	if err != nil {
-		panic(err)
+		log.Error(err)
+		return nil, err
 	}
 
 	pages, _ := allPages.IsEmpty()
 	if !pages {
 		allNetworks, err := networks.ExtractNetworks(allPages)
 		if err != nil {
-			panic(err)
+			log.Error(err)
+			return nil, err
 		}
 		log.Info("Networks: ", len(allNetworks))
 
@@ -78,9 +80,19 @@ func (client *OpenStackClient) RetrieveNetwork(name string) (*networks.Network, 
 	}
 }
 
+// RetrieveNetwork retrieves a Network by ID
+func (client *OpenStackClient) RetrieveNetworkById(id string) (*networks.Network, error) {
+	network, err := networks.Get(client.networkClient, id).Extract()
+	if err != nil {
+		log.Error("Retriving Network by ID: ", id, err)
+		return nil, err
+	}
+	return network, nil
+}
+
 // DeleteNetwork deletes a network by name (not ID) and its subnet, assuming only one subnet
 func (client *OpenStackClient) DeleteNetworkByName(name string) error {
-	network, err := client.RetrieveNetwork(name)
+	network, err := client.RetrieveNetworkByName(name)
 	if err != nil {
 		return err
 	}

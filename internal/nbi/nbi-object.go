@@ -37,7 +37,7 @@ func (env *Env) RetrieveSliceConnectivity(sliceID string) (int, *GatewayConnecti
 			return i, &env.DB[i], nil
 		}
 	}
-	return 0, nil, errors.New("slice not found")
+	return -1, nil, errors.New("slice not found")
 }
 
 func (env *Env) RemoveSliceConnectivity(sliceID string) (*GatewayConnectivity, error) {

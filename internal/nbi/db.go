@@ -8,9 +8,9 @@ package nbi
 // a gateway vm
 // a floating ip
 type GatewayConnectivity struct {
-	SliceID     string
-	PrivNetID   string
-	SubnetID    string
-	RouterID    string
-	InterfaceID string
+	SliceID     string `json:"sliceID" binding:"required"`
+	PrivNetID   string `json:"networkID" binding:"required"`
+	SubnetID    string `json:"subnetID" binding:"required"`
+	RouterID    string `json:"routerID" binding:"required"`
+	InterfaceID string `json:"interfaceID"`
 }

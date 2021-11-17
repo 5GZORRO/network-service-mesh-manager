@@ -1,10 +1,6 @@
 package openstackclient
 
 import (
-	// "errors"
-	// "github.com/gophercloud/gophercloud"
-	// "github.com/gophercloud/gophercloud/openstack"
-	// "github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	log "github.com/sirupsen/logrus"
 )

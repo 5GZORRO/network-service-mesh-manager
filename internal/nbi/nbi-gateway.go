@@ -130,10 +130,32 @@ func (env *Env) DeleteGatewayConnectivity(c *gin.Context) {
 	}
 }
 
-// TODO retrieves the floating IP associated to a VM, which is the gateway VM
-// it is deployed by OSM connected with 2 networks: the private and the ones to be able to assign FIP
-// the floating IP is assumed allocated by OSM
-// so, the func retrieves and returns it, saving it also in the DB
+// gateway/connectivity/ip?sliceId=test&vmId=af9e6bcd-356e-46f6-b625-1dbba06e21dc
+// function retrieve FIP and store it in the DB with the VM ID
 func (env *Env) RetriveGatewayFloatingIP(c *gin.Context) {
+	sliceId := c.Query("sliceId")
+	vmId := c.Query("vmId")
 
+	_, gatewayInfo, err := env.RetrieveSliceConnectivity(sliceId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	network, err := env.Client.RetrieveNetworkById(gatewayInfo.PrivNetID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	fip, err := env.Client.RetriveGatewayFloatingIP(vmId, network.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	log.Info("Found floatingIP ", fip, " for sliceID ", sliceId)
+	gatewayInfo.FloatingIP = fip
+	gatewayInfo.VmGatewayID = vmId
+	c.JSON(http.StatusOK, gin.H{"gatewayInfo": gatewayInfo})
 }
+
+// TODO delete gatewayIP to be implemented?

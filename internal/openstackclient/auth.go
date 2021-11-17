@@ -9,6 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Init function initializes the fields of the OpenStackClient struct,
+// related to OpenStack endpoints, which are the ProviderClient and the ServiceClients
+// ServiceClients are similar to endpoints for each OpenStack service
 func (client *OpenStackClient) Init() {
 	log.Info("Init function to authenticato to OpenStack")
 	var err error
@@ -21,12 +24,14 @@ func (client *OpenStackClient) Init() {
 		DomainID:         client.DomainID,
 	}
 
+	// OpenStack providerClient
 	client.provider, err = openstack.AuthenticatedClient(opts)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	log.Info("Authentication Token: " + client.provider.TokenID)
+
+	// retrieve IdentityClient as a ServiceClient
 	client.identityClient, err = openstack.NewIdentityV3(client.provider, gophercloud.EndpointOpts{
 		Region: "RegionOne",
 	})
@@ -35,6 +40,7 @@ func (client *OpenStackClient) Init() {
 	}
 	log.Info("Identity Endpoint: " + client.identityClient.IdentityEndpoint)
 
+	// retrieve NetworkClient as a ServiceClient
 	client.networkClient, err = openstack.NewNetworkV2(client.provider, gophercloud.EndpointOpts{
 		Name:   "neutron",
 		Region: "RegionOne",
@@ -43,9 +49,18 @@ func (client *OpenStackClient) Init() {
 		log.Fatal(err)
 	}
 	log.Info("Network Endpoint " + client.networkClient.Endpoint)
+
+	// retrieve ComputeClient as a ServiceClient
+	client.computeClient, err = openstack.NewComputeV2(client.provider, gophercloud.EndpointOpts{
+		Region: "RegionOne",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Compute Endpoint " + client.computeClient.Endpoint)
 }
 
-// Function to "close the connection with OS" which is
+// Close function to "close the connection with OS" which is
 // revoking the token created in the initial phase
 func (client *OpenStackClient) Close() {
 	// Revoke token
@@ -56,5 +71,5 @@ func (client *OpenStackClient) Close() {
 	}
 	log.Info(*token)
 
-	// TBT: token seems still valid with a GET /networks/
+	// TODO: token seems still valid with a GET /networks/
 }

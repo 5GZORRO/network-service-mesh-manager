@@ -15,6 +15,7 @@ type OpenStackClient struct {
 	provider       *gophercloud.ProviderClient
 	identityClient *gophercloud.ServiceClient
 	networkClient  *gophercloud.ServiceClient
+	computeClient  *gophercloud.ServiceClient
 }
 
 // builder pattern

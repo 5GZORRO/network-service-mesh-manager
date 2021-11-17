@@ -1,10 +1,8 @@
 package nbi
 
-// t represent all connectivity information for an interdomain
-// communication:
-// for each slice, I assume a
-// priv_net with a subnet
-// router connected to the floating net
+// GatewayConnectivity represent all connectivity information for an interdomain connection:
+// for each slice, I assume a priv_net with a subnet
+// router connected to the floating net, so with a port
 // a gateway vm
 // a floating ip
 type GatewayConnectivity struct {
@@ -13,4 +11,6 @@ type GatewayConnectivity struct {
 	SubnetID    string `json:"subnetID" binding:"required"`
 	RouterID    string `json:"routerID" binding:"required"`
 	InterfaceID string `json:"interfaceID"`
+	FloatingIP  string `json:"floatingIP"`
+	VmGatewayID string `json:"vmID"`
 }

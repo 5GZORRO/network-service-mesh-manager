@@ -41,6 +41,7 @@ func setupRouter(client *openstackclient.OpenStackClient) *gin.Engine {
 	router.GET("gateway/connectivity", env.RetrieveGatewayConnectivity)
 	router.POST("gateway/connectivity", env.CreateGatewayConnectivity)
 	router.DELETE("gateway/connectivity", env.DeleteGatewayConnectivity)
+	router.GET("gateway/connectivity/ip", env.RetriveGatewayFloatingIP)
 	// procedure to clean up
 	router.GET("/management/db", env.GetDB)
 	router.POST("/management/db", env.AddDBEntry)

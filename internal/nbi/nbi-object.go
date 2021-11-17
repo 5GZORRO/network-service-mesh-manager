@@ -17,9 +17,9 @@ type Env struct {
 
 // AddSliceConnectivity add a new GatewayConnectivity object in the DB slice
 // each GatewayConnectivity is uniquely identified by the SliceID
-func (env *Env) AddSliceConnectivity(sliceID string) (*GatewayConnectivity, error) {
+func (env *Env) AddGatewayConnectivityInDB(sliceID string) (*GatewayConnectivity, error) {
 	// check if the slice already exysts
-	_, slice, _ := env.RetrieveSliceConnectivity(sliceID)
+	_, slice, _ := env.RetrieveGatewayConnectivityFromDB(sliceID)
 	if slice != nil {
 		log.Error("A slice with name ", sliceID, " already exists in the DB")
 		return nil, errors.New("slice already exists")
@@ -31,7 +31,7 @@ func (env *Env) AddSliceConnectivity(sliceID string) (*GatewayConnectivity, erro
 	return &gc, nil
 }
 
-func (env *Env) RetrieveSliceConnectivity(sliceID string) (int, *GatewayConnectivity, error) {
+func (env *Env) RetrieveGatewayConnectivityFromDB(sliceID string) (int, *GatewayConnectivity, error) {
 	for i := range env.DB {
 		if env.DB[i].SliceID == sliceID {
 			return i, &env.DB[i], nil
@@ -40,8 +40,8 @@ func (env *Env) RetrieveSliceConnectivity(sliceID string) (int, *GatewayConnecti
 	return -1, nil, errors.New("slice not found")
 }
 
-func (env *Env) RemoveSliceConnectivity(sliceID string) (*GatewayConnectivity, error) {
-	index, slice, err := env.RetrieveSliceConnectivity(sliceID)
+func (env *Env) RemoveGatewayConnectivityFromDB(sliceID string) (*GatewayConnectivity, error) {
+	index, slice, err := env.RetrieveGatewayConnectivityFromDB(sliceID)
 	if err != nil {
 		return nil, errors.New("slice not found")
 	}
@@ -53,8 +53,12 @@ func (env *Env) RemoveSliceConnectivity(sliceID string) (*GatewayConnectivity, e
 	return slice, nil
 }
 
-func (env *Env) UpdateSliceConnectivity(sliceID string, privnetID string, subnetID string, routerID string, portID string) (*GatewayConnectivity, error) {
-	_, slice, err := env.RetrieveSliceConnectivity(sliceID)
+func (env *Env) RemoveAllGatewayConnectivitiesFromDB() {
+	env.DB = []GatewayConnectivity{}
+}
+
+func (env *Env) UpdateGatewayConnectivityInDB(sliceID string, privnetID string, subnetID string, routerID string, portID string) (*GatewayConnectivity, error) {
+	_, slice, err := env.RetrieveGatewayConnectivityFromDB(sliceID)
 	if err != nil {
 		return nil, errors.New("slice not found")
 	}

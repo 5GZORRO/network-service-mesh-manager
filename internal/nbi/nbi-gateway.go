@@ -26,7 +26,7 @@ func (env *Env) CreateGatewayConnectivity(c *gin.Context) {
 	}
 
 	// Add slice info in the DB
-	_, err := env.AddSliceConnectivity(sliceId)
+	_, err := env.AddGatewayConnectivityInDB(sliceId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -57,7 +57,7 @@ func (env *Env) CreateGatewayConnectivity(c *gin.Context) {
 
 		// 3. Store these info locally in DB
 		log.Info("CreateGatewayConnectivity: updating info in DB")
-		env.UpdateSliceConnectivity(sliceId, network.ID, subnet.ID, router.ID, port.PortID)
+		env.UpdateGatewayConnectivityInDB(sliceId, network.ID, subnet.ID, router.ID, port.PortID)
 	}
 	fmt.Printf("%v", env.DB)
 }
@@ -69,7 +69,7 @@ func (env *Env) RetrieveGatewayConnectivity(c *gin.Context) {
 	log.Info("RetrieveGatewayConnectivity: sliceID: " + sliceId)
 	fmt.Printf("%v", env.DB)
 
-	_, slice, err := env.RetrieveSliceConnectivity(sliceId)
+	_, slice, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -91,7 +91,7 @@ func (env *Env) DeleteGatewayConnectivity(c *gin.Context) {
 	log.Info("DeleteGatewayConnectivity: sliceID: " + sliceId)
 
 	// retrieve the slice associated objects (privnet, router) and delete them
-	_, gc, err := env.RetrieveSliceConnectivity(sliceId)
+	_, gc, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -121,7 +121,7 @@ func (env *Env) DeleteGatewayConnectivity(c *gin.Context) {
 	}
 
 	// if everything is ok
-	_, err = env.RemoveSliceConnectivity(sliceId)
+	_, err = env.RemoveGatewayConnectivityFromDB(sliceId)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -136,7 +136,7 @@ func (env *Env) RetriveGatewayFloatingIP(c *gin.Context) {
 	sliceId := c.Query("sliceId")
 	vmId := c.Query("vmId")
 
-	_, gatewayInfo, err := env.RetrieveSliceConnectivity(sliceId)
+	_, gatewayInfo, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -147,7 +147,7 @@ func (env *Env) RetriveGatewayFloatingIP(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fip, err := env.Client.RetriveGatewayFloatingIP(vmId, network.Name)
+	fip, err := env.Client.RetrieveGatewayFloatingIP(vmId, network.Name)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

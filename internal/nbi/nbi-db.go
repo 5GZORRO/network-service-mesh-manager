@@ -30,7 +30,7 @@ func (env *Env) AddDBEntry(c *gin.Context) {
 	log.Info("Adding new slice istance with ", json)
 	log.Info(sliceId, networkId, subnetId, routerId)
 
-	index, _, err := env.RetrieveSliceConnectivity(sliceId)
+	index, _, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil && index == -1 {
 		env.DB = append(env.DB, json)
 		log.Info("Inserted a new slice with name ", sliceId, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
@@ -44,11 +44,11 @@ func (env *Env) DeleteDBEntry(c *gin.Context) {
 	sliceId := c.Query("sliceId")
 	log.Info("Deleting slice instance with sliceID: ", sliceId)
 	if sliceId != "" {
-		_, _, err := env.RetrieveSliceConnectivity(sliceId)
+		_, _, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 		if err != nil {
 			c.Status(http.StatusNotFound)
 		}
-		env.RemoveSliceConnectivity(sliceId)
+		env.RemoveGatewayConnectivityFromDB(sliceId)
 		c.Status(http.StatusOK)
 	}
 	c.Status(http.StatusBadRequest)

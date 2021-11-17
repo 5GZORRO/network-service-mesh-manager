@@ -11,7 +11,7 @@ import (
 // It takes as parameters the VMID and the network NAME (not ID) to retrieve the floating IP on this network
 // NOTE: the VM is deployed by OSM connected with 2 networks: the private and the ones to be able to assign FIP
 // the floating IP is assumed allocated by OSM
-func (client *OpenStackClient) RetriveGatewayFloatingIP(vmId string, networkName string) (string, error) {
+func (client *OpenStackClient) RetrieveGatewayFloatingIP(vmId string, networkName string) (string, error) {
 
 	// We need the UUID in string form
 	server, err := servers.Get(client.computeClient, vmId).Extract()

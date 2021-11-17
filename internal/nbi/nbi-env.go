@@ -7,6 +7,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// GatewayConnectivity represent all connectivity information for an interdomain connection:
+// for each slice, I assume a priv_net with a subnet
+// router connected to the floating net, so with a port
+// a gateway vm
+// a floating ip
+type GatewayConnectivity struct {
+	SliceID     string `json:"sliceID" binding:"required"`
+	PrivNetID   string `json:"networkID" binding:"required"`
+	SubnetID    string `json:"subnetID" binding:"required"`
+	RouterID    string `json:"routerID" binding:"required"`
+	InterfaceID string `json:"interfaceID"`
+	FloatingIP  string `json:"floatingIP"`
+	VmGatewayID string `json:"vmID"`
+}
+
 // Env object should contain the environment used by the functions
 // associated to REST API, such as a ConnectionPool to a DB or a
 // Provider to OpenStackAPI

@@ -17,22 +17,22 @@ type SliceInfo struct {
 func (env *Env) CreateGatewayConnectivity(c *gin.Context) {
 	sliceId := c.Query("sliceId")
 
-	log.Info("CreateGatewayConnectivity: sliceID: " + sliceId)
+	log.Info("CreateGatewayConnectivity: called with param sliceID: " + sliceId)
 	var json SliceInfo
 	if err := c.ShouldBindJSON(&json); err != nil {
-		log.Error("JSON body not well formatted")
+		log.Error("JSON body not correctly formatted")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Add slice info in the DB
+	// Add gatewayConnectivity obj info in the DB
 	_, err := env.AddGatewayConnectivityInDB(sliceId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	} else {
 		// otherwise the slise does not exist, so go ahead checking param
-		log.Info("CreateGatewayConnectivity: creating a private network and subnet with CIDR: ", json.CIDR)
+		log.Info("CreateGatewayConnectivity: creating a gateway network and subnet with CIDR: ", json.CIDR)
 
 		// 1. Create a private net with a subnet
 		networkName := sliceId + "_network"
@@ -56,7 +56,7 @@ func (env *Env) CreateGatewayConnectivity(c *gin.Context) {
 		}
 
 		// 3. Store these info locally in DB
-		log.Info("CreateGatewayConnectivity: updating info in DB")
+		log.Info("CreateGatewayConnectivity: updating GatewayConnectivity info in DB")
 		env.UpdateGatewayConnectivityInDB(sliceId, network.ID, subnet.ID, router.ID, port.PortID)
 	}
 	fmt.Printf("%v", env.DB)
@@ -66,21 +66,22 @@ func (env *Env) CreateGatewayConnectivity(c *gin.Context) {
 func (env *Env) RetrieveGatewayConnectivity(c *gin.Context) {
 	sliceId := c.Query("sliceId")
 
-	log.Info("RetrieveGatewayConnectivity: sliceID: " + sliceId)
+	log.Info("RetrieveGatewayConnectivity: called with param sliceID: " + sliceId)
 	fmt.Printf("%v", env.DB)
 
-	_, slice, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
+	_, gc, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	// Retrieve network and subnet object
-	network, _ := env.Client.RetrieveNetworkById(slice.PrivNetID)
-	subnet, _ := env.Client.RetrieveSubnetById(slice.SubnetID)
+	network, _ := env.Client.RetrieveNetworkById(gc.PrivNetID)
+	subnet, _ := env.Client.RetrieveSubnetById(gc.SubnetID)
 
 	// Retrieve router and port object
-	router, _ := env.Client.RetrieveRouterById(slice.RouterID)
+	router, _ := env.Client.RetrieveRouterById(gc.RouterID)
+	// TODO add also floating IP and VMID
 	c.JSON(http.StatusOK, gin.H{"sliceId": sliceId, "network": network, "subnet": subnet, "router": router})
 }
 
@@ -88,7 +89,7 @@ func (env *Env) RetrieveGatewayConnectivity(c *gin.Context) {
 func (env *Env) DeleteGatewayConnectivity(c *gin.Context) {
 	sliceId := c.Query("sliceId")
 
-	log.Info("DeleteGatewayConnectivity: sliceID: " + sliceId)
+	log.Info("DeleteGatewayConnectivity: called with param sliceID: " + sliceId)
 
 	// retrieve the slice associated objects (privnet, router) and delete them
 	_, gc, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
@@ -136,6 +137,7 @@ func (env *Env) RetriveGatewayFloatingIP(c *gin.Context) {
 	sliceId := c.Query("sliceId")
 	vmId := c.Query("vmId")
 
+	log.Info("RetriveGatewayFloatingIP: called with params  sliceID: ", sliceId, " gatewayVmID", vmId)
 	_, gatewayInfo, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

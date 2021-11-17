@@ -11,12 +11,13 @@ import (
 
 // POST gateway/connectivity
 func (env *Env) GetDB(c *gin.Context) {
-	log.Info("Retrieving all slice istances")
+	log.Info("GetDB called: retrieving all GatewayConnectivity instances")
 	c.JSON(http.StatusOK, gin.H{"gateways": env.DB})
 }
 
 // POST gateway/connectivity
 func (env *Env) AddDBEntry(c *gin.Context) {
+	log.Info("AddDBEntry: called")
 	var json GatewayConnectivity
 	if err := c.ShouldBindJSON(&json); err != nil {
 		log.Error("JSON body not well formatted")
@@ -27,14 +28,15 @@ func (env *Env) AddDBEntry(c *gin.Context) {
 	networkId := json.PrivNetID
 	subnetId := json.SubnetID
 	routerId := json.RouterID
-	log.Info("Adding new slice istance with ", json)
+	log.Info("Adding new GatewayConnectivity istance with infos ", json)
 	log.Info(sliceId, networkId, subnetId, routerId)
 
 	index, _, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil && index == -1 {
 		env.DB = append(env.DB, json)
-		log.Info("Inserted a new slice with name ", sliceId, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
+		log.Info("Added a new GatewayConnectivty for slice with sliceID: ", sliceId, " \n[DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
 		c.JSON(http.StatusOK, gin.H{"gateway": json})
+		return
 	}
 	c.Status(http.StatusBadRequest)
 }
@@ -42,7 +44,7 @@ func (env *Env) AddDBEntry(c *gin.Context) {
 // POST gateway/connectivity
 func (env *Env) DeleteDBEntry(c *gin.Context) {
 	sliceId := c.Query("sliceId")
-	log.Info("Deleting slice instance with sliceID: ", sliceId)
+	log.Info("DeleteDBEntry: called with param sliceID: " + sliceId)
 	if sliceId != "" {
 		_, _, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 		if err != nil {

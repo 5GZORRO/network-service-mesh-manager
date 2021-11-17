@@ -15,19 +15,19 @@ type Env struct {
 	DB     []GatewayConnectivity
 }
 
-// AddSliceConnectivity add a new GatewayConnectivity object in the DB slice
+// AddGatewayConnectivityInDB add a new GatewayConnectivity object in the DB
 // each GatewayConnectivity is uniquely identified by the SliceID
 func (env *Env) AddGatewayConnectivityInDB(sliceID string) (*GatewayConnectivity, error) {
-	// check if the slice already exysts
-	_, slice, _ := env.RetrieveGatewayConnectivityFromDB(sliceID)
-	if slice != nil {
-		log.Error("A slice with name ", sliceID, " already exists in the DB")
-		return nil, errors.New("slice already exists")
+	// check if the gateway connectivity object for sliceID already exysts
+	_, gateway, _ := env.RetrieveGatewayConnectivityFromDB(sliceID)
+	if gateway != nil {
+		log.Error("A GatewayConnectivity for the slice with sliceID ", sliceID, " already exists in the DB")
+		return nil, errors.New("Slice with sliceID " + sliceID + " has already a Gateway")
 	}
-	// add the new slice
+	// add the new gatewayconnectivity obj
 	gc := GatewayConnectivity{SliceID: sliceID}
 	env.DB = append(env.DB, gc)
-	log.Info("Inserted a new slice with name ", sliceID, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
+	log.Info("Inserted a new GatewayConnectivity for slice with sliceID ", sliceID, " \n[DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
 	return &gc, nil
 }
 
@@ -37,35 +37,37 @@ func (env *Env) RetrieveGatewayConnectivityFromDB(sliceID string) (int, *Gateway
 			return i, &env.DB[i], nil
 		}
 	}
-	return -1, nil, errors.New("slice not found")
+	return -1, nil, errors.New("GatewayConnectivty information for slice with SliceID " + sliceID + " not found")
 }
 
 func (env *Env) RemoveGatewayConnectivityFromDB(sliceID string) (*GatewayConnectivity, error) {
-	index, slice, err := env.RetrieveGatewayConnectivityFromDB(sliceID)
+	index, gc, err := env.RetrieveGatewayConnectivityFromDB(sliceID)
 	if err != nil {
-		return nil, errors.New("slice not found")
+		log.Error("Error during removal of GatewayConnectivity info of slice with sliceID: ", sliceID)
+		return nil, err
 	}
 
 	ret := make([]GatewayConnectivity, 0)
 	ret = append(ret, env.DB[:index]...)
 	env.DB = append(ret, env.DB[index+1:]...)
-	log.Info("Deleted slice with name ", sliceID, " [DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
-	return slice, nil
+	log.Info("Deleted GatewayConnectivity for the slice with sliceID ", sliceID, "\n[DB len: ", len(env.DB), " capacity: ", cap(env.DB), "] \nDB:", env.DB)
+	return gc, nil
 }
 
 func (env *Env) RemoveAllGatewayConnectivitiesFromDB() {
 	env.DB = []GatewayConnectivity{}
+	log.Info("Deleted the GatewayConnectivity info for all the slices")
 }
 
 func (env *Env) UpdateGatewayConnectivityInDB(sliceID string, privnetID string, subnetID string, routerID string, portID string) (*GatewayConnectivity, error) {
-	_, slice, err := env.RetrieveGatewayConnectivityFromDB(sliceID)
+	_, gc, err := env.RetrieveGatewayConnectivityFromDB(sliceID)
 	if err != nil {
-		return nil, errors.New("slice not found")
+		return nil, errors.New("GatewayConnectivty information for slice with SliceID " + sliceID + " not found")
 	}
-	slice.PrivNetID = privnetID
-	slice.SubnetID = subnetID
-	slice.RouterID = routerID
-	slice.InterfaceID = portID
-	log.Info("Updated ", sliceID, " slice: ", slice, " \nDB:", env.DB)
-	return slice, nil
+	gc.PrivNetID = privnetID
+	gc.SubnetID = subnetID
+	gc.RouterID = routerID
+	gc.InterfaceID = portID
+	log.Info("Updated GatewayConnectivity for slice with sliceID ", sliceID, " gateway: ", gc, " \nDB:", env.DB)
+	return gc, nil
 }

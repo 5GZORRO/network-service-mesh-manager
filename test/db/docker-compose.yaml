@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql-nsmm-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nsmm
+    networks:
+      - nsmm_network
+    ports:
+      - 3306:3306
+
+  adminer:
+    image: phpmyadmin
+    environment:
+      PMA_HOST: db
+    networks:
+      - nsmm_network
+    ports:
+      - 8080:80
+
+
+networks:
+  nsmm_network:
+    name: qkdnetwork
+    driver: bridge 
+

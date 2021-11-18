@@ -14,7 +14,7 @@ import (
 // a floating ip
 type GatewayConnectivity struct {
 	SliceID     string `json:"sliceID" binding:"required"`
-	PrivNetID   string `json:"networkID" binding:"required"`
+	NetworkID   string `json:"networkID" binding:"required"`
 	SubnetID    string `json:"subnetID" binding:"required"`
 	RouterID    string `json:"routerID" binding:"required"`
 	InterfaceID string `json:"interfaceID"`
@@ -79,7 +79,7 @@ func (env *Env) UpdateGatewayConnectivityInDB(sliceID string, privnetID string, 
 	if err != nil {
 		return nil, errors.New("GatewayConnectivty information for slice with SliceID " + sliceID + " not found")
 	}
-	gc.PrivNetID = privnetID
+	gc.NetworkID = privnetID
 	gc.SubnetID = subnetID
 	gc.RouterID = routerID
 	gc.InterfaceID = portID

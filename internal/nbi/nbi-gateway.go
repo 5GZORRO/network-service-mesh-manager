@@ -76,7 +76,7 @@ func (env *Env) RetrieveGatewayConnectivity(c *gin.Context) {
 		return
 	}
 	// Retrieve network and subnet object
-	network, _ := env.Client.RetrieveNetworkById(gc.PrivNetID)
+	network, _ := env.Client.RetrieveNetworkById(gc.NetworkID)
 	subnet, _ := env.Client.RetrieveSubnetById(gc.SubnetID)
 
 	// Retrieve router and port object
@@ -91,7 +91,7 @@ func (env *Env) DeleteGatewayConnectivity(c *gin.Context) {
 
 	log.Info("DeleteGatewayConnectivity: called with param sliceID: " + sliceId)
 
-	// retrieve the slice associated objects (privnet, router) and delete them
+	// retrieve the slice associated objects (network, router) and delete them
 	_, gc, err := env.RetrieveGatewayConnectivityFromDB(sliceId)
 	if err != nil {
 		log.Error(err)
@@ -113,8 +113,8 @@ func (env *Env) DeleteGatewayConnectivity(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// 2. Delete privnet and subnet
-	err = env.Client.DeleteNetworkByID(gc.PrivNetID)
+	// 2. Delete network and subnet
+	err = env.Client.DeleteNetworkByID(gc.NetworkID)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -144,7 +144,7 @@ func (env *Env) RetriveGatewayFloatingIP(c *gin.Context) {
 		return
 	}
 
-	network, err := env.Client.RetrieveNetworkById(gatewayInfo.PrivNetID)
+	network, err := env.Client.RetrieveNetworkById(gatewayInfo.NetworkID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

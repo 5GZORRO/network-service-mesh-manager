@@ -29,7 +29,7 @@ func (env *Env) AddDBEntry(c *gin.Context) {
 		return
 	}
 	sliceId := json.SliceID
-	networkId := json.PrivNetID
+	networkId := json.NetworkID
 	subnetId := json.SubnetID
 	routerId := json.RouterID
 	log.Info("Adding new GatewayConnectivity istance with infos ", json)
@@ -72,7 +72,7 @@ func (env *Env) CleanUp(c *gin.Context) {
 		// try to remove port and router router
 		env.Client.DeleteRouter(obj.RouterID, obj.SubnetID)
 		// try to remove network
-		env.Client.DeleteNetworkByID(obj.PrivNetID)
+		env.Client.DeleteNetworkByID(obj.NetworkID)
 	}
 	// TODO reset DB
 	c.Status(http.StatusOK)

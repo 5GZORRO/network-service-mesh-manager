@@ -1,0 +1,84 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "nsmm-api",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/gateway": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Gateway information for slice passed as param"
+                    },
+                    "404": {
+                        "description": "Gateway for slice passed as param does not exist"
+                    }
+                }
+            },
+            "post": {
+                "requestBody": {
+                    "description": "Subnet cidr of the private network?",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostGatewayBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Gateway for slice correctly created"
+                    },
+                    "400": {
+                        "description": "No subnet cidr specified for slice"
+                    }
+                }
+            },
+            "delete": {
+                "responses": {
+                    "204": {
+                        "description": "gateway for slice correctly deleted"
+                    },
+                    "404": {
+                        "description": "gateway for slice does not exist"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "sliceId",
+                    "description": "Slice unique identifier",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        }
+    },
+    "components": {
+        "schemas": {
+            "PostGatewayBody": {
+                "title": "Root Type for PostGatewayBody",
+                "description": "Subnet of the private net",
+                "required": [
+                    "subnet"
+                ],
+                "type": "object",
+                "properties": {
+                    "subnet": {
+                        "description": "",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "subnet": "192.168.1.16/29"
+                }
+            }
+        }
+    }
+}

@@ -1,50 +1,52 @@
-// Copyright 2019 DeepMap, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen --config=types.cfg.yaml ../../petstore-expanded.yaml
-//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen --config=server.cfg.yaml ../../petstore-expanded.yaml
-
+// Package to implement all of the handlers in the ServerInterface
 package NsmmApi
 
 import (
+	"errors"
 	"net/http"
-	"sync"
+	"nextworks/nsm/internal/nsm"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
-type GatewayInterface struct {
-	Gateways string
-	Lock     sync.Mutex
+// Shared object between different HTTP REST handlers
+// it should contain the DBconnection
+type ServerInterfaceImpl struct {
+	DB *gorm.DB
+	// Gateways string
+	// Lock     sync.Mutex
 }
 
-func NewGatewayInterface() *GatewayInterface {
-	return &GatewayInterface{
-		Gateways: "ciao",
+func NewServerInterfaceImpl(DBconnection *gorm.DB) *ServerInterfaceImpl {
+	return &ServerInterfaceImpl{
+		DB: DBconnection,
 	}
 }
 
-// Here, we implement all of the handlers in the ServerInterface
-func (p *GatewayInterface) GetGateway(ctx *gin.Context, params GetGatewayParams) {
+//
+func (obj *ServerInterfaceImpl) GetGateway(ctx *gin.Context, params GetGatewayParams) {
+	var gc nsm.Gateway
+	sliceId := params.SliceId
+	log.Info("GetGateway - requested SliceId: " + sliceId)
+	result := obj.DB.First(&gc, "slice_id = ?", sliceId)
 
-	ctx.Status(http.StatusAccepted)
+	log.Info(gc)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		ctx.Status(http.StatusNotFound)
+	} else {
+		ctx.Status(http.StatusAccepted)
+	}
 }
 
-func (p *GatewayInterface) PostGateway(ctx *gin.Context, params PostGatewayParams) {
+func (obj *ServerInterfaceImpl) PostGateway(ctx *gin.Context, params PostGatewayParams) {
+
 	ctx.Status(http.StatusNoContent)
 }
 
-func (p *GatewayInterface) DeleteGateway(ctx *gin.Context, params DeleteGatewayParams) {
+func (obj *ServerInterfaceImpl) DeleteGateway(ctx *gin.Context, params DeleteGatewayParams) {
 	ctx.Status(http.StatusNoContent)
 }

@@ -2,6 +2,8 @@ version: '3.8'
 
 services:
   db:
+    build: 
+      context: .
     image: mysql-nsmm-db
     command: --default-authentication-plugin=mysql_native_password
     environment:
@@ -19,7 +21,7 @@ services:
     networks:
       - nsmm_network
     ports:
-      - 8080:80
+      - 8081:80
 
 
 networks:

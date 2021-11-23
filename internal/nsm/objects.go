@@ -12,28 +12,18 @@ var ASSOCIATION_ERROR = "ASSOCIATION_ERROR"
 var CONFIGURATION_ERROR = "CONFIGURATION_ERROR"
 
 type Gateway struct {
-	SliceID     string `gorm:"primaryKey;<-:create"`
-	Status      string
-	NetworkID   string
-	SubnetID    string
-	RouterID    string
-	InterfaceID string
-	FloatingIP  string
-	VmGatewayID string
-}
-
-type Network struct {
-	NetworkID   string `gorm:"primaryKey;<-:create"`
-	NetworkName string
-}
-
-type Subnet struct {
-	SubnetID   string `gorm:"primaryKey;<-:create"`
-	SubnetName string
-	SubnetCidr string
-}
-
-type Router struct {
-	RouterID   string `gorm:"primaryKey;<-:create"`
-	RouterName string
+	SliceID        string `gorm:"primaryKey;<-:create"`
+	Status         string
+	NetworkID      string
+	NetworkName    string
+	SubnetID       string
+	SubnetName     string
+	SubnetCidr     string
+	RouterID       string
+	RouterName     string
+	PortID         string
+	FloatingIP     string
+	VmGatewayID    string
+	GatewayRole    string
+	RemoteEndpoint string
 }

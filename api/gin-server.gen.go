@@ -145,4 +145,3 @@ func RegisterHandlersWithOptions(router *gin.Engine, si ServerInterface, options
 
 	return router
 }
-

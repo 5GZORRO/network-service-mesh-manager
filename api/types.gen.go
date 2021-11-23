@@ -31,4 +31,3 @@ type PostGatewayParams struct {
 
 // PostGatewayJSONRequestBody defines body for PostGateway for application/json ContentType.
 type PostGatewayJSONRequestBody PostGatewayJSONBody
-

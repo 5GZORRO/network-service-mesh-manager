@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,13 +10,14 @@ import (
 	"gorm.io/gorm"
 
 	nsmapi "nextworks/nsm/api"
-
-	log "github.com/sirupsen/logrus"
+	"nextworks/nsm/internal/config"
 
 	middleware "github.com/deepmap/oapi-codegen/pkg/gin-middleware"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
-func NewGinServer(petStore *nsmapi.ServerInterfaceImpl, port int) *http.Server {
+func NewGinServer(impl *nsmapi.ServerInterfaceImpl, port int) *http.Server {
 	swagger, err := nsmapi.GetSwagger()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading swagger spec\n: %s", err)
@@ -36,7 +36,9 @@ func NewGinServer(petStore *nsmapi.ServerInterfaceImpl, port int) *http.Server {
 	r.Use(middleware.OapiRequestValidator(swagger))
 
 	// We now register our petStore above as the handler for the interface
-	r = nsmapi.RegisterHandlers(r, petStore)
+	r = nsmapi.RegisterHandlers(r, impl)
+
+	log.Info(r.Routes())
 
 	s := &http.Server{
 		Handler: r,
@@ -45,27 +47,54 @@ func NewGinServer(petStore *nsmapi.ServerInterfaceImpl, port int) *http.Server {
 	return s
 }
 
+func readConfigFile() *config.Configurations {
+	var config config.Configurations
+
+	// Set the file name of the configurations file, the path and the type file
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.SetConfigType("yaml")
+
+	// Set default values
+	viper.SetDefault("server.port", 8080)
+
+	// Read and initialize
+	if err := viper.ReadInConfig(); err != nil {
+		log.Error("Error reading config file, %s", err)
+	}
+
+	err := viper.Unmarshal(&config)
+	if err != nil {
+		log.Error("Unable to decode into struct, %v", err)
+	}
+
+	return &config
+}
+
 func main() {
 	// Config log
 	customFormatter := new(log.TextFormatter)
 	customFormatter.FullTimestamp = true
 	log.SetFormatter(customFormatter)
 
+	//  Read config file
+	configuration := readConfigFile()
+	log.Info(*configuration)
+
 	// Connect to the DB
-	// TODO read them from a config file
-	dsn := "root:root@tcp(127.0.0.1:3306)/nsmm?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := configuration.Database.Username + ":" + configuration.Database.Password + "@tcp(" + configuration.Database.Host + ":" + configuration.Database.Port + ")/" + configuration.Database.DB + "?charset=utf8mb4&parseTime=True&loc=Local"
+	log.Info(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Error("Error connecting to the database")
 		return
 	}
+	log.Info(db)
 
-	var port = flag.Int("port", 8080, "Port for test HTTP server")
-	flag.Parse()
 	// Create an instance of our handler which satisfies the generated interface
 	sii := nsmapi.NewServerInterfaceImpl(db)
-	s := NewGinServer(sii, *port)
-	// And we serve HTTP until the world ends.
+	s := NewGinServer(sii, configuration.Server.Port)
+
 	log.Fatal(s.ListenAndServe())
 }

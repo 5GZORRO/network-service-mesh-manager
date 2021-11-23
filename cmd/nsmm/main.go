@@ -1,6 +1,7 @@
 package main
 
 import (
+	"nextworks/nsm/internal/config"
 	"nextworks/nsm/internal/nbi"
 	"nextworks/nsm/internal/openstackclient"
 	"os"
@@ -9,29 +10,39 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
-// Global variables
-var identityEndpoint string = "http://10.30.7.10:5000/v3"
-var username string = "timeo"
-var password string = "nextworks"
-var tenantID string = "7953babdca974e7ab44cc6c69f093956"
-var domainID string = "default"
+func readConfigFile() *config.Configurations {
+	var config config.Configurations
 
-// TODO: how to manage API tokens and auth
+	// Set the file name of the configurations file, the path and the type file
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.SetConfigType("yaml")
+
+	// Set default values
+	viper.SetDefault("server.port", 8080)
+
+	// Read and initialize
+	if err := viper.ReadInConfig(); err != nil {
+		log.Error("Error reading config file, %s", err)
+	}
+
+	err := viper.Unmarshal(&config)
+	if err != nil {
+		log.Error("Unable to decode into struct, %v", err)
+	}
+
+	return &config
+}
+
 // TODO: thread safe object?
 
-func setupRouter(client *openstackclient.OpenStackClient) *gin.Engine {
+func setupRouter(env *nbi.Env) *gin.Engine {
 	router := gin.Default()
 
-	client.Init()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// Build Env oject
-	env := new(nbi.Env)
-	env.Client = client
+	env.Client.Init()
 
 	// pre-provisioning routes (related to create required networks)
 	router.GET("/network", env.RetrieveNetwork)
@@ -60,9 +71,17 @@ func main() {
 	log.SetFormatter(customFormatter)
 	// log.SetReportCaller(true)  // add function name to logs
 
-	// Set up environment & object (OpenstackClient)
-	openstackclient := openstackclient.NewOpenStackClient(identityEndpoint, username, password, tenantID, domainID)
-	log.Info("Tenant" + openstackclient.TenantID)
+	//  Read config file
+	config := readConfigFile()
+	log.Info(*config)
+
+	// Build Env oject
+	env := new(nbi.Env)
+
+	// Initialize Env with OpenstackClient
+	log.Info("Vim configs", config.Vim)
+	openstackclient := openstackclient.NewOpenStackClient(config.Vim.IdentityEndpoint, config.Vim.Username, config.Vim.Password, config.Vim.TenantID, config.Vim.DomainID)
+	env.Client = openstackclient
 
 	// wait SIG TERM
 	c := make(chan os.Signal)
@@ -74,7 +93,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	r := setupRouter(openstackclient)
+	r := setupRouter(env)
 	// // Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")
 }

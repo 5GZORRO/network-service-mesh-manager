@@ -1,5 +1,5 @@
 # network-service-mesh-manager (NSMM)
-First version of Network Service Mesh Manager implemented using Go and github.com/gophercloud/gophercloud v0.22.
+First version of Network Service Mesh Manager implemented using Go and github.com/gophercloud/gophercloud v0.23.
 
 ## Architecture
 ![](docs/architecture.png)
@@ -9,15 +9,19 @@ First version of Network Service Mesh Manager implemented using Go and github.co
 Following the basic layout for Go application projects (https://github.com/golang-standards/project-layout), the project structure is described below:
 ```
 .
-├── api/                # Postman collection to use the NSMM NBI
+├── api/                # Postman collection and tests with OpenApi code generators
 ├── cmd/                # Main applications
     └── nsmm
         └── main.go
+    └── openapi         # Test with OpenAPI code gen
+        └── main.go
 ├── docs/               # Docs/images
 ├── internal/           # Internal packages
+    ├── config
     ├── nbi
     └── openstackclient
 ├── sbi/                # SBI realized as a Postman Collection (test)
+├── config.yaml         # Config file
 ├── go.mod
 ├── go.sum
 └── README.md

@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+database:
+  db: "nsmm"
+  host: 127.0.0.1
+  port: 3306
+  username: "root"
+  password: "root"
+
+vim:
+  identityEndpoint: "http://10.30.7.10:5000/v3"
+  username: "timeo"
+  password: "nextworks"
+  tenantID: "7953babdca974e7ab44cc6c69f093956"
+  domainID: "default"

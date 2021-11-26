@@ -5,14 +5,32 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/gateway": {
+        "/gateways": {
             "get": {
+                "parameters": [
+                    {
+                        "name": "sliceId",
+                        "description": "unique identifier of the slice",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Gateway information for slice passed as param"
+                        "description": "- All gateways created \n- the gateway of the requested slice"
                     },
                     "404": {
-                        "description": "Gateway for slice passed as param does not exist"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "No gatewaysfound"
                     }
                 }
             },
@@ -30,31 +48,349 @@
                 },
                 "responses": {
                     "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Gateway for slice correctly created"
                     },
                     "400": {
-                        "description": "No subnet cidr specified for slice"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "JSON body not correct"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- If a gateway for requested slice already exists\n- the subnet is already in use"
+                    }
+                }
+            }
+        },
+        "/gateways/{id}": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GatewayObject"
+                                }
+                            }
+                        },
+                        "description": "gateway details"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- requested gateway does not exist"
                     }
                 }
             },
             "delete": {
                 "responses": {
                     "204": {
-                        "description": "gateway for slice correctly deleted"
+                        "description": "correctly removed of a gateway"
                     },
                     "404": {
-                        "description": "gateway for slice does not exist"
+                        "description": "- requested gateway does not exist"
+                    },
+                    "403": {
+                        "description": "impossibile to remove a gateway, which could be in use or configured"
                     }
                 }
             },
             "parameters": [
                 {
-                    "name": "sliceId",
-                    "description": "Slice unique identifier",
+                    "name": "id",
+                    "description": "gateway unique identifier",
                     "schema": {
-                        "type": "string"
+                        "type": "integer"
                     },
-                    "in": "query",
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/gateways/{id}/configuration": {
+            "get": {
+                "responses": {
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- configuration for the gateway of the slice not found \n- gateway does not exists"
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GatewayObject"
+                                }
+                            }
+                        },
+                        "description": "Configuration of the requested gateway,, which is basically the GatewayVM id, its floatingIP and the management info"
+                    }
+                },
+                "description": ""
+            },
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PutGatewayConfigurationBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "It returns the new gateway configuration "
+                    },
+                    "400": {
+                        "description": "json not correct"
+                    },
+                    "403": {
+                        "description": "If the gateway can't be configured (already configured or in error state)"
+                    },
+                    "404": {
+                        "description": "if gateway does not exist"
+                    }
+                }
+            },
+            "delete": {
+                "responses": {
+                    "204": {
+                        "description": "correct removal"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "impossibile to delete configuration (VPN server running)"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- configuration for the gateway does not exist\n- the gateway does not exist"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/gateways/{id}/vpn/configuration": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GatewayObject"
+                                }
+                            }
+                        },
+                        "description": "Current gateway VPN configuration"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- a VPN configuration for gateway of requested slice does not exists\n- a gateway for the slice does not exist"
+                    }
+                }
+            },
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PutGatewayVPNConfigurationBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Current gateway VPN configuration"
+                    },
+                    "404": {
+                        "description": "- The requested gateway does not exist"
+                    },
+                    "403": {
+                        "description": "A VPN server is already running"
+                    }
+                }
+            },
+            "delete": {
+                "responses": {
+                    "204": {
+                        "description": "VPN configuration correctly deleted"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- The requested gateway does not exist\n- The requested gateway is not configured"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "VPN server is running"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/gateways/{id}/vpn/connections": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "List of all VPN connection established by the requested gateway"
+                    },
+                    "404": {
+                        "description": "- The request gateway does not exist"
+                    }
+                }
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostGatewayVPNConnectionBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- The requested gateway does not exist\n- The requested gateway is not configured\n- The requested gateway has not the VPN server configured"
+                    },
+                    "204": {
+                        "description": "request to delete the gateway connection accepted"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/gateways/{id}/vpn/connections/{connectionid}/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Connection details"
+                    },
+                    "404": {
+                        "description": "- requested connection does not exist\n- requested gateway does not exist"
+                    }
+                }
+            },
+            "delete": {
+                "responses": {
+                    "204": {
+                        "description": "correctly requested removal of a VPN connection"
+                    },
+                    "404": {
+                        "description": "- request connection does not exist\n- requested gateway does not exist"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "name": "connectionid",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
                     "required": true
                 }
             ]
@@ -66,18 +402,185 @@
                 "title": "Root Type for PostGatewayBody",
                 "description": "Subnet of the private net",
                 "required": [
-                    "subnet"
+                    "subnet",
+                    "slice-id"
                 ],
                 "type": "object",
                 "properties": {
                     "subnet": {
                         "description": "",
                         "type": "string"
+                    },
+                    "slice-id": {
+                        "description": "",
+                        "type": "string"
                     }
                 },
                 "example": {
+                    "slice-id": "sdhuewhq",
                     "subnet": "192.168.1.16/29"
                 }
+            },
+            "ErrorResponse": {
+                "title": "Root Type for ErrorResponseGatewayNotExists",
+                "description": "Error response\n",
+                "required": [
+                    "error"
+                ],
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "error": "gateway for requested slice does not exists"
+                }
+            },
+            "PostGatewayVPNConnectionBody": {
+                "title": "Root Type for PostGatewayConnectionBody",
+                "description": "Set of information needed to create a VPN connection",
+                "required": [
+                    "role"
+                ],
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "description": "Role of the VPN server, if it acts as a SERVER or a CLIENT in the connection creation",
+                        "type": "string",
+                        "example": "CLIENT,\nSERVER\n"
+                    },
+                    "remote_server_ip": {
+                        "description": "if role == CLIENT",
+                        "type": "string"
+                    },
+                    "remote_server_port": {
+                        "description": "if role == CLIENT",
+                        "type": "string"
+                    },
+                    "subnet_to_redirect": {
+                        "description": "If role == CLIENT\n",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "role": "",
+                    "remote_server_ip": "",
+                    "remote_server_port": "",
+                    "subnet_to_redirect": ""
+                }
+            },
+            "GatewayObject": {
+                "title": "Root Type for GatewayObject",
+                "description": "Object describing gateway",
+                "required": [
+                    "id",
+                    "slice-id",
+                    "subnet"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "slice-id": {
+                        "type": "string"
+                    },
+                    "external-ip": {
+                        "type": "string"
+                    },
+                    "management-ip": {
+                        "type": "string"
+                    },
+                    "management-port": {
+                        "type": "string"
+                    },
+                    "vpn-port": {
+                        "type": "string"
+                    },
+                    "vpn-interface": {
+                        "type": "string"
+                    },
+                    "subnet": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "",
+                    "slice-id": "",
+                    "subnet": "",
+                    "external-ip": "",
+                    "management-ip": "",
+                    "management-port": "",
+                    "vpn-port": "",
+                    "vpn-interface": ""
+                }
+            },
+            "PutGatewayConfigurationBody": {
+                "title": "Root Type for GatewayConfiguration",
+                "description": "",
+                "required": [
+                    "external-ip",
+                    "management-ip",
+                    "management-port"
+                ],
+                "type": "object",
+                "properties": {
+                    "external-ip": {
+                        "type": "string"
+                    },
+                    "management-ip": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "management-port": {
+                        "description": "",
+                        "type": "integer"
+                    }
+                },
+                "example": {
+                    "external-ip": "",
+                    "management-ip": "",
+                    "management-port": ""
+                }
+            },
+            "PutGatewayVPNConfigurationBody": {
+                "title": "Root Type for PostGatewayVPNConfiguration",
+                "description": "Info to configure and to launch the VPN server in the GatewayVM",
+                "required": [
+                    "server_interface",
+                    "server_ip_range",
+                    "server_port"
+                ],
+                "type": "object",
+                "properties": {
+                    "server_ip_range": {
+                        "type": "string"
+                    },
+                    "server_port": {
+                        "type": "string"
+                    },
+                    "server_interface": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "server_ip_range": "",
+                    "server_port": "",
+                    "server_interface": ""
+                }
+            }
+        },
+        "responses": {
+            "ErrorGatewayNotFound": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                },
+                "description": "rtb"
             }
         }
     }

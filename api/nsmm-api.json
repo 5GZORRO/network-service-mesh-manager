@@ -87,7 +87,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GatewayObject"
+                                    "$ref": "#/components/schemas/ResponseGatewayObject"
                                 }
                             }
                         },
@@ -147,7 +147,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GatewayObject"
+                                    "$ref": "#/components/schemas/ResponseGatewayConfigurationObject"
                                 }
                             }
                         },
@@ -227,7 +227,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GatewayObject"
+                                    "$ref": "#/components/schemas/ResponseGatewayObject"
                                 }
                             }
                         },
@@ -470,52 +470,6 @@
                     "subnet_to_redirect": ""
                 }
             },
-            "GatewayObject": {
-                "title": "Root Type for GatewayObject",
-                "description": "Object describing gateway",
-                "required": [
-                    "id",
-                    "slice-id",
-                    "subnet"
-                ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "slice-id": {
-                        "type": "string"
-                    },
-                    "external-ip": {
-                        "type": "string"
-                    },
-                    "management-ip": {
-                        "type": "string"
-                    },
-                    "management-port": {
-                        "type": "string"
-                    },
-                    "vpn-port": {
-                        "type": "string"
-                    },
-                    "vpn-interface": {
-                        "type": "string"
-                    },
-                    "subnet": {
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "id": "",
-                    "slice-id": "",
-                    "subnet": "",
-                    "external-ip": "",
-                    "management-ip": "",
-                    "management-port": "",
-                    "vpn-port": "",
-                    "vpn-interface": ""
-                }
-            },
             "PutGatewayConfigurationBody": {
                 "title": "Root Type for GatewayConfiguration",
                 "description": "",
@@ -535,7 +489,7 @@
                     },
                     "management-port": {
                         "description": "",
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "example": {
@@ -569,18 +523,64 @@
                     "server_port": "",
                     "server_interface": ""
                 }
-            }
-        },
-        "responses": {
-            "ErrorGatewayNotFound": {
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/ErrorResponse"
-                        }
+            },
+            "ResponseGatewayObject": {
+                "title": "Root Type for GatewayObject",
+                "description": "Object describing gateway",
+                "required": [
+                    "id",
+                    "slice-id",
+                    "subnet",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "slice-id": {
+                        "type": "string"
+                    },
+                    "subnet": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "",
+                        "type": "string"
                     }
                 },
-                "description": "rtb"
+                "example": {
+                    "id": "",
+                    "slice-id": "",
+                    "subnet": "",
+                    "status": ""
+                }
+            },
+            "ResponseGatewayConfigurationObject": {
+                "title": "Root Type for ResponseGatewayConfigurationObject",
+                "description": "",
+                "required": [
+                    "external-ip",
+                    "management-ip",
+                    "management-port"
+                ],
+                "type": "object",
+                "properties": {
+                    "external-ip": {
+                        "type": "string"
+                    },
+                    "management-ip": {
+                        "type": "string"
+                    },
+                    "management-port": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "external-ip": "",
+                    "management-ip": "",
+                    "management-port": ""
+                }
             }
         }
     }

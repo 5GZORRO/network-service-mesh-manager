@@ -8,18 +8,6 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// Object describing gateway
-type GatewayObject struct {
-	ExternalIp     *string `json:"external-ip,omitempty"`
-	Id             int     `json:"id"`
-	ManagementIp   *string `json:"management-ip,omitempty"`
-	ManagementPort *string `json:"management-port,omitempty"`
-	SliceId        string  `json:"slice-id"`
-	Subnet         string  `json:"subnet"`
-	VpnInterface   *string `json:"vpn-interface,omitempty"`
-	VpnPort        *string `json:"vpn-port,omitempty"`
-}
-
 // Subnet of the private net
 type PostGatewayBody struct {
 	SliceId string `json:"slice-id"`
@@ -45,7 +33,7 @@ type PostGatewayVPNConnectionBody struct {
 type PutGatewayConfigurationBody struct {
 	ExternalIp     string `json:"external-ip"`
 	ManagementIp   string `json:"management-ip"`
-	ManagementPort int    `json:"management-port"`
+	ManagementPort string `json:"management-port"`
 }
 
 // Info to configure and to launch the VPN server in the GatewayVM
@@ -53,6 +41,21 @@ type PutGatewayVPNConfigurationBody struct {
 	ServerInterface string `json:"server_interface"`
 	ServerIpRange   string `json:"server_ip_range"`
 	ServerPort      string `json:"server_port"`
+}
+
+// ResponseGatewayConfigurationObject defines model for ResponseGatewayConfigurationObject.
+type ResponseGatewayConfigurationObject struct {
+	ExternalIp     string `json:"external-ip"`
+	ManagementIp   string `json:"management-ip"`
+	ManagementPort string `json:"management-port"`
+}
+
+// Object describing gateway
+type ResponseGatewayObject struct {
+	Id      int    `json:"id"`
+	SliceId string `json:"slice-id"`
+	Status  string `json:"status"`
+	Subnet  string `json:"subnet"`
 }
 
 // GetGatewaysParams defines parameters for GetGateways.

@@ -15,7 +15,7 @@ func SetErrorResponse(ctx *gin.Context, method string, errorStatus int, err erro
 	ctx.JSON(errorStatus, outputJson)
 }
 
-func parsePort(port string) (int, error) {
+func parsePort(port string) (uint16, error) {
 	portInt, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {
 		return 0, err
@@ -23,5 +23,7 @@ func parsePort(port string) (int, error) {
 	if portInt == 0 {
 		return 0, errors.New("0 is not a valid port number")
 	}
-	return int(portInt), nil
+	result := uint16(portInt)
+
+	return result, nil
 }

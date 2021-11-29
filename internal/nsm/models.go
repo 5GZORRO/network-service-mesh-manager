@@ -13,7 +13,7 @@ type Gateway struct {
 	RouterID       string
 	ExternalIp     string
 	ManagementIP   string
-	ManagementPort string
+	ManagementPort uint16
 	VPNPort        string
 	VPNInterface   string
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 	NsmmApi "nextworks/nsm/api"
-	"nextworks/nsm/internal/drivers"
 	"nextworks/nsm/internal/nsm"
 
 	"gorm.io/gorm"
@@ -14,43 +13,30 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Shared object between different HTTP REST handlers
-// it should contain the DBconnection
-type ServerInterfaceImpl struct {
-	DB *gorm.DB
-	// Config file info
-	Vim drivers.VimDriver
-	// Lock     sync.Mutex
-}
-
-func NewServerInterfaceImpl(DBconnection *gorm.DB, openstackclient *drivers.OpenStackDriver) *ServerInterfaceImpl {
-	return &ServerInterfaceImpl{
-		DB:  DBconnection,
-		Vim: openstackclient,
-	}
-}
-
 func setErrorResponse(ctx *gin.Context, method string, errorStatus int, err error) {
 	log.Error(method, " - ", err.Error())
 	outputJson := NsmmApi.ErrorResponse{Error: err.Error()}
 	ctx.JSON(errorStatus, outputJson)
 }
 
-// TODO add subnet
-func setGatewayObjectResponse(ctx *gin.Context, status int, gc nsm.Gateway) {
-	output := NsmmApi.GatewayObject{
-		Id:             gc.ID,
-		SliceId:        gc.SliceID,
-		ExternalIp:     &gc.ExternalIp,
-		ManagementIp:   &gc.ManagementIP,
-		ManagementPort: &gc.ManagementPort,
-		VpnPort:        &gc.VPNPort,
-		VpnInterface:   &gc.VPNInterface,
+// TODO add subnet, retrieving from DB
+func buildGatewayObjectResponse(gc nsm.Gateway, subnet string) NsmmApi.ResponseGatewayObject {
+	return NsmmApi.ResponseGatewayObject{
+		Id:      gc.ID,
+		SliceId: gc.SliceID,
+		Status:  gc.Status,
+		Subnet:  subnet,
 	}
-	ctx.JSON(http.StatusOK, output)
+}
+
+// TODO add subnet, retrieving from DB
+func setGatewayObjectResponse(ctx *gin.Context, status int, gc nsm.Gateway) {
+	output := buildGatewayObjectResponse(gc, "")
+	ctx.JSON(status, output)
 }
 
 // (GET /gateways)
+// TODO returns a list of ResponsegatewayObject
 func (obj *ServerInterfaceImpl) GetGateways(ctx *gin.Context, params NsmmApi.GetGatewaysParams) {
 	log.Info("GetGateways")
 	var gco nsm.Gateway
@@ -86,9 +72,10 @@ func (obj *ServerInterfaceImpl) GetGateways(ctx *gin.Context, params NsmmApi.Get
 			ctx.Status(http.StatusInternalServerError)
 			return
 		}
+		// TODO define response object
+
 		ctx.JSON(http.StatusOK, gin.H{"gateways": gcos})
 	}
-	// TODO define response object
 }
 
 func (obj *ServerInterfaceImpl) PostGateways(ctx *gin.Context) {
@@ -140,6 +127,7 @@ func (obj *ServerInterfaceImpl) GetGatewaysId(ctx *gin.Context, id int) {
 		return
 	} else {
 		setGatewayObjectResponse(ctx, http.StatusOK, gc)
+		return
 	}
 }
 
@@ -168,7 +156,7 @@ func (obj *ServerInterfaceImpl) DeleteGatewaysId(ctx *gin.Context, id int) {
 	// TODO delete from VIM
 	// drivers.VimDriver.DeleteGatewayConnectivity()
 
-	// TODO Delete from DB
+	// Delete from DB
 	log.Info("DeleteGatewaysId - deleting gateway ", gc)
 	obj.DB.Delete(gc)
 	ctx.Status(http.StatusNoContent)

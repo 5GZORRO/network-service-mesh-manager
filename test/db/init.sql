@@ -12,7 +12,7 @@ CREATE TABLE `gateways` (
   `router_id` varchar(255) DEFAULT NULL,
   `external_ip` varchar(255) DEFAULT NULL,
   `management_ip` varchar(255) DEFAULT NULL,
-  `management_port` varchar(255) DEFAULT NULL,
+  `management_port` smallint DEFAULT NULL,
   `vpn_port` varchar(255) DEFAULT NULL,
   `vpn_interface` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),

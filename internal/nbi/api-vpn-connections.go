@@ -2,6 +2,7 @@ package nbi
 
 import "github.com/gin-gonic/gin"
 
+// TODO implement connection logic
 // (GET /gateways/{id}/vpn/connections)
 func (obj *ServerInterfaceImpl) GetGatewaysIdVpnConnections(c *gin.Context, id int) {}
 

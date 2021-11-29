@@ -3,19 +3,19 @@ package nsm
 import "time"
 
 type Gateway struct {
-	ID             int
-	SliceID        string `gorm:"unique;<-:create"`
-	Status         string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	NetworkID      string
-	SubnetID       string
-	RouterID       string
-	ExternalIp     string
-	ManagementIP   string
-	ManagementPort uint16
-	VPNPort        string
-	VPNInterface   string
+	ID                 int
+	SliceID            string `gorm:"unique;<-:create"`
+	Status             string
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	NetworkID          string
+	SubnetID           string
+	RouterID           string
+	ExternalIp         string
+	ManagementIP       string
+	ManagementPort     uint16
+	VPNServerPort      uint16
+	VPNServerInterface string
 }
 
 type Network struct {

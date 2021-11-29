@@ -6,6 +6,7 @@ import (
 	"net/http"
 	NsmmApi "nextworks/nsm/api"
 	"nextworks/nsm/internal/nsm"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -19,7 +20,6 @@ func setErrorResponse(ctx *gin.Context, method string, errorStatus int, err erro
 	ctx.JSON(errorStatus, outputJson)
 }
 
-// TODO add subnet, retrieving from DB
 func buildGatewayObjectResponse(gc nsm.Gateway, subnet string) NsmmApi.ResponseGatewayObject {
 	return NsmmApi.ResponseGatewayObject{
 		Id:      gc.ID,
@@ -29,14 +29,13 @@ func buildGatewayObjectResponse(gc nsm.Gateway, subnet string) NsmmApi.ResponseG
 	}
 }
 
-// TODO add subnet, retrieving from DB
-func setGatewayObjectResponse(ctx *gin.Context, status int, gc nsm.Gateway) {
-	output := buildGatewayObjectResponse(gc, "")
+func setGatewayObjectResponse(ctx *gin.Context, status int, gc nsm.Gateway, subnet string) {
+	output := buildGatewayObjectResponse(gc, subnet)
 	ctx.JSON(status, output)
 }
 
 // (GET /gateways)
-// TODO returns a list of ResponsegatewayObject
+
 func (obj *ServerInterfaceImpl) GetGateways(ctx *gin.Context, params NsmmApi.GetGatewaysParams) {
 	log.Info("GetGateways")
 	var gco nsm.Gateway
@@ -57,7 +56,8 @@ func (obj *ServerInterfaceImpl) GetGateways(ctx *gin.Context, params NsmmApi.Get
 			ctx.Status(http.StatusInternalServerError)
 			return
 		}
-		setGatewayObjectResponse(ctx, http.StatusOK, gco)
+		// TODO retrieve subnet
+		setGatewayObjectResponse(ctx, http.StatusOK, gco, "")
 	} else {
 		log.Info("GetGateways - without query parameters")
 		result = obj.DB.Find(&gcos)
@@ -72,9 +72,12 @@ func (obj *ServerInterfaceImpl) GetGateways(ctx *gin.Context, params NsmmApi.Get
 			ctx.Status(http.StatusInternalServerError)
 			return
 		}
-		// TODO define response object
-
-		ctx.JSON(http.StatusOK, gin.H{"gateways": gcos})
+		var response NsmmApi.ResponseGatewaysListObject
+		for _, s := range gcos {
+			// TODO add subnet
+			response = append(response, buildGatewayObjectResponse(s, ""))
+		}
+		ctx.JSON(http.StatusOK, response)
 	}
 }
 
@@ -111,8 +114,10 @@ func (obj *ServerInterfaceImpl) PostGateways(ctx *gin.Context) {
 	log.Info("PostGateways - gateway for requested slice initialized")
 	// TODO create il gatewayconnectivity su Openstack and update all info
 	// drivers.VimDriver.CreateGatewayConnectivity()
+	createResources(obj.DB, &gc)
 
-	setGatewayObjectResponse(ctx, http.StatusOK, gc)
+	// TODO retrieve subnet
+	setGatewayObjectResponse(ctx, http.StatusOK, gc, "")
 }
 
 func (obj *ServerInterfaceImpl) GetGatewaysId(ctx *gin.Context, id int) {
@@ -126,7 +131,8 @@ func (obj *ServerInterfaceImpl) GetGatewaysId(ctx *gin.Context, id int) {
 		setErrorResponse(ctx, "GetGatewaysId", http.StatusNotFound, nsm.ErrGatewayNotFound)
 		return
 	} else {
-		setGatewayObjectResponse(ctx, http.StatusOK, gc)
+		// TODO add subnet
+		setGatewayObjectResponse(ctx, http.StatusOK, gc, "")
 		return
 	}
 }
@@ -160,4 +166,12 @@ func (obj *ServerInterfaceImpl) DeleteGatewaysId(ctx *gin.Context, id int) {
 	log.Info("DeleteGatewaysId - deleting gateway ", gc)
 	obj.DB.Delete(gc)
 	ctx.Status(http.StatusNoContent)
+}
+
+// TODO implement SYNC go routine for creation and removal of resources
+func createResources(database *gorm.DB, gc *nsm.Gateway) {
+	time.Sleep(time.Second * 5)
+	gc.Status = nsm.WAIT_FOR_GATEWAY
+	log.Info("createResources ", gc.Status)
+	database.Save(&gc)
 }

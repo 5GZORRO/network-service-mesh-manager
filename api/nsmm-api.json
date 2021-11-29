@@ -20,6 +20,13 @@
                 ],
                 "responses": {
                     "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseGatewaysListObject"
+                                }
+                            }
+                        },
                         "description": "- All gateways created \n- the gateway of the requested slice"
                     },
                     "404": {
@@ -131,6 +138,7 @@
             ]
         },
         "/gateways/{id}/configuration": {
+            "description": "Configuration of VM and server VPN",
             "get": {
                 "responses": {
                     "404": {
@@ -206,92 +214,6 @@
                             }
                         },
                         "description": "- configuration for the gateway does not exist\n- the gateway does not exist"
-                    }
-                }
-            },
-            "parameters": [
-                {
-                    "name": "id",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "path",
-                    "required": true
-                }
-            ]
-        },
-        "/gateways/{id}/vpn/configuration": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ResponseGatewayObject"
-                                }
-                            }
-                        },
-                        "description": "Current gateway VPN configuration"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "- a VPN configuration for gateway of requested slice does not exists\n- a gateway for the slice does not exist"
-                    }
-                }
-            },
-            "put": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PutGatewayVPNConfigurationBody"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Current gateway VPN configuration"
-                    },
-                    "404": {
-                        "description": "- The requested gateway does not exist"
-                    },
-                    "403": {
-                        "description": "A VPN server is already running"
-                    }
-                }
-            },
-            "delete": {
-                "responses": {
-                    "204": {
-                        "description": "VPN configuration correctly deleted"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "- The requested gateway does not exist\n- The requested gateway is not configured"
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "VPN server is running"
                     }
                 }
             },
@@ -476,7 +398,9 @@
                 "required": [
                     "external-ip",
                     "management-ip",
-                    "management-port"
+                    "management-port",
+                    "vpn-server-port",
+                    "vpn-server-interface"
                 ],
                 "type": "object",
                 "properties": {
@@ -490,38 +414,22 @@
                     "management-port": {
                         "description": "",
                         "type": "string"
-                    }
-                },
-                "example": {
-                    "external-ip": "",
-                    "management-ip": "",
-                    "management-port": ""
-                }
-            },
-            "PutGatewayVPNConfigurationBody": {
-                "title": "Root Type for PostGatewayVPNConfiguration",
-                "description": "Info to configure and to launch the VPN server in the GatewayVM",
-                "required": [
-                    "server_interface",
-                    "server_ip_range",
-                    "server_port"
-                ],
-                "type": "object",
-                "properties": {
-                    "server_ip_range": {
+                    },
+                    "vpn-server-port": {
+                        "description": "",
                         "type": "string"
                     },
-                    "server_port": {
-                        "type": "string"
-                    },
-                    "server_interface": {
+                    "vpn-server-interface": {
+                        "description": "",
                         "type": "string"
                     }
                 },
                 "example": {
-                    "server_ip_range": "",
-                    "server_port": "",
-                    "server_interface": ""
+                    "external-ip": "some text",
+                    "management-ip": "some text",
+                    "management-port": "some text",
+                    "vpn-server-port": "some text",
+                    "vpn-server-interface": "some text"
                 }
             },
             "ResponseGatewayObject": {
@@ -550,10 +458,10 @@
                     }
                 },
                 "example": {
-                    "id": "",
-                    "slice-id": "",
-                    "subnet": "",
-                    "status": ""
+                    "id": 99,
+                    "slice-id": "some text",
+                    "subnet": "some text",
+                    "status": "some text"
                 }
             },
             "ResponseGatewayConfigurationObject": {
@@ -581,6 +489,28 @@
                     "management-ip": "",
                     "management-port": ""
                 }
+            },
+            "ResponseGatewaysListObject": {
+                "title": "Root Type for ResponseGatewaysListObject",
+                "description": "",
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ResponseGatewayObject"
+                },
+                "example": [
+                    {
+                        "id": 81,
+                        "slice-id": "some text",
+                        "subnet": "some text",
+                        "status": "some text"
+                    },
+                    {
+                        "id": 94,
+                        "slice-id": "some text",
+                        "subnet": "some text",
+                        "status": "some text"
+                    }
+                ]
             }
         }
     }

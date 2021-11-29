@@ -35,15 +35,6 @@ type ServerInterface interface {
 	// (PUT /gateways/{id}/configuration)
 	PutGatewaysIdConfiguration(c *gin.Context, id int)
 
-	// (DELETE /gateways/{id}/vpn/configuration)
-	DeleteGatewaysIdVpnConfiguration(c *gin.Context, id int)
-
-	// (GET /gateways/{id}/vpn/configuration)
-	GetGatewaysIdVpnConfiguration(c *gin.Context, id int)
-
-	// (PUT /gateways/{id}/vpn/configuration)
-	PutGatewaysIdVpnConfiguration(c *gin.Context, id int)
-
 	// (GET /gateways/{id}/vpn/connections)
 	GetGatewaysIdVpnConnections(c *gin.Context, id int)
 
@@ -206,69 +197,6 @@ func (siw *ServerInterfaceWrapper) PutGatewaysIdConfiguration(c *gin.Context) {
 	siw.Handler.PutGatewaysIdConfiguration(c, id)
 }
 
-// DeleteGatewaysIdVpnConfiguration operation middleware
-func (siw *ServerInterfaceWrapper) DeleteGatewaysIdVpnConfiguration(c *gin.Context) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id int
-
-	err = runtime.BindStyledParameter("simple", false, "id", c.Param("id"), &id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf("Invalid format for parameter id: %s", err)})
-		return
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-	}
-
-	siw.Handler.DeleteGatewaysIdVpnConfiguration(c, id)
-}
-
-// GetGatewaysIdVpnConfiguration operation middleware
-func (siw *ServerInterfaceWrapper) GetGatewaysIdVpnConfiguration(c *gin.Context) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id int
-
-	err = runtime.BindStyledParameter("simple", false, "id", c.Param("id"), &id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf("Invalid format for parameter id: %s", err)})
-		return
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-	}
-
-	siw.Handler.GetGatewaysIdVpnConfiguration(c, id)
-}
-
-// PutGatewaysIdVpnConfiguration operation middleware
-func (siw *ServerInterfaceWrapper) PutGatewaysIdVpnConfiguration(c *gin.Context) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id int
-
-	err = runtime.BindStyledParameter("simple", false, "id", c.Param("id"), &id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf("Invalid format for parameter id: %s", err)})
-		return
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-	}
-
-	siw.Handler.PutGatewaysIdVpnConfiguration(c, id)
-}
-
 // GetGatewaysIdVpnConnections operation middleware
 func (siw *ServerInterfaceWrapper) GetGatewaysIdVpnConnections(c *gin.Context) {
 
@@ -402,12 +330,6 @@ func RegisterHandlersWithOptions(router *gin.Engine, si ServerInterface, options
 	router.GET(options.BaseURL+"/gateways/:id/configuration", wrapper.GetGatewaysIdConfiguration)
 
 	router.PUT(options.BaseURL+"/gateways/:id/configuration", wrapper.PutGatewaysIdConfiguration)
-
-	router.DELETE(options.BaseURL+"/gateways/:id/vpn/configuration", wrapper.DeleteGatewaysIdVpnConfiguration)
-
-	router.GET(options.BaseURL+"/gateways/:id/vpn/configuration", wrapper.GetGatewaysIdVpnConfiguration)
-
-	router.PUT(options.BaseURL+"/gateways/:id/vpn/configuration", wrapper.PutGatewaysIdVpnConfiguration)
 
 	router.GET(options.BaseURL+"/gateways/:id/vpn/connections", wrapper.GetGatewaysIdVpnConnections)
 

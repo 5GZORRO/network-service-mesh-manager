@@ -31,16 +31,11 @@ type PostGatewayVPNConnectionBody struct {
 
 // PutGatewayConfigurationBody defines model for PutGatewayConfigurationBody.
 type PutGatewayConfigurationBody struct {
-	ExternalIp     string `json:"external-ip"`
-	ManagementIp   string `json:"management-ip"`
-	ManagementPort string `json:"management-port"`
-}
-
-// Info to configure and to launch the VPN server in the GatewayVM
-type PutGatewayVPNConfigurationBody struct {
-	ServerInterface string `json:"server_interface"`
-	ServerIpRange   string `json:"server_ip_range"`
-	ServerPort      string `json:"server_port"`
+	ExternalIp         string `json:"external-ip"`
+	ManagementIp       string `json:"management-ip"`
+	ManagementPort     string `json:"management-port"`
+	VpnServerInterface string `json:"vpn-server-interface"`
+	VpnServerPort      string `json:"vpn-server-port"`
 }
 
 // ResponseGatewayConfigurationObject defines model for ResponseGatewayConfigurationObject.
@@ -58,6 +53,9 @@ type ResponseGatewayObject struct {
 	Subnet  string `json:"subnet"`
 }
 
+// ResponseGatewaysListObject defines model for ResponseGatewaysListObject.
+type ResponseGatewaysListObject []ResponseGatewayObject
+
 // GetGatewaysParams defines parameters for GetGateways.
 type GetGatewaysParams struct {
 	// unique identifier of the slice
@@ -70,9 +68,6 @@ type PostGatewaysJSONBody PostGatewayBody
 // PutGatewaysIdConfigurationJSONBody defines parameters for PutGatewaysIdConfiguration.
 type PutGatewaysIdConfigurationJSONBody PutGatewayConfigurationBody
 
-// PutGatewaysIdVpnConfigurationJSONBody defines parameters for PutGatewaysIdVpnConfiguration.
-type PutGatewaysIdVpnConfigurationJSONBody PutGatewayVPNConfigurationBody
-
 // PostGatewaysIdVpnConnectionsJSONBody defines parameters for PostGatewaysIdVpnConnections.
 type PostGatewaysIdVpnConnectionsJSONBody PostGatewayVPNConnectionBody
 
@@ -81,9 +76,6 @@ type PostGatewaysJSONRequestBody PostGatewaysJSONBody
 
 // PutGatewaysIdConfigurationJSONRequestBody defines body for PutGatewaysIdConfiguration for application/json ContentType.
 type PutGatewaysIdConfigurationJSONRequestBody PutGatewaysIdConfigurationJSONBody
-
-// PutGatewaysIdVpnConfigurationJSONRequestBody defines body for PutGatewaysIdVpnConfiguration for application/json ContentType.
-type PutGatewaysIdVpnConfigurationJSONRequestBody PutGatewaysIdVpnConfigurationJSONBody
 
 // PostGatewaysIdVpnConnectionsJSONRequestBody defines body for PostGatewaysIdVpnConnections for application/json ContentType.
 type PostGatewaysIdVpnConnectionsJSONRequestBody PostGatewaysIdVpnConnectionsJSONBody

@@ -7,12 +7,40 @@ import (
 	NsmmApi "nextworks/nsm/api"
 	"nextworks/nsm/internal/nsm"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
 	log "github.com/sirupsen/logrus"
 )
+
+func checkPutGatewaysIdConfigurationBody(c *gin.Context) (*NsmmApi.PutGatewayConfigurationBody, uint16, uint16, error) {
+	var jsonBody NsmmApi.PutGatewayConfigurationBody
+	if err := c.ShouldBindJSON(&jsonBody); err != nil {
+		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrBodyMissingInfo)
+		return nil, 0, 0, nsm.ErrBodyMissingInfo
+	}
+	// check ips
+	if net.ParseIP(jsonBody.ExternalIp) == nil || net.ParseIP(jsonBody.ManagementIp) == nil {
+		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrRequestConfigurationGateway)
+		return nil, 0, 0, nsm.ErrRequestConfigurationGateway
+	}
+
+	// check ports
+	mgmtPort, err := parsePort(jsonBody.ManagementPort)
+	if err != nil {
+		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrRequestConfigurationGateway)
+		return nil, 0, 0, nsm.ErrRequestConfigurationGateway
+	}
+
+	vpnPort, err := parsePort(jsonBody.VpnServerPort)
+	if err != nil {
+		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrRequestConfigurationGateway)
+		return nil, 0, 0, nsm.ErrRequestConfigurationGateway
+	}
+	return &jsonBody, mgmtPort, vpnPort, nil
+}
 
 // TODO to be implemented
 // if no configuration exists, return error
@@ -45,31 +73,10 @@ func (obj *ServerInterfaceImpl) GetGatewaysIdConfiguration(c *gin.Context, id in
 	c.JSON(http.StatusOK, response)
 }
 
-func checkPutGatewaysIdConfigurationBody(c *gin.Context) (*NsmmApi.PutGatewayConfigurationBody, uint16, error) {
-	var jsonBody NsmmApi.PutGatewayConfigurationBody
-	if err := c.ShouldBindJSON(&jsonBody); err != nil {
-		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrBodyMissingInfo)
-		return nil, 0, nsm.ErrBodyMissingInfo
-	}
-	// check ips
-	if net.ParseIP(jsonBody.ExternalIp) == nil || net.ParseIP(jsonBody.ManagementIp) == nil {
-		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrRequestConfigurationGateway)
-		return nil, 0, nsm.ErrRequestConfigurationGateway
-	}
-
-	// check port
-	port, err := parsePort(jsonBody.ManagementPort)
-	if err != nil {
-		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrRequestConfigurationGateway)
-		return nil, 0, nsm.ErrRequestConfigurationGateway
-	}
-	return &jsonBody, port, nil
-}
-
 // (PUT /gateways/{id}/configuration)
 func (obj *ServerInterfaceImpl) PutGatewaysIdConfiguration(c *gin.Context, id int) {
 	// Retrieve and check JSON body
-	jsonBody, port, err := checkPutGatewaysIdConfigurationBody(c)
+	jsonBody, mnmtPort, vpnPort, err := checkPutGatewaysIdConfigurationBody(c)
 	if err != nil {
 		return
 	}
@@ -89,18 +96,18 @@ func (obj *ServerInterfaceImpl) PutGatewaysIdConfiguration(c *gin.Context, id in
 		return
 	}
 	// check status
-	if gc.Status != nsm.WAIT_FOR_GATEWAY {
-		log.Info("PutGatewaysIdConfiguration - impossible to configure gateway. The current state is ", gc.Status)
+	if gc.Status != nsm.WAIT_FOR_GATEWAY && gc.Status != nsm.CONFIGURATION_ERROR {
+		log.Info("PutGatewaysIdConfiguration - impossible to configure gateway configuration. The current state is ", gc.Status)
 		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusForbidden, nsm.ErrConfiguringGateway)
 		return
 	}
 
 	gc.ExternalIp = jsonBody.ExternalIp
 	gc.ManagementIP = jsonBody.ManagementIp
-	gc.ManagementPort = port
-	gc.Status = nsm.READY
-
-	// TODO update database in case of error?
+	gc.ManagementPort = mnmtPort
+	gc.VPNServerInterface = jsonBody.VpnServerInterface
+	gc.VPNServerPort = vpnPort
+	gc.Status = nsm.CONFIGURING
 
 	// Update database
 	result = obj.DB.Save(&gc)
@@ -108,6 +115,9 @@ func (obj *ServerInterfaceImpl) PutGatewaysIdConfiguration(c *gin.Context, id in
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+
+	go configureGateway(obj.DB, gc.ID)
+
 	c.Status(http.StatusOK)
 }
 
@@ -130,16 +140,20 @@ func (obj *ServerInterfaceImpl) DeleteGatewaysIdConfiguration(c *gin.Context, id
 	}
 	// check status
 	if gc.Status != nsm.READY && gc.Status != nsm.CONFIGURATION_ERROR {
-		log.Info("PutGatewaysIdConfiguration - impossible to delete gateway. The current state is ", gc.Status)
-		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusForbidden, nsm.ErrDeleteConfigurationGateway)
+		log.Info("DeleteGatewaysIdConfiguration - impossible to delete gateway configuration. The current state is ", gc.Status)
+		setErrorResponse(c, "DeleteGatewaysIdConfiguration", http.StatusForbidden, nsm.ErrDeleteConfigurationGateway)
 		return
 	}
+
+	go resetGateway(obj.DB, gc.ID)
 
 	// Remove configuration params from DB
 	gc.ExternalIp = ""
 	gc.ManagementIP = ""
 	gc.ManagementPort = 0
-	gc.Status = nsm.WAIT_FOR_GATEWAY
+	gc.VPNServerInterface = ""
+	gc.VPNServerPort = 0
+	gc.Status = nsm.DELETING_CONFIGURATION
 
 	// Update database
 	result = obj.DB.Save(&gc)
@@ -147,5 +161,25 @@ func (obj *ServerInterfaceImpl) DeleteGatewaysIdConfiguration(c *gin.Context, id
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+
 	c.Status(http.StatusOK)
+}
+
+// TODO implement async go routine for configuration
+func configureGateway(database *gorm.DB, id int) {
+	var gc nsm.Gateway
+	time.Sleep(time.Second * 5)
+	database.First(&gc, id)
+	gc.Status = nsm.READY
+	log.Info("configureGateway ", gc.Status)
+	database.Save(&gc)
+}
+
+func resetGateway(database *gorm.DB, id int) {
+	var gc nsm.Gateway
+	time.Sleep(time.Second * 5)
+	database.First(&gc, id)
+	gc.Status = nsm.WAIT_FOR_GATEWAY
+	log.Info("resetGateway ", gc.Status)
+	database.Save(&gc)
 }

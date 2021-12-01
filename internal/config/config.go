@@ -7,6 +7,7 @@ import (
 
 // Configurations exported
 type Configurations struct {
+	Log      string
 	Server   ServerConfigurations
 	Database DatabaseConfigurations
 	Vim      []VimConfigurations
@@ -35,6 +36,25 @@ type VimConfigurations struct {
 	Password         string
 	TenantID         string
 	DomainID         string
+}
+
+func LogLevel(c *Configurations) (log.Level, error) {
+	switch c.Log {
+	case "Trace":
+		return log.TraceLevel, nil
+	case "Debug":
+		return log.DebugLevel, nil
+	case "Info":
+		return log.InfoLevel, nil
+	case "Error":
+		return log.ErrorLevel, nil
+	case "Panic":
+		return log.PanicLevel, nil
+	case "Fatal":
+		return log.FatalLevel, nil
+	default:
+		return 0, ErrLogLevel
+	}
 }
 
 func ReadConfigFile() *Configurations {

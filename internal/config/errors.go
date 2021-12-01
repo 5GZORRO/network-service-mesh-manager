@@ -5,7 +5,9 @@ import (
 )
 
 var (
-	//
+	// LOG LEVEL ERRORS
+	ErrLogLevel = errors.New("log level does not exist")
+	// VIM ERRORS
 	ErrMissingVimName = errors.New("missing Name in config file for vim")
 	//
 	ErrMissingVimType = errors.New("missing Type in config file for vim")

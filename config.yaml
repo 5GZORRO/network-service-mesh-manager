@@ -1,5 +1,6 @@
 # levels Trace, Debug, Info, Warning, Error, Fatal and Panic
 # TODO add configurable log level
+log: Trace
 
 server:
   port: 8080

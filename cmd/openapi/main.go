@@ -56,11 +56,19 @@ func main() {
 	customFormatter.FullTimestamp = true
 	log.SetFormatter(customFormatter)
 	// log.SetReportCaller(true)
-	log.SetLevel(log.TraceLevel)
+	log.SetLevel(log.ErrorLevel)
 
 	//  Read config file
 	configuration := config.ReadConfigFile()
 	log.Info(*configuration)
+
+	// set log level
+	level, err := config.LogLevel(configuration)
+	if err != nil {
+		log.Error(err, ", default log level is ", log.ErrorLevel)
+	} else {
+		log.SetLevel(level)
+	}
 
 	// Connect to the DB
 	dsn := configuration.Database.Username + ":" + configuration.Database.Password + "@tcp(" + configuration.Database.Host + ":" + configuration.Database.Port + ")/" + configuration.Database.DB + "?charset=utf8mb4&parseTime=True&loc=Local"

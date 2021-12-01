@@ -11,9 +11,9 @@ type VimDriverList struct {
 	VimList map[string]VimDriver
 }
 
-// func (vims *VimDriverList) vimExists(name string) bool {
-// 	return vims.vimList[name] != nil
-// }
+func (vims *VimDriverList) Exists(name string) bool {
+	return vims.VimList[name] != nil
+}
 
 func (vims *VimDriverList) GetVim(name string) *VimDriver {
 	vim := vims.VimList[name]

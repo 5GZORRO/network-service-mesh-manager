@@ -6,6 +6,7 @@
     },
     "paths": {
         "/gateways": {
+            "description": "Endpoint for retrieving all gateways or create a new gateway",
             "get": {
                 "parameters": [
                     {
@@ -23,7 +24,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ResponseGatewaysListObject"
+                                    "$ref": "#/components/schemas/ResponseGatewaysList"
                                 }
                             }
                         },
@@ -43,11 +44,11 @@
             },
             "post": {
                 "requestBody": {
-                    "description": "Subnet cidr of the private network?",
+                    "description": "Parameters to define a new gateway: private-subnet, slice-id",
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PostGatewayBody"
+                                "$ref": "#/components/schemas/PostGateway"
                             }
                         }
                     },
@@ -58,7 +59,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "$ref": "#/components/schemas/ResponseGateway"
                                 }
                             }
                         },
@@ -94,7 +95,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ResponseGatewayObject"
+                                    "$ref": "#/components/schemas/ResponseGateway"
                                 }
                             }
                         },
@@ -115,13 +116,27 @@
             "delete": {
                 "responses": {
                     "204": {
-                        "description": "correctly removed of a gateway"
+                        "description": "correctly removed gateway"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- requested gateway does not exist"
                     },
                     "403": {
-                        "description": "impossibile to remove a gateway, which could be in use or configured"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "impossibile to remove a gateway, which could be in use or already configured"
                     }
                 }
             },
@@ -138,7 +153,7 @@
             ]
         },
         "/gateways/{id}/configuration": {
-            "description": "Configuration of VM and server VPN",
+            "description": "Endpoint to put/retrieve and delete a configuration of a gateway, which consist of setting the external and management-ip, plus configuring the VPN server",
             "get": {
                 "responses": {
                     "404": {
@@ -155,7 +170,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ResponseGatewayConfigurationObject"
+                                    "$ref": "#/components/schemas/GatewayConfiguration"
                                 }
                             }
                         },
@@ -169,24 +184,52 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PutGatewayConfigurationBody"
+                                "$ref": "#/components/schemas/GatewayConfiguration"
                             }
                         }
                     },
                     "required": true
                 },
                 "responses": {
-                    "200": {
-                        "description": "It returns the new gateway configuration "
-                    },
                     "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "json not correct"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "If the gateway can't be configured (already configured or in error state)"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "if gateway does not exist"
+                    },
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GatewayConfiguration"
+                                }
+                            }
+                        },
+                        "description": "New configuration created"
                     }
                 }
             },
@@ -229,12 +272,27 @@
             ]
         },
         "/gateways/{id}/vpn/connections": {
+            "description": "Endpoint to retrieve all active VPN connections and create new VPN connections",
             "get": {
                 "responses": {
                     "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseGatewayVPNConnectionsList"
+                                }
+                            }
+                        },
                         "description": "List of all VPN connection established by the requested gateway"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- The request gateway does not exist"
                     }
                 }
@@ -244,7 +302,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PostGatewayVPNConnectionBody"
+                                "$ref": "#/components/schemas/PostGatewayVPNConnection"
                             }
                         }
                     },
@@ -262,6 +320,13 @@
                         "description": "- The requested gateway does not exist\n- The requested gateway is not configured\n- The requested gateway has not the VPN server configured"
                     },
                     "204": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseGatewayVPNConnection"
+                                }
+                            }
+                        },
                         "description": "request to delete the gateway connection accepted"
                     }
                 }
@@ -278,12 +343,27 @@
             ]
         },
         "/gateways/{id}/vpn/connections/{connectionid}/": {
+            "description": "Endpoint to manage a single VPN connection",
             "get": {
                 "responses": {
                     "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseGatewayVPNConnection"
+                                }
+                            }
+                        },
                         "description": "Connection details"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- requested connection does not exist\n- requested gateway does not exist"
                     }
                 }
@@ -294,6 +374,13 @@
                         "description": "correctly requested removal of a VPN connection"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- request connection does not exist\n- requested gateway does not exist"
                     }
                 }
@@ -320,29 +407,6 @@
     },
     "components": {
         "schemas": {
-            "PostGatewayBody": {
-                "title": "Root Type for PostGatewayBody",
-                "description": "Subnet of the private net",
-                "required": [
-                    "subnet",
-                    "slice-id"
-                ],
-                "type": "object",
-                "properties": {
-                    "subnet": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "slice-id": {
-                        "description": "",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "slice-id": "sdhuewhq",
-                    "subnet": "192.168.1.16/29"
-                }
-            },
             "ErrorResponse": {
                 "title": "Root Type for ErrorResponseGatewayNotExists",
                 "description": "Error response\n",
@@ -359,11 +423,93 @@
                     "error": "gateway for requested slice does not exists"
                 }
             },
-            "PostGatewayVPNConnectionBody": {
+            "ResponseGatewayVPNConnectionsList": {
+                "title": "Root Type for ResponseGatewayVPNConnectionsList",
+                "description": "",
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ResponseGatewayVPNConnection"
+                },
+                "example": [
+                    {
+
+                    },
+                    {
+
+                    }
+                ]
+            },
+            "ResponseGatewaysList": {
+                "title": "Root Type for ResponseGatewaysListObject",
+                "description": "",
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ResponseGateway"
+                },
+                "example": [
+                    {
+                        "id": 81,
+                        "slice-id": "some text",
+                        "subnet": "some text",
+                        "status": "some text"
+                    },
+                    {
+                        "id": 94,
+                        "slice-id": "some text",
+                        "subnet": "some text",
+                        "status": "some text"
+                    }
+                ]
+            },
+            "ResponseGateway": {
+                "title": "Root Type for GatewayObject",
+                "description": "Object describing gateway",
+                "required": [
+                    "id",
+                    "slice-id",
+                    "subnet",
+                    "status",
+                    "vim-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "gateway unique identifier",
+                        "type": "integer"
+                    },
+                    "slice-id": {
+                        "description": "slice unique identifier",
+                        "type": "string"
+                    },
+                    "subnet": {
+                        "type": "string",
+                        "example": "192.168.1.16/29"
+                    },
+                    "status": {
+                        "description": "current status of the gateway",
+                        "type": "string"
+                    },
+                    "vim-name": {
+                        "description": "ref to the vim where to create the gateway",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": 14,
+                    "slice-id": "some text",
+                    "subnet": "some text",
+                    "status": "some text",
+                    "vim-name": "some text"
+                }
+            },
+            "PostGatewayVPNConnection": {
                 "title": "Root Type for PostGatewayConnectionBody",
                 "description": "Set of information needed to create a VPN connection",
                 "required": [
-                    "role"
+                    "role",
+                    "public-key",
+                    "subnet-to-redirect",
+                    "allowed-ips"
                 ],
                 "type": "object",
                 "properties": {
@@ -372,27 +518,73 @@
                         "type": "string",
                         "example": "CLIENT,\nSERVER\n"
                     },
-                    "remote_server_ip": {
+                    "remote-server-ip": {
                         "description": "if role == CLIENT",
                         "type": "string"
                     },
-                    "remote_server_port": {
+                    "remote-server-port": {
                         "description": "if role == CLIENT",
                         "type": "string"
                     },
-                    "subnet_to_redirect": {
-                        "description": "If role == CLIENT\n",
+                    "subnet-to-redirect": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "public-key": {
+                        "description": "public-key of client or server, based on the ROLE field",
+                        "type": "string"
+                    },
+                    "allowed-ips": {
+                        "description": "list of IPv4 addresses with CIDR masks from which incoming traffic for this peer is allowed and to which outgoing traffic for this peer is directed",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "example": {
+                    "role": "some text",
+                    "remote-server-ip": "some text",
+                    "remote-server-port": "some text",
+                    "subnet-to-redirect": "some text",
+                    "public-key": "some text",
+                    "allowed-ips": [
+                        "some text",
+                        "some text"
+                    ]
+                }
+            },
+            "PostGateway": {
+                "title": "Root Type for PostGatewayBody",
+                "description": "Subnet of the private net",
+                "required": [
+                    "subnet",
+                    "slice-id",
+                    "vim-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "subnet": {
+                        "description": "private network subnet",
+                        "type": "string",
+                        "example": "192.168.1.16/29"
+                    },
+                    "slice-id": {
+                        "description": "slice unique identifier",
+                        "type": "string"
+                    },
+                    "vim-name": {
+                        "description": "ref to the vim where to create the gateway",
                         "type": "string"
                     }
                 },
                 "example": {
-                    "role": "",
-                    "remote_server_ip": "",
-                    "remote_server_port": "",
-                    "subnet_to_redirect": ""
+                    "slice-id": "example",
+                    "vim-name": "openstack",
+                    "subnet": "192.168.1.16/29"
                 }
             },
-            "PutGatewayConfigurationBody": {
+            "GatewayConfiguration": {
                 "title": "Root Type for GatewayConfiguration",
                 "description": "",
                 "required": [
@@ -432,85 +624,58 @@
                     "vpn-server-interface": "some text"
                 }
             },
-            "ResponseGatewayObject": {
-                "title": "Root Type for GatewayObject",
-                "description": "Object describing gateway",
+            "ResponseGatewayVPNConnection": {
+                "description": "Set of information needed to create a VPN connection",
                 "required": [
-                    "id",
-                    "slice-id",
-                    "subnet",
-                    "status"
+                    "id"
                 ],
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "integer"
+                    "role": {
+                        "description": "Role of the VPN server, if it acts as a SERVER or a CLIENT in the connection creation",
+                        "type": "string",
+                        "example": "CLIENT,\nSERVER\n"
                     },
-                    "slice-id": {
+                    "remote-server-ip": {
+                        "description": "if role == CLIENT",
                         "type": "string"
                     },
-                    "subnet": {
+                    "remote-server-port": {
+                        "description": "if role == CLIENT",
                         "type": "string"
                     },
-                    "status": {
+                    "subnet-to-redirect": {
                         "description": "",
                         "type": "string"
+                    },
+                    "public-key": {
+                        "description": "public-key of client or server, based on the ROLE field",
+                        "type": "string"
+                    },
+                    "allowed-ips": {
+                        "description": "list of IPv4 addresses with CIDR masks from which incoming traffic for this peer is allowed and to which outgoing traffic for this peer is directed",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "id": {
+                        "description": "",
+                        "type": "integer"
                     }
                 },
                 "example": {
-                    "id": 99,
-                    "slice-id": "some text",
-                    "subnet": "some text",
-                    "status": "some text"
+                    "role": "some text",
+                    "remote-server-ip": "some text",
+                    "remote-server-port": "some text",
+                    "subnet-to-redirect": "some text",
+                    "public-key": "some text",
+                    "allowed-ips": [
+                        "some text",
+                        "some text"
+                    ],
+                    "id": 39
                 }
-            },
-            "ResponseGatewayConfigurationObject": {
-                "title": "Root Type for ResponseGatewayConfigurationObject",
-                "description": "",
-                "required": [
-                    "external-ip",
-                    "management-ip",
-                    "management-port"
-                ],
-                "type": "object",
-                "properties": {
-                    "external-ip": {
-                        "type": "string"
-                    },
-                    "management-ip": {
-                        "type": "string"
-                    },
-                    "management-port": {
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "external-ip": "",
-                    "management-ip": "",
-                    "management-port": ""
-                }
-            },
-            "ResponseGatewaysListObject": {
-                "title": "Root Type for ResponseGatewaysListObject",
-                "description": "",
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/ResponseGatewayObject"
-                },
-                "example": [
-                    {
-                        "id": 81,
-                        "slice-id": "some text",
-                        "subnet": "some text",
-                        "status": "some text"
-                    },
-                    {
-                        "id": 94,
-                        "slice-id": "some text",
-                        "subnet": "some text",
-                        "status": "some text"
-                    }
-                ]
             }
         }
     }

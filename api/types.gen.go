@@ -8,29 +8,8 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// Subnet of the private net
-type PostGatewayBody struct {
-	SliceId string `json:"slice-id"`
-	Subnet  string `json:"subnet"`
-}
-
-// Set of information needed to create a VPN connection
-type PostGatewayVPNConnectionBody struct {
-	// if role == CLIENT
-	RemoteServerIp *string `json:"remote_server_ip,omitempty"`
-
-	// if role == CLIENT
-	RemoteServerPort *string `json:"remote_server_port,omitempty"`
-
-	// Role of the VPN server, if it acts as a SERVER or a CLIENT in the connection creation
-	Role string `json:"role"`
-
-	// If role == CLIENT
-	SubnetToRedirect *string `json:"subnet_to_redirect,omitempty"`
-}
-
-// PutGatewayConfigurationBody defines model for PutGatewayConfigurationBody.
-type PutGatewayConfigurationBody struct {
+// GatewayConfiguration defines model for GatewayConfiguration.
+type GatewayConfiguration struct {
 	ExternalIp         string `json:"external-ip"`
 	ManagementIp       string `json:"management-ip"`
 	ManagementPort     string `json:"management-port"`
@@ -38,23 +17,78 @@ type PutGatewayConfigurationBody struct {
 	VpnServerPort      string `json:"vpn-server-port"`
 }
 
-// ResponseGatewayConfigurationObject defines model for ResponseGatewayConfigurationObject.
-type ResponseGatewayConfigurationObject struct {
-	ExternalIp     string `json:"external-ip"`
-	ManagementIp   string `json:"management-ip"`
-	ManagementPort string `json:"management-port"`
+// Subnet of the private net
+type PostGateway struct {
+	// slice unique identifier
+	SliceId string `json:"slice-id"`
+
+	// private network subnet
+	Subnet string `json:"subnet"`
+
+	// ref to the vim where to create the gateway
+	VimName string `json:"vim-name"`
+}
+
+// Set of information needed to create a VPN connection
+type PostGatewayVPNConnection struct {
+	// list of IPv4 addresses with CIDR masks from which incoming traffic for this peer is allowed and to which outgoing traffic for this peer is directed
+	AllowedIps []string `json:"allowed-ips"`
+
+	// public-key of client or server, based on the ROLE field
+	PublicKey string `json:"public-key"`
+
+	// if role == CLIENT
+	RemoteServerIp *string `json:"remote-server-ip,omitempty"`
+
+	// if role == CLIENT
+	RemoteServerPort *string `json:"remote-server-port,omitempty"`
+
+	// Role of the VPN server, if it acts as a SERVER or a CLIENT in the connection creation
+	Role             string `json:"role"`
+	SubnetToRedirect string `json:"subnet-to-redirect"`
 }
 
 // Object describing gateway
-type ResponseGatewayObject struct {
-	Id      int    `json:"id"`
+type ResponseGateway struct {
+	// gateway unique identifier
+	Id int `json:"id"`
+
+	// slice unique identifier
 	SliceId string `json:"slice-id"`
-	Status  string `json:"status"`
-	Subnet  string `json:"subnet"`
+
+	// current status of the gateway
+	Status string `json:"status"`
+	Subnet string `json:"subnet"`
+
+	// ref to the vim where to create the gateway
+	VimName string `json:"vim-name"`
 }
 
-// ResponseGatewaysListObject defines model for ResponseGatewaysListObject.
-type ResponseGatewaysListObject []ResponseGatewayObject
+// Set of information needed to create a VPN connection
+type ResponseGatewayVPNConnection struct {
+	// list of IPv4 addresses with CIDR masks from which incoming traffic for this peer is allowed and to which outgoing traffic for this peer is directed
+	AllowedIps *[]string `json:"allowed-ips,omitempty"`
+	Id         int       `json:"id"`
+
+	// public-key of client or server, based on the ROLE field
+	PublicKey *string `json:"public-key,omitempty"`
+
+	// if role == CLIENT
+	RemoteServerIp *string `json:"remote-server-ip,omitempty"`
+
+	// if role == CLIENT
+	RemoteServerPort *string `json:"remote-server-port,omitempty"`
+
+	// Role of the VPN server, if it acts as a SERVER or a CLIENT in the connection creation
+	Role             *string `json:"role,omitempty"`
+	SubnetToRedirect *string `json:"subnet-to-redirect,omitempty"`
+}
+
+// ResponseGatewayVPNConnectionsList defines model for ResponseGatewayVPNConnectionsList.
+type ResponseGatewayVPNConnectionsList []ResponseGatewayVPNConnection
+
+// ResponseGatewaysList defines model for ResponseGatewaysList.
+type ResponseGatewaysList []ResponseGateway
 
 // GetGatewaysParams defines parameters for GetGateways.
 type GetGatewaysParams struct {
@@ -63,13 +97,13 @@ type GetGatewaysParams struct {
 }
 
 // PostGatewaysJSONBody defines parameters for PostGateways.
-type PostGatewaysJSONBody PostGatewayBody
+type PostGatewaysJSONBody PostGateway
 
 // PutGatewaysIdConfigurationJSONBody defines parameters for PutGatewaysIdConfiguration.
-type PutGatewaysIdConfigurationJSONBody PutGatewayConfigurationBody
+type PutGatewaysIdConfigurationJSONBody GatewayConfiguration
 
 // PostGatewaysIdVpnConnectionsJSONBody defines parameters for PostGatewaysIdVpnConnections.
-type PostGatewaysIdVpnConnectionsJSONBody PostGatewayVPNConnectionBody
+type PostGatewaysIdVpnConnectionsJSONBody PostGatewayVPNConnection
 
 // PostGatewaysJSONRequestBody defines body for PostGateways for application/json ContentType.
 type PostGatewaysJSONRequestBody PostGatewaysJSONBody

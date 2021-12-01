@@ -27,4 +27,7 @@ var (
 	ErrDeleteConfigurationGateway = errors.New("configuration of gateway can't be removed")
 	//
 	ErrConfigurationGatewayNotExists = errors.New("gateway is not yet configured")
+	// GENERAL -
+	//
+	ErrGeneral = errors.New("internal error")
 )

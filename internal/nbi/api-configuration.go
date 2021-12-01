@@ -15,8 +15,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func checkPutGatewaysIdConfigurationBody(c *gin.Context) (*NsmmApi.PutGatewayConfigurationBody, uint16, uint16, error) {
-	var jsonBody NsmmApi.PutGatewayConfigurationBody
+func checkPutGatewaysIdConfigurationBody(c *gin.Context) (*NsmmApi.GatewayConfiguration, uint16, uint16, error) {
+	var jsonBody NsmmApi.GatewayConfiguration
 	if err := c.ShouldBindJSON(&jsonBody); err != nil {
 		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusBadRequest, nsm.ErrBodyMissingInfo)
 		return nil, 0, 0, nsm.ErrBodyMissingInfo
@@ -42,14 +42,13 @@ func checkPutGatewaysIdConfigurationBody(c *gin.Context) (*NsmmApi.PutGatewayCon
 	return &jsonBody, mgmtPort, vpnPort, nil
 }
 
-// TODO to be implemented
-// if no configuration exists, return error
 // (GET /gateways/{id}/configuration)
 func (obj *ServerInterfaceImpl) GetGatewaysIdConfiguration(c *gin.Context, id int) {
 	var gc nsm.Gateway
-	log.Info("GetGatewaysIdConfiguration - requested GET of gateway with ID: ", id)
+	log.Debug("GetGatewaysIdConfiguration - requested GET of gateway with ID: ", id)
 	// Read gateway from DB
 	result := obj.DB.First(&gc, id)
+	log.Trace(gc)
 
 	// check error
 	if result.Error != nil {
@@ -66,10 +65,12 @@ func (obj *ServerInterfaceImpl) GetGatewaysIdConfiguration(c *gin.Context, id in
 		setErrorResponse(c, "GetGatewaysIdConfiguration", http.StatusNotFound, nsm.ErrConfigurationGatewayNotExists)
 		return
 	}
-	var response NsmmApi.ResponseGatewayConfigurationObject
+	var response NsmmApi.GatewayConfiguration
 	response.ExternalIp = gc.ExternalIp
 	response.ManagementIp = gc.ManagementIP
 	response.ManagementPort = strconv.Itoa(int(gc.ManagementPort))
+	response.VpnServerInterface = gc.VPNServerInterface
+	response.VpnServerPort = strconv.Itoa(int(gc.VPNServerPort))
 	c.JSON(http.StatusOK, response)
 }
 
@@ -82,7 +83,7 @@ func (obj *ServerInterfaceImpl) PutGatewaysIdConfiguration(c *gin.Context, id in
 	}
 
 	var gc nsm.Gateway
-	log.Info("PutGatewaysIdConfiguration - requested configuration of gateway with ID: ", id)
+	log.Debug("PutGatewaysIdConfiguration - requested configuration of gateway with ID: ", id)
 	// Read gateway from DB
 	result := obj.DB.First(&gc, id)
 
@@ -96,8 +97,8 @@ func (obj *ServerInterfaceImpl) PutGatewaysIdConfiguration(c *gin.Context, id in
 		return
 	}
 	// check status
-	if gc.Status != nsm.WAIT_FOR_GATEWAY && gc.Status != nsm.CONFIGURATION_ERROR {
-		log.Info("PutGatewaysIdConfiguration - impossible to configure gateway configuration. The current state is ", gc.Status)
+	if gc.Status != nsm.WAIT_FOR_GATEWAY_CONFIG && gc.Status != nsm.CONFIGURATION_ERROR {
+		log.Warn("PutGatewaysIdConfiguration - impossible to configure gateway configuration. The current state is ", gc.Status)
 		setErrorResponse(c, "PutGatewaysIdConfiguration", http.StatusForbidden, nsm.ErrConfiguringGateway)
 		return
 	}
@@ -116,15 +117,15 @@ func (obj *ServerInterfaceImpl) PutGatewaysIdConfiguration(c *gin.Context, id in
 		return
 	}
 
+	// TODO implement real configuration
 	go configureGateway(obj.DB, gc.ID)
-
 	c.Status(http.StatusOK)
 }
 
 // (DELETE /gateways/{id}/configuration)
 func (obj *ServerInterfaceImpl) DeleteGatewaysIdConfiguration(c *gin.Context, id int) {
 	var gc nsm.Gateway
-	log.Info("DeleteGatewaysIdConfiguration - requested removal of gateway with ID: ", id)
+	log.Debug("DeleteGatewaysIdConfiguration - requested removal of gateway with ID: ", id)
 	// Read gateway from DB
 	result := obj.DB.First(&gc, id)
 
@@ -139,12 +140,18 @@ func (obj *ServerInterfaceImpl) DeleteGatewaysIdConfiguration(c *gin.Context, id
 		return
 	}
 	// check status
+	if gc.Status == nsm.WAIT_FOR_GATEWAY_CONFIG {
+		log.Warn("DeleteGatewaysIdConfiguration - impossible to delete gateway configuration. The current state is ", gc.Status)
+		setErrorResponse(c, "DeleteGatewaysIdConfiguration", http.StatusNotFound, nsm.ErrConfigurationGatewayNotExists)
+		return
+	}
 	if gc.Status != nsm.READY && gc.Status != nsm.CONFIGURATION_ERROR {
-		log.Info("DeleteGatewaysIdConfiguration - impossible to delete gateway configuration. The current state is ", gc.Status)
+		log.Warn("DeleteGatewaysIdConfiguration - impossible to delete gateway configuration. The current state is ", gc.Status)
 		setErrorResponse(c, "DeleteGatewaysIdConfiguration", http.StatusForbidden, nsm.ErrDeleteConfigurationGateway)
 		return
 	}
 
+	// TODO implement real config
 	go resetGateway(obj.DB, gc.ID)
 
 	// Remove configuration params from DB
@@ -154,6 +161,7 @@ func (obj *ServerInterfaceImpl) DeleteGatewaysIdConfiguration(c *gin.Context, id
 	gc.VPNServerInterface = ""
 	gc.VPNServerPort = 0
 	gc.Status = nsm.DELETING_CONFIGURATION
+	log.Trace(gc)
 
 	// Update database
 	result = obj.DB.Save(&gc)
@@ -161,7 +169,6 @@ func (obj *ServerInterfaceImpl) DeleteGatewaysIdConfiguration(c *gin.Context, id
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-
 	c.Status(http.StatusOK)
 }
 
@@ -171,7 +178,8 @@ func configureGateway(database *gorm.DB, id int) {
 	time.Sleep(time.Second * 5)
 	database.First(&gc, id)
 	gc.Status = nsm.READY
-	log.Info("configureGateway ", gc.Status)
+	log.Trace("configureGateway ", gc.Status)
+	log.Trace(gc)
 	database.Save(&gc)
 }
 
@@ -179,7 +187,8 @@ func resetGateway(database *gorm.DB, id int) {
 	var gc nsm.Gateway
 	time.Sleep(time.Second * 5)
 	database.First(&gc, id)
-	gc.Status = nsm.WAIT_FOR_GATEWAY
-	log.Info("resetGateway ", gc.Status)
+	gc.Status = nsm.WAIT_FOR_GATEWAY_CONFIG
+	log.Trace("resetGateway ", gc.Status)
+	log.Trace(gc)
 	database.Save(&gc)
 }

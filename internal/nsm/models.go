@@ -4,12 +4,13 @@ import "time"
 
 type Gateway struct {
 	ID                 int
-	SliceID            string `gorm:"unique;<-:create"`
+	SliceID            string `gorm:"unique;<-:create;"`
 	Status             string
 	VimName            string
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 	VimResourceId      int
+	Resources          OpenstackResource `gorm:"foreignKey:VimResourceId;references:ID"`
 	ExternalIp         string
 	ManagementIP       string
 	ManagementPort     uint16
@@ -19,12 +20,12 @@ type Gateway struct {
 
 // Object referring to table where to store all OS gateway resources
 type OpenstackResource struct {
-	ID              int
+	ID              int `gorm:"autoIncrement"`
 	NetworkVimID    string
 	NetworkVimName  string
 	SubnetVimID     string
 	SubnetVimName   string
-	SubentCidr      string
+	SubnetCidr      string
 	RouterVimID     string
 	RouterVimName   string
 	RouterVimPortId string

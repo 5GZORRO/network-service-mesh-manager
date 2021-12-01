@@ -6,5 +6,5 @@ import (
 
 var (
 	//
-	ErrMissing = errors.New("miss")
+	ErrVimNotFound = errors.New("vim does not exists")
 )

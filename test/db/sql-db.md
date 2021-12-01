@@ -6,66 +6,41 @@
         "id": "",               primary_key
         "slice_id":"",          unique
         "status": "",  
-        "vim": "",              different VIMs
-        "created-at": "",
-        "updated-at": "",
-        gateways info
-        "network_id": "",
-        "subnet_id": "",
-        "router_id": "",
+        "vim_name": "",              different VIMs
+        "created_at": "",
+        "updated_at": "",
+        vim gateways info
+        "vim_resource_id": "",
         # configuration
         "management_ip": "",
         "management_port": "",
         "external_ip": "",
         # VPN configuration
-        "server_ip": "",        should be external_ip
-        "server_port": "",
-        "server_interface": ""
+        "vpn_server_port": "",
+        "vpn_server_interface": ""
     }
     ```
 
 
-- _networks_
+- __openstack_resources__
     ```json
     {   
         "id": "",
-        "vim_network_id": "",
-        "vim_network_name": "",
-        "created-at": "",
-        "updated-at": ""
-    }
-    ```
-
-- _subnets_
-    ```json
-    {   
-        "id": "",
-        "vim_subnet_id": "",
-        "vim_subnet_name": "", 
+        "network_vim_id": "",
+        "network_vim_name": "",
+        "subnet_vim_id": "",
+        "subnet_vim_name": "",
         "subnet_cidr": "",
-        "created-at": "",
-        "updated-at": ""
+        "router_vim_id": "",
+        "router_vim_name": "",
+        "router_vim_port_id": ""
     }
-    ```
-
-- _routers_
-    ```json
-    {   
-        "id": "",
-        "vim_router_id": "",
-        "vim_router_name": "",
-        "vim_port_id": "",
-        "created-at": "",
-        "updated-at": ""
-    }
-    ```
 
 - _connections table_: list of connections
     ```json
     {
         "id": "",
         "gateway_id": "",
-        "slice_id": "",
         "role": "",                 [server, client in the VPN connection]
         "remote_peer": "", 
         "remote_port": "",
@@ -75,3 +50,17 @@
         "updated-at": ""
     }
     ```
+
+- _vims_
+```json
+{   
+    "id": "",
+    "vim_name": "",
+    "vim_type": "",
+    "endpoint": "",
+    "username": "",
+    "password": "",
+    "domain": "",
+    "tenant": "",
+
+}

@@ -1,4 +1,4 @@
-package drivers
+package vim
 
 import (
 	log "github.com/sirupsen/logrus"

@@ -2,7 +2,7 @@
 package nbi
 
 import (
-	"nextworks/nsm/internal/drivers"
+	"nextworks/nsm/internal/vim"
 
 	"gorm.io/gorm"
 )
@@ -12,13 +12,14 @@ import (
 type ServerInterfaceImpl struct {
 	DB *gorm.DB
 	// Config file info
-	Vim drivers.VimDriver
+	// TODO handle more than one VIMs
+	Vims *vim.VimDriverList
 	// Lock     sync.Mutex
 }
 
-func NewServerInterfaceImpl(DBconnection *gorm.DB, openstackclient *drivers.OpenStackDriver) *ServerInterfaceImpl {
+func NewServerInterfaceImpl(DBconnection *gorm.DB, drivers *vim.VimDriverList) *ServerInterfaceImpl {
 	return &ServerInterfaceImpl{
-		DB:  DBconnection,
-		Vim: openstackclient,
+		DB:   DBconnection,
+		Vims: drivers,
 	}
 }

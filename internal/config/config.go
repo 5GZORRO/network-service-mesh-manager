@@ -1,10 +1,15 @@
 package config
 
+import (
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
+
 // Configurations exported
 type Configurations struct {
 	Server   ServerConfigurations
 	Database DatabaseConfigurations
-	Vim      VimConfigurations
+	Vim      []VimConfigurations
 }
 
 // ServerConfigurations exported
@@ -23,9 +28,60 @@ type DatabaseConfigurations struct {
 
 // VimConfigurations exported
 type VimConfigurations struct {
+	Name             string
+	Type             string
 	IdentityEndpoint string
 	Username         string
 	Password         string
 	TenantID         string
 	DomainID         string
+}
+
+func ReadConfigFile() *Configurations {
+	var config Configurations
+
+	// Set the file name of the configurations file, the path and the type file
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.SetConfigType("yaml")
+
+	// Set default values
+	viper.SetDefault("server.port", 8080)
+
+	// Read and initialize
+	if err := viper.ReadInConfig(); err != nil {
+		log.Error("Error reading config file, %s", err)
+	}
+
+	err := viper.Unmarshal(&config)
+	if err != nil {
+		log.Error("Unable to decode into struct, %v", err)
+	}
+
+	return &config
+}
+
+func CheckVimParams(vimConfig VimConfigurations) error {
+	if vimConfig.Name == "" {
+		return ErrMissingVimName
+	}
+	if vimConfig.Type == "" {
+		return ErrMissingVimType
+	}
+	if vimConfig.IdentityEndpoint == "" {
+		return ErrMissingVimEndpoint
+	}
+	if vimConfig.DomainID == "" {
+		return ErrMissingVimDomain
+	}
+	if vimConfig.TenantID == "" {
+		return ErrMissingVimTenant
+	}
+	if vimConfig.Password == "" {
+		return ErrMissingVimPassoword
+	}
+	if vimConfig.Username == "" {
+		return ErrMissingVimUsername
+	}
+	return nil
 }

@@ -1,3 +1,6 @@
+# levels Trace, Debug, Info, Warning, Error, Fatal and Panic
+# TODO add configurable log level
+
 server:
   port: 8080
 
@@ -9,8 +12,10 @@ database:
   password: "root"
 
 vim:
-  identityEndpoint: "http://10.30.7.10:5000/v3"
-  username: "timeo"
-  password: "nextworks"
-  tenantID: "7953babdca974e7ab44cc6c69f093956"
-  domainID: "default"
+  - name: "test"
+    type: "openstack"
+    identityEndpoint: "http://10.30.7.10:5000/v3"
+    username: "timeo"
+    password: "nextworks"
+    tenantID: "7953babdca974e7ab44cc6c69f093956"
+    domainID: "default"

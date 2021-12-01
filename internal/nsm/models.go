@@ -6,11 +6,10 @@ type Gateway struct {
 	ID                 int
 	SliceID            string `gorm:"unique;<-:create"`
 	Status             string
+	VimName            string
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
-	NetworkID          string
-	SubnetID           string
-	RouterID           string
+	VimResourceId      int
 	ExternalIp         string
 	ManagementIP       string
 	ManagementPort     uint16
@@ -18,22 +17,15 @@ type Gateway struct {
 	VPNServerInterface string
 }
 
-type Network struct {
-	ID             int
-	VimNetworkID   string
-	VimNetworkName string
-}
-
-type Subnet struct {
-	ID            int
-	VimSubnetID   string
-	VimSubnetName string
-	SubentCidr    string
-}
-
-type Router struct {
+// Object referring to table where to store all OS gateway resources
+type OpenstackResource struct {
 	ID              int
-	VimRouterID     string
-	VimRouterName   string
-	VimRouterPortId string
+	NetworkVimID    string
+	NetworkVimName  string
+	SubnetVimID     string
+	SubnetVimName   string
+	SubentCidr      string
+	RouterVimID     string
+	RouterVimName   string
+	RouterVimPortId string
 }

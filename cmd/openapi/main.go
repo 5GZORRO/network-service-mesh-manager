@@ -13,12 +13,11 @@ import (
 
 	nsmapi "nextworks/nsm/api"
 	"nextworks/nsm/internal/config"
-	"nextworks/nsm/internal/drivers"
 	"nextworks/nsm/internal/nbi"
+	"nextworks/nsm/internal/vim"
 
 	middleware "github.com/deepmap/oapi-codegen/pkg/gin-middleware"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func NewGinServer(impl *nbi.ServerInterfaceImpl, port int) *http.Server {
@@ -51,54 +50,32 @@ func NewGinServer(impl *nbi.ServerInterfaceImpl, port int) *http.Server {
 	return s
 }
 
-func readConfigFile() *config.Configurations {
-	var config config.Configurations
-
-	// Set the file name of the configurations file, the path and the type file
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	viper.SetConfigType("yaml")
-
-	// Set default values
-	viper.SetDefault("server.port", 8080)
-
-	// Read and initialize
-	if err := viper.ReadInConfig(); err != nil {
-		log.Error("Error reading config file, %s", err)
-	}
-
-	err := viper.Unmarshal(&config)
-	if err != nil {
-		log.Error("Unable to decode into struct, %v", err)
-	}
-
-	return &config
-}
-
 func main() {
 	// Config log
 	customFormatter := new(log.TextFormatter)
 	customFormatter.FullTimestamp = true
 	log.SetFormatter(customFormatter)
+	// log.SetReportCaller(true)
+	log.SetLevel(log.TraceLevel)
 
 	//  Read config file
-	configuration := readConfigFile()
+	configuration := config.ReadConfigFile()
 	log.Info(*configuration)
 
 	// Connect to the DB
 	dsn := configuration.Database.Username + ":" + configuration.Database.Password + "@tcp(" + configuration.Database.Host + ":" + configuration.Database.Port + ")/" + configuration.Database.DB + "?charset=utf8mb4&parseTime=True&loc=Local"
-	log.Info(dsn)
+	log.Trace(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Error("Error connecting to the database")
 		return
 	}
-	log.Info(db)
+	// log.Trace(db)
 
-	// create driver for OS
-	// TODO, should handle different vim
-	openstackclient := drivers.NewOpenStackDriver(configuration.Vim.IdentityEndpoint, configuration.Vim.Username, configuration.Vim.Password, configuration.Vim.TenantID, configuration.Vim.DomainID)
+	// initizialize a driver for each vim, also reading from DB
+	drivers := vim.InizializeVims(db, configuration.Vim)
+	log.Trace(drivers)
 
 	// wait SIG TERM
 	c := make(chan os.Signal)
@@ -106,12 +83,14 @@ func main() {
 	go func() {
 		<-c
 		log.Info("Received SIG TERM")
-		openstackclient.Revoke()
+		for _, vim := range drivers.VimList {
+			vim.Revoke()
+		}
 		os.Exit(1)
 	}()
 
 	// Create an instance of our handler object, containing shared info (DB, driver)
-	sii := nbi.NewServerInterfaceImpl(db, openstackclient)
+	sii := nbi.NewServerInterfaceImpl(db, drivers)
 	s := NewGinServer(sii, configuration.Server.Port)
 
 	log.Fatal(s.ListenAndServe())

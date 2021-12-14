@@ -1,0 +1,577 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "nsmm",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/net-resources": {
+            "description": "This endpoint is invoked by the the slicer before the actual network service instantiation, to create all the necessary network resources on the vim. In details, it can create networks, and resources for Service-Access-Points (SAPs). The BNSD should contain one SAP used by the gateway VNF to provide inter-domain secure connectivity.\n",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "parameters": [
+                    {
+                        "name": "slice-id",
+                        "description": "Id of the network slice owning the network resources",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SliceResources"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "It returns all the network resources of all slices or the network resources for the slice request as query param"
+                    }
+                }
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostSliceResources"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SliceResources"
+                                }
+                            }
+                        },
+                        "description": "Resources requested in the body correctly created"
+                    },
+                    "400": {
+                        "description": "Error in the request of resource to be created"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "network-resources"
+                ],
+                "parameters": [
+                    {
+                        "name": "slice-id",
+                        "description": "Id of the network slice owning the network resources",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resources for slice with slice-id passed as query param. deleted"
+                    },
+                    "404": {
+                        "description": "Resources for slice with slice-id passed as query param. not found"
+                    },
+                    "403": {
+                        "description": "Resources for slice with slice-id passed as query param. cannot be deleted"
+                    }
+                }
+            }
+        },
+        "/net-resources/{id}": {
+            "description": "This endpoint allows to retrieve/delete the network resource set defined in a slice, using the unique identifier of the set of resources",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostSliceResources"
+                                }
+                            }
+                        },
+                        "description": "it returns all the resources related to the requested slice"
+                    },
+                    "404": {
+                        "description": "id does not exist"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Correctly removal of all resources of the slice"
+                    },
+                    "403": {
+                        "description": "Resources of slice with id {id} cannot be canceled"
+                    },
+                    "404": {
+                        "description": "Slice resources with id {id} do not exist"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/net-resources/{id}/gateway": {
+            "description": "Endpoint to \n- retrieve the actual configuration of the gateway of a slice\n- configure the gateway of a slice, in order to provide secure connectivity between slices\n- reset the gateway of a slice",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Gateway"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "It returns the gateway of the mesh"
+                    },
+                    "404": {
+                        "description": "gateway for slice {id} does not exist"
+                    }
+                }
+            },
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Gateway"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "It configure the gateway of the slice"
+                    },
+                    "403": {
+                        "description": "Gateway already configured"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Gateway configuration correctly deleted"
+                    },
+                    "404": {
+                        "description": "Slice resources with {id} do not exist"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/net-resources/{id}/gateway/connections": {
+            "description": "Endpoint to \n- retrieve all the active VPN connections of a gateway\n- request the creation of a new VPN connection with a remote peer",
+            "get": {
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+
+                            }
+                        },
+                        "description": "It returns all the connections"
+                    },
+                    "404": {
+                        "description": "Slice resources with {id} do not exist"
+                    }
+                }
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostConnection"
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Connection"
+                                }
+                            }
+                        },
+                        "description": "It returns the created connection info"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/net-resources/{id}/gateway/connections/{cid}": {
+            "description": "Endpoint to \n- retrieve the info of a VPN connections of a gateway\n- request the removal of an active VPN connection ",
+            "get": {
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Connection"
+                                }
+                            }
+                        },
+                        "description": "it returns the gateway info"
+                    },
+                    "404": {
+                        "description": "- slice resources with {id} do not exist\n- connection with {cid} does not exist"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Gateway configuration correctly deleted"
+                    },
+                    "404": {
+                        "description": "- slice resources with {id} do not exist\n- connection with {cid} does not exist"
+                    },
+                    "403": {
+                        "description": "Connection cannot be canceled"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "cid",
+                    "description": "unique identifier of the VPN connection",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        }
+    },
+    "components": {
+        "schemas": {
+            "Sap": {
+                "title": "Root Type for Sap",
+                "description": "",
+                "required": [
+                    "floating-network-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "floating-network-name": {
+                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
+                        "type": "string"
+                    },
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "floating-network-name": "some text",
+                    "network-name": "some text"
+                }
+            },
+            "Network": {
+                "title": "Root Type for Network",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "network-name": ""
+                }
+            },
+            "PostConnection": {
+                "title": "Root Type for PostConnection",
+                "description": "Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose",
+                "required": [
+                    "pub-key",
+                    "remote-peer-ip",
+                    "remote-peer-port",
+                    "subnets-to-expose"
+                ],
+                "type": "object",
+                "properties": {
+                    "subnets-to-expose": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "pub-key": {
+                        "type": "string"
+                    },
+                    "remote-peer-ip": {
+                        "type": "string"
+                    },
+                    "remote-peer-port": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "subnets-to-expose": [
+                        "some text",
+                        "some text"
+                    ],
+                    "pub-key": "some text",
+                    "remote-peer-ip": "some text",
+                    "remote-peer-port": "some text"
+                }
+            },
+            "Connection": {
+                "title": "Root Type for Connection",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier of the connection-id",
+                        "type": "string"
+                    },
+                    "subnets-to-expose": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "pub-key": {
+                        "type": "string"
+                    },
+                    "remote-peer-ip": {
+                        "type": "string"
+                    },
+                    "remote-peer-port": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "",
+                    "subnets-to-expose": [
+                        ""
+                    ],
+                    "pub-key": "",
+                    "remote-peer-ip": "",
+                    "remote-peer-port": ""
+                }
+            },
+            "PostSliceResources": {
+                "description": "POST to create all the network resources of a slice on a vim",
+                "required": [
+                    "networks",
+                    "service-access-points",
+                    "slice-id"
+                ],
+                "type": "object",
+                "properties": {
+                    "networks": {
+                        "description": "Name of the networks specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Network"
+                        }
+                    },
+                    "service-access-points": {
+                        "description": "SAP specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Sap"
+                        }
+                    },
+                    "slice-id": {
+                        "description": "Id of the network slice owning the network resources, assigned by the Slicer",
+                        "type": "string"
+                    }
+                },
+                "example": "{\n    \"slice-id\": \"\"\n    \"networks\": [\n        {\n            \"network-name\": \"some text\"\n        },\n        {\n            \"network-name\": \"some text\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"some text\",\n            \"network-name\": \"some text\"\n        },\n        {\n            \"floating-network-name\": \"some text\",\n            \"network-name\": \"some text\"\n        }\n    ]\n}"
+            },
+            "SliceResources": {
+                "title": "Root Type for SliceResources",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier of the set of network resources of the slice",
+                        "type": "string"
+                    },
+                    "networks": {
+                        "description": "Name of the networks specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "network-name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "service-access-points": {
+                        "description": "SAP specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "floating-network-name": {
+                                    "type": "string"
+                                },
+                                "network-name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "slice-id": {
+                        "description": "Unique identifier assigned the Slicer"
+                    }
+                },
+                "example": {
+                    "id": "",
+                    "networks": [
+                        {
+                            "network-name": "some text"
+                        },
+                        {
+                            "network-name": "some text"
+                        }
+                    ],
+                    "service-access-points": [
+                        {
+                            "floating-network-name": "some text",
+                            "network-name": "some text"
+                        },
+                        {
+                            "floating-network-name": "some text",
+                            "network-name": "some text"
+                        }
+                    ]
+                }
+            },
+            "Gateway": {
+                "title": "Root Type for Gateway",
+                "description": "Configuration of a gateway ",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "external-ip": {
+                        "type": "string"
+                    },
+                    "subnet-to-expose": {
+                        "type": "string"
+                    },
+                    "mgmt-ip": {
+                        "type": "string"
+                    },
+                    "mgmt-port": {
+                        "type": "string"
+                    },
+                    "pub-key": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "",
+                    "external-ip": "",
+                    "subnet-to-expose": "",
+                    "mgmt-ip": "",
+                    "mgmt-port": "",
+                    "pub-key": ""
+                }
+            }
+        }
+    }
+}

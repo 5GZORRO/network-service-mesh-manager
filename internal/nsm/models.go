@@ -9,7 +9,9 @@ type ResourceSet struct {
 	VimName   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Gateway   Gateway `gorm:"embedded;embeddedPrefix:gw_"`
+	Gateway   Gateway   `gorm:"embedded;embeddedPrefix:gw_"`
+	Networks  []Network `gorm:"foreignKey:ResourceSetId;OnDelete:CASCADE"`
+	Saps      []Sap     `gorm:"foreignKey:ResourceSetId;OnDelete:CASCADE;"`
 }
 
 type Gateway struct {
@@ -22,16 +24,13 @@ type Gateway struct {
 }
 
 type Network struct {
-	ID              int `gorm:"autoIncrement"`
-	ResourceSetId   int
-	NetworkVimID    string
-	NetworkVimName  string
-	SubnetVimID     string
-	SubnetVimName   string
-	SubnetCidr      string
-	RouterVimID     string
-	RouterVimName   string
-	RouterVimPortId string
+	ID            int `gorm:"autoIncrement"`
+	ResourceSetId int
+	NetworkID     string
+	NetworkName   string
+	SubnetID      string
+	SubnetName    string
+	SubnetCidr    string
 }
 
 type Sap struct {

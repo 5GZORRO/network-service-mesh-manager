@@ -50,7 +50,7 @@ type Gateway struct {
 // Network defines model for Network.
 type Network struct {
 	// Network name specified in the NSD
-	NetworkName *string `json:"network-name,omitempty"`
+	NetworkName string `json:"network-name"`
 }
 
 // Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose
@@ -89,24 +89,19 @@ type Sap struct {
 	FloatingNetworkName string `json:"floating-network-name"`
 
 	// Network name specified in the NSD
-	NetworkName *string `json:"network-name,omitempty"`
+	NetworkName string `json:"network-name"`
 }
 
 // SliceResources defines model for SliceResources.
 type SliceResources struct {
 	// Unique identifier of the set of network resources of the slice
-	Id *string `json:"id,omitempty"`
+	Id int `json:"id"`
 
 	// Name of the networks specified in the NSD
-	Networks *[]struct {
-		NetworkName *string `json:"network-name,omitempty"`
-	} `json:"networks,omitempty"`
+	Networks []Network `json:"networks"`
 
 	// SAP specified in the NSD
-	ServiceAccessPoints *[]struct {
-		FloatingNetworkName *string `json:"floating-network-name,omitempty"`
-		NetworkName         *string `json:"network-name,omitempty"`
-	} `json:"service-access-points,omitempty"`
+	ServiceAccessPoints []Sap `json:"service-access-points"`
 
 	// Unique identifier assigned the Slicer
 	SliceId string `json:"slice-id"`

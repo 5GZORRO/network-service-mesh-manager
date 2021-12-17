@@ -28,7 +28,7 @@ CREATE TABLE networks (
   subnet_cidr varchar(255) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY id (id),
-  FOREIGN KEY (resource_set_id) REFERENCES resource_sets(id)
+  FOREIGN KEY (resource_set_id) REFERENCES resource_sets(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE saps (
@@ -46,7 +46,7 @@ CREATE TABLE saps (
   floating_net_name varchar(255) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY id (id),
-  FOREIGN KEY (resource_set_id) REFERENCES resource_sets(id)
+  FOREIGN KEY (resource_set_id) REFERENCES resource_sets(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 

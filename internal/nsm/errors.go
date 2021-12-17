@@ -9,11 +9,11 @@ var (
 	//
 	ErrSliceExists = errors.New("network resources for slice-id already exist")
 	//
-	ErrElementAlreadyExists = errors.New("gateway already exists")
+	ErrSliceNotExists = errors.New("network resources for slice-id do not exist")
 	//
 	ErrGatewayNotFound = errors.New("gateway does not exist")
 	//
-	ErrGatewayCantBeDeleted = errors.New("gateway can't be deleted")
+	ErrResourcesCantBeDeleted = errors.New("network resources of the slice cannot be canceled")
 	//
 	ErrBodyMissingInfo = errors.New("body request is missing info")
 	//
@@ -28,6 +28,8 @@ var (
 	//
 	ErrConfigurationGatewayNotExists = errors.New("gateway is not yet configured")
 	// GENERAL -
+	//
+	ErrMissingQueryParameter = errors.New("missing or empty query parameter")
 	//
 	ErrGeneral = errors.New("internal error")
 )

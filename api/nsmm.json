@@ -85,6 +85,16 @@
                             }
                         },
                         "description": "Some resources cannot be created on the VIM"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Network resources for slice-id already exists"
                     }
                 },
                 "summary": "Creation of network-resources for a new slice",
@@ -409,7 +419,8 @@
                 "title": "Root Type for Sap",
                 "description": "",
                 "required": [
-                    "floating-network-name"
+                    "floating-network-name",
+                    "network-name"
                 ],
                 "type": "object",
                 "properties": {
@@ -430,6 +441,9 @@
             "Network": {
                 "title": "Root Type for Network",
                 "description": "",
+                "required": [
+                    "network-name"
+                ],
                 "type": "object",
                 "properties": {
                     "network-name": {
@@ -583,39 +597,29 @@
                 "required": [
                     "vim-name",
                     "slice-id",
-                    "status"
+                    "status",
+                    "id",
+                    "networks",
+                    "service-access-points"
                 ],
                 "type": "object",
                 "properties": {
                     "id": {
                         "description": "Unique identifier of the set of network resources of the slice",
-                        "type": "string"
+                        "type": "integer"
                     },
                     "networks": {
                         "description": "Name of the networks specified in the NSD",
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "network-name": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/Network"
                         }
                     },
                     "service-access-points": {
                         "description": "SAP specified in the NSD",
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "floating-network-name": {
-                                    "type": "string"
-                                },
-                                "network-name": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/Sap"
                         }
                     },
                     "slice-id": {
@@ -632,7 +636,7 @@
                     }
                 },
                 "example": {
-                    "id": "some text",
+                    "id": 49,
                     "networks": [
                         {
                             "network-name": "some text"
@@ -652,7 +656,8 @@
                         }
                     ],
                     "slice-id": "some text",
-                    "vim-name": "some text"
+                    "vim-name": "some text",
+                    "status": "some text"
                 }
             },
             "Gateway": {

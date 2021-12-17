@@ -2,8 +2,9 @@ package nbi
 
 import (
 	"errors"
-	NsmmApi "nextworks/nsm/api"
 	"strconv"
+
+	nsmmapi "nextworks/nsm/api"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -11,7 +12,7 @@ import (
 
 func SetErrorResponse(ctx *gin.Context, method string, errorStatus int, err error) {
 	log.Error(method, " - ", err.Error())
-	outputJson := NsmmApi.ErrorResponse{Error: err.Error()}
+	outputJson := nsmmapi.ErrorResponse{Error: err.Error()}
 	ctx.JSON(errorStatus, outputJson)
 }
 

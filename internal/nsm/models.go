@@ -2,25 +2,28 @@ package nsm
 
 import "time"
 
-type Gateway struct {
-	ID                 int
-	SliceID            string `gorm:"unique;<-:create;"`
-	Status             string
-	VimName            string
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
-	VimResourceId      int
-	Resources          OpenstackResource `gorm:"foreignKey:VimResourceId;references:ID"`
-	ExternalIp         string
-	ManagementIP       string
-	ManagementPort     uint16
-	VPNServerPort      uint16
-	VPNServerInterface string
+type ResourceSet struct {
+	ID        int
+	SliceId   string `gorm:"unique;<-:create;"`
+	Status    string
+	VimName   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Gateway   Gateway `gorm:"embedded;embeddedPrefix:gw_"`
 }
 
-// Object referring to table where to store all OS gateway resources
-type OpenstackResource struct {
+type Gateway struct {
+	MgmtIp       string
+	MgmtPort     uint16
+	ExternalIp   string
+	ExposedNets  string
+	VpnPort      uint16
+	VpnInterface string
+}
+
+type Network struct {
 	ID              int `gorm:"autoIncrement"`
+	ResourceSetId   int
 	NetworkVimID    string
 	NetworkVimName  string
 	SubnetVimID     string
@@ -29,4 +32,19 @@ type OpenstackResource struct {
 	RouterVimID     string
 	RouterVimName   string
 	RouterVimPortId string
+}
+
+type Sap struct {
+	ID              int `gorm:"autoIncrement"`
+	ResourceSetId   int
+	NetworkId       string
+	NetworkName     string
+	SubnetId        string
+	SubnetName      string
+	SubnetCidr      string
+	RouterId        string
+	RouterName      string
+	RouterPortId    string
+	FloatingNetId   string
+	FloatingNetName string
 }

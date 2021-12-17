@@ -1,0 +1,728 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "nsmm",
+        "version": "1.0.0",
+        "description": "NorthBound Interface of Network Service Mesh Manager for 5GZORRO project. The NSMM provides API to manage resouces on the VIMs in order to establish secure intra-domain connections between services. In details:\n- a set of endpoints, called network-resources, is used to manage network resources on the selected vim to provide an external point of connectivity with a VPN server (wireguard). These network-resources considering OpenStack as a VIM include:\n  - networks and subnets\n  - routers and interfaces toward a floating network, to allow the creation of service-access-points\n  - configuration of the gateway VM included in the NSD, which provides the VPN service\n- a set of endpoints, called vpn-connections, is design to manage the VPN connections between remote peers.\n\nThe NSMM manages resources on a single domain and it is invoked by the slicer of the same domain to create all the network resources before the network service instantiation. After the creation of the network service, it is invoked to configure the gateway. Finally, the ISSM request to the slicer of each domain the creation of a secure channel which is forwarded to the NSMM that creates the VPN connection between the two gateways"
+    },
+    "paths": {
+        "/net-resources": {
+            "description": "This endpoint is invoked by the the slicer before the actual network service instantiation, to create all the necessary network resources on the vim. In details, it can create networks, and resources for Service-Access-Points (SAPs). The NSD should contain one SAP used by the gateway VNF to provide inter-domain secure connectivity.\n",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "parameters": [
+                    {
+                        "name": "slice-id",
+                        "description": "Id of the network slice owning the network resources",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SliceResources"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "It returns all the network resources of all slices or the network resources for a particular slice if the query parameter is used"
+                    }
+                },
+                "summary": "Retrieval of all the set of network resources",
+                "description": "It retrieves all the network resources created on the selected VIM for all the slices or for a particolar slice using the query parameter"
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostSliceResources"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SliceResources"
+                                }
+                            }
+                        },
+                        "description": "All the network resources specified in the body have been correctly created. It returns the internal ID associated to the set of network resources of the slice, with the list of the resources created."
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Error in the request body"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Some resources cannot be created on the VIM"
+                    }
+                },
+                "summary": "Creation of network-resources for a new slice",
+                "description": "It creates for a new slice all the network resources specified in the body. It can create new networks and service-access-points resources."
+            },
+            "delete": {
+                "tags": [
+                    "network-resources"
+                ],
+                "parameters": [
+                    {
+                        "name": "slice-id",
+                        "description": "Id of the network slice owning the network resources",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resources for slice with slice-id passed as query param. deleted"
+                    },
+                    "404": {
+                        "description": "Resources for slice with slice-id passed as query param. not found"
+                    },
+                    "403": {
+                        "description": "Resources for slice with slice-id passed as query param. cannot be deleted"
+                    },
+                    "500": {
+                        "description": "Error during the removal of some resouces on the VIM"
+                    }
+                },
+                "summary": "Delete of resources using slice-id",
+                "description": "It deletes all the network resources of the slice specified in the query parameter."
+            }
+        },
+        "/net-resources/{id}": {
+            "description": "This endpoint allows to retrieve/delete the network resource set defined in a slice, using the unique identifier of the set of resources",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SliceResources"
+                                }
+                            }
+                        },
+                        "description": "It returns all the resources related to the specified ID"
+                    },
+                    "404": {
+                        "description": "id does not exist"
+                    }
+                },
+                "summary": "Retrieval of a set of network resources using ID",
+                "description": "It retrieves all the network resources of a particular set using its internal unique ID as a path parameter, without specifing the slice-id as a query parameter"
+            },
+            "delete": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Correctly removal of all the network resources associated with the specified ID"
+                    },
+                    "403": {
+                        "description": "Resources associated with the ID cannot be canceled"
+                    },
+                    "404": {
+                        "description": "Network resources associated to the ID do not exist"
+                    },
+                    "500": {
+                        "description": "Error during the removal of some resource"
+                    }
+                },
+                "summary": "Removal of a set of network resources using the ID",
+                "description": "It deletes all the network resources of a particular set using its internal unique ID as a path parameter, without specifing the slice-id as a parameted"
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/net-resources/{id}/gateway": {
+            "description": "Endpoint to \n- retrieve the actual configuration of the gateway of a slice\n- configure the gateway of a slice, in order to provide secure connectivity between slices\n- reset the gateway of a slice",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Gateway"
+                                }
+                            }
+                        },
+                        "description": "It returns the current configuration of the gateway of the network resources set with id passed in the path parameter"
+                    },
+                    "404": {
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    }
+                },
+                "summary": "Retrieval of the current configuration of the gateway",
+                "description": "It returns the current active configuration of the gateway associated with the set of network resources with id passed in the path parameters"
+            },
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Gateway"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "It configure the gateway of the slice"
+                    },
+                    "403": {
+                        "description": "Gateway cannot be configured yet or it is already configured"
+                    },
+                    "404": {
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    },
+                    "500": {
+                        "description": "Error during the request of gateway configuration"
+                    }
+                },
+                "summary": "Configuration of the gateway",
+                "description": "It requests the configuration of the gateway of a set of resources identified by the ID in the path parameter. The configuration is an async process, so the endpooint returns immediately a response."
+            },
+            "delete": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "404": {
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    },
+                    "403": {
+                        "description": "Gateway is in used so it cannot be reset, or it is not yet configured"
+                    },
+                    "500": {
+                        "description": "Error during the initialization of the reset process"
+                    },
+                    "204": {
+                        "description": "Gateway configuration correctly deleted"
+                    }
+                },
+                "summary": "Delete of the gateway configuration",
+                "description": "It requests the removal of the current gateway configuration. The step is async, so the endpoint returns immediately."
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/net-resources/{id}/gateway/connections": {
+            "description": "Endpoint to \n- retrieve all the active VPN connections of a gateway\n- request the creation of a new VPN connection with a remote peer",
+            "get": {
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+
+                            }
+                        },
+                        "description": "It returns all the VPN connections"
+                    },
+                    "404": {
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    }
+                },
+                "summary": "Retrieve all the active VPN connection of the gateway",
+                "description": "It returns all the active VPN connections of the gateway identified by the set of resources with ID passed as path parameter"
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostConnection"
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Connection"
+                                }
+                            }
+                        },
+                        "description": "It returns the information of the VPN connection created"
+                    },
+                    "404": {
+                        "description": "- the set of network resources with {id} does not exist"
+                    },
+                    "403": {
+                        "description": "the gateway identified by the set with {id} is not yet configured"
+                    },
+                    "500": {
+                        "description": "Error during the creation of the VPN connection"
+                    }
+                },
+                "summary": "Creation of a new VPN connection",
+                "description": "It request the creation of a new VPN connection for the gateway identified by the set of resources with ID passed as path parameter"
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/net-resources/{id}/gateway/connections/{cid}": {
+            "description": "Endpoint to \n- retrieve the info of a VPN connections of a gateway\n- request the removal of an active VPN connection ",
+            "get": {
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Connection"
+                                }
+                            }
+                        },
+                        "description": "It returns the VPN connection information"
+                    },
+                    "404": {
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured\n- the connection with {cid} does not exist"
+                    }
+                },
+                "summary": "Retrieval of the information of a VPN connection",
+                "description": "It retrieves the current information of the active VPN connection, belonging to the gateway with {id}, idenfied by the {cid} passed as path parameter"
+            },
+            "delete": {
+                "tags": [
+                    "vpn-connections"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "VPN connection correctly deleted"
+                    },
+                    "404": {
+                        "description": "- slice resources with {id} do not exist\n- connection with {cid} does not exist"
+                    },
+                    "403": {
+                        "description": "Connection cannot be canceled"
+                    }
+                },
+                "summary": "Removal of a VPN connection",
+                "description": "It removes an active VPN connection of the gateway with {id} identified by the {cid}"
+            },
+            "parameters": [
+                {
+                    "name": "cid",
+                    "description": "unique identifier of the VPN connection",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        }
+    },
+    "components": {
+        "schemas": {
+            "Sap": {
+                "title": "Root Type for Sap",
+                "description": "",
+                "required": [
+                    "floating-network-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "floating-network-name": {
+                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
+                        "type": "string"
+                    },
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "floating-network-name": "some text",
+                    "network-name": "some text"
+                }
+            },
+            "Network": {
+                "title": "Root Type for Network",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "network-name": ""
+                }
+            },
+            "PostConnection": {
+                "title": "Root Type for PostConnection",
+                "description": "Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose",
+                "required": [
+                    "pub-key",
+                    "remote-peer-ip",
+                    "remote-peer-port",
+                    "subnets-to-expose"
+                ],
+                "type": "object",
+                "properties": {
+                    "subnets-to-expose": {
+                        "description": "Subnet to expose",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "pub-key": {
+                        "description": "Public key pf the remote peer",
+                        "type": "string"
+                    },
+                    "remote-peer-ip": {
+                        "description": "Public IP of the remote peer VPN ",
+                        "type": "string"
+                    },
+                    "remote-peer-port": {
+                        "description": "Remote peer VPN port",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "subnets-to-expose": [
+                        "some text",
+                        "some text"
+                    ],
+                    "pub-key": "some text",
+                    "remote-peer-ip": "some text",
+                    "remote-peer-port": "some text"
+                }
+            },
+            "Connection": {
+                "title": "Root Type for Connection",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier of the connection-id",
+                        "type": "string"
+                    },
+                    "subnets-to-expose": {
+                        "description": "Subnet to expose",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "pub-key": {
+                        "description": "Public key of the remote peer",
+                        "type": "string"
+                    },
+                    "remote-peer-ip": {
+                        "description": "Public IP of the remote peer VPN ",
+                        "type": "string"
+                    },
+                    "remote-peer-port": {
+                        "description": "Remote peer VPN port",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "",
+                    "subnets-to-expose": [
+                        ""
+                    ],
+                    "pub-key": "",
+                    "remote-peer-ip": "",
+                    "remote-peer-port": ""
+                }
+            },
+            "PostSliceResources": {
+                "description": "POST to create all the network resources of a slice on a vim",
+                "required": [
+                    "networks",
+                    "service-access-points",
+                    "slice-id",
+                    "vim-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "networks": {
+                        "description": "Name of the networks specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Network"
+                        }
+                    },
+                    "service-access-points": {
+                        "description": "SAP specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Sap"
+                        }
+                    },
+                    "slice-id": {
+                        "description": "Id of the network slice owning the network resources, assigned by the Slicer",
+                        "type": "string"
+                    },
+                    "vim-name": {
+                        "description": "Name of the VIM where to create the requested resources",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "networks": [
+                        {
+                            "network-name": "some text"
+                        },
+                        {
+                            "network-name": "some text"
+                        }
+                    ],
+                    "service-access-points": [
+                        {
+                            "floating-network-name": "some text",
+                            "network-name": "some text"
+                        },
+                        {
+                            "floating-network-name": "some text",
+                            "network-name": "some text"
+                        }
+                    ],
+                    "slice-id": "some text",
+                    "vim-name": "some text"
+                }
+            },
+            "SliceResources": {
+                "title": "Root Type for SliceResources",
+                "description": "",
+                "required": [
+                    "vim-name",
+                    "slice-id",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier of the set of network resources of the slice",
+                        "type": "string"
+                    },
+                    "networks": {
+                        "description": "Name of the networks specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "network-name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "service-access-points": {
+                        "description": "SAP specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "floating-network-name": {
+                                    "type": "string"
+                                },
+                                "network-name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "slice-id": {
+                        "description": "Unique identifier assigned the Slicer",
+                        "type": "string"
+                    },
+                    "vim-name": {
+                        "description": "Name of the VIM where to create the requested resources",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Status of the resources",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "some text",
+                    "networks": [
+                        {
+                            "network-name": "some text"
+                        },
+                        {
+                            "network-name": "some text"
+                        }
+                    ],
+                    "service-access-points": [
+                        {
+                            "floating-network-name": "some text",
+                            "network-name": "some text"
+                        },
+                        {
+                            "floating-network-name": "some text",
+                            "network-name": "some text"
+                        }
+                    ],
+                    "slice-id": "some text",
+                    "vim-name": "some text"
+                }
+            },
+            "Gateway": {
+                "title": "Root Type for Gateway",
+                "description": "Configuration of a gateway ",
+                "required": [
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "external-ip": {
+                        "description": "External IP of the gateway",
+                        "type": "string"
+                    },
+                    "subnet-to-expose": {
+                        "description": "Subnet to expose",
+                        "type": "string"
+                    },
+                    "mgmt-ip": {
+                        "description": "Gateway VM management IP",
+                        "type": "string"
+                    },
+                    "mgmt-port": {
+                        "description": "Gateway VM management port",
+                        "type": "string"
+                    },
+                    "pub-key": {
+                        "description": "Public key of the peer",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Status of the gateway",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "",
+                    "external-ip": "",
+                    "subnet-to-expose": "",
+                    "mgmt-ip": "",
+                    "mgmt-port": "",
+                    "pub-key": ""
+                }
+            },
+            "ErrorResponse": {
+                "title": "Root Type for ErrorResponse",
+                "description": "",
+                "required": [
+                    "error"
+                ],
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "error": ""
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "network-resources",
+            "description": "Set of endpoints to manage necessary network resources on the selected VIM in order to establish a secure intra-domain connection between two network services"
+        },
+        {
+            "name": "vpn-connections",
+            "description": "Set of endpoints to manage the secure intra-domain connections between network services"
+        }
+    ]
+}

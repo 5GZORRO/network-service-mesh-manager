@@ -5,9 +5,9 @@ import (
 )
 
 var (
-	// GATEWAY ERRORS
-	// A gateway for slice already exists
-	ErrGatewayExists = errors.New("gateway for slice already exists")
+	// NET-RESOURCES
+	//
+	ErrSliceExists = errors.New("network resources for slice-id already exist")
 	//
 	ErrElementAlreadyExists = errors.New("gateway already exists")
 	//

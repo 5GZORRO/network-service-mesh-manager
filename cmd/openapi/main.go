@@ -70,6 +70,7 @@ func main() {
 		log.SetLevel(level)
 	}
 
+	// STEP DB
 	// Connect to the DB
 	dsn := configuration.Database.Username + ":" + configuration.Database.Password + "@tcp(" + configuration.Database.Host + ":" + configuration.Database.Port + ")/" + configuration.Database.DB + "?charset=utf8mb4&parseTime=True&loc=Local"
 	log.Trace(dsn)
@@ -81,6 +82,7 @@ func main() {
 	}
 	// log.Trace(db)
 
+	// STEP VIM
 	// initizialize a driver for each vim, also reading from DB
 	drivers := vim.InizializeVims(db, configuration.Vim)
 	log.Trace(drivers)
@@ -97,7 +99,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// Create an instance of our handler object, containing shared info (DB, driver)
+	// Create an instance of our server handler object, containing shared info (DB, driver)
 	sii := nbi.NewServerInterfaceImpl(db, drivers)
 	s := NewGinServer(sii, configuration.Server.Port)
 

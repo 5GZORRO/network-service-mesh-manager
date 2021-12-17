@@ -4,6 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// VIM Driver for OpenStack, it implements VimDriver
 type OpenStackDriver struct {
 	// Global params
 	IdentityEndpoint string

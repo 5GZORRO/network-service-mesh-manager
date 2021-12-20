@@ -61,6 +61,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	}
 	log.Trace("PostNetResources - requested creation of network resources for SliceId: ", jsonBody.SliceId, " on VIM: ", jsonBody.VimName)
 
+	// TODO select vim
 	// Check if a Vim with this name exists
 	// if !obj.Vims.Exists(jsonBody.VimName) {
 	// 	SetErrorResponse(c, "PostNetResources", http.StatusForbidden, vim.ErrVimNotFound)

@@ -5,7 +5,6 @@ import (
 	"strconv"
 )
 
-// TODO
 func parsePort(port string) (uint16, error) {
 	portInt, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {

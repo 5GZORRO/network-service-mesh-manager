@@ -80,7 +80,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 		SetErrorResponse(c, "PutNetResourcesIdGateway", http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	// go routine with httpclient to configure the VPN server
+	// TODO go routine with httpclient to configure the VPN server
 	// and the update the state to -> READY
 	go configureGateway(obj.DB, resource)
 

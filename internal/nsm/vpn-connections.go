@@ -1,4 +1,4 @@
-package nbi
+package nsm
 
 import (
 	"github.com/gin-gonic/gin"

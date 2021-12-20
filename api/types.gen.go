@@ -6,19 +6,19 @@ package Nsmm
 // Connection defines model for Connection.
 type Connection struct {
 	// Unique identifier of the connection-id
-	Id *string `json:"id,omitempty"`
+	Id string `json:"id"`
 
 	// Public key of the remote peer
-	PubKey *string `json:"pub-key,omitempty"`
+	PubKey string `json:"pub-key"`
 
 	// Public IP of the remote peer VPN
-	RemotePeerIp *string `json:"remote-peer-ip,omitempty"`
+	RemotePeerIp string `json:"remote-peer-ip"`
 
 	// Remote peer VPN port
-	RemotePeerPort *string `json:"remote-peer-port,omitempty"`
+	RemotePeerPort string `json:"remote-peer-port"`
 
 	// Subnet to expose
-	SubnetsToExpose *[]string `json:"subnets-to-expose,omitempty"`
+	SubnetsToExpose []string `json:"subnets-to-expose"`
 }
 
 // ErrorResponse defines model for ErrorResponse.
@@ -29,22 +29,19 @@ type ErrorResponse struct {
 // Configuration of a gateway
 type Gateway struct {
 	// External IP of the gateway
-	ExternalIp *string `json:"external-ip,omitempty"`
+	ExternalIp string `json:"external-ip"`
 
 	// Gateway VM management IP
-	MgmtIp *string `json:"mgmt-ip,omitempty"`
+	MgmtIp string `json:"mgmt-ip"`
 
 	// Gateway VM management port
-	MgmtPort *string `json:"mgmt-port,omitempty"`
+	MgmtPort string `json:"mgmt-port"`
 
 	// Public key of the peer
-	PubKey *string `json:"pub-key,omitempty"`
-
-	// Status of the gateway
-	Status string `json:"status"`
+	PubKey string `json:"pub-key"`
 
 	// Subnet to expose
-	SubnetToExpose *string `json:"subnet-to-expose,omitempty"`
+	SubnetToExpose string `json:"subnet-to-expose"`
 }
 
 // Network defines model for Network.

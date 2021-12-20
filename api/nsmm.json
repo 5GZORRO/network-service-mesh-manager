@@ -120,12 +120,33 @@
                         "description": "Resources for slice with slice-id passed as query param. deleted"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Resources for slice with slice-id passed as query param. not found"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Resources for slice with slice-id passed as query param. cannot be deleted"
                     },
                     "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Error during the removal of some resouces on the VIM"
                     }
                 },
@@ -230,6 +251,13 @@
                 ],
                 "responses": {
                     "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Gateway"
+                                }
+                            }
+                        },
                         "description": "It configure the gateway of the slice"
                     },
                     "403": {
@@ -240,6 +268,15 @@
                     },
                     "500": {
                         "description": "Error during the request of gateway configuration"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "summary": "Configuration of the gateway",
@@ -499,6 +536,13 @@
             "Connection": {
                 "title": "Root Type for Connection",
                 "description": "",
+                "required": [
+                    "id",
+                    "remote-peer-ip",
+                    "remote-peer-port",
+                    "subnets-to-expose",
+                    "pub-key"
+                ],
                 "type": "object",
                 "properties": {
                     "id": {
@@ -664,7 +708,11 @@
                 "title": "Root Type for Gateway",
                 "description": "Configuration of a gateway ",
                 "required": [
-                    "status"
+                    "external-ip",
+                    "mgmt-ip",
+                    "mgmt-port",
+                    "pub-key",
+                    "subnet-to-expose"
                 ],
                 "type": "object",
                 "properties": {
@@ -687,19 +735,14 @@
                     "pub-key": {
                         "description": "Public key of the peer",
                         "type": "string"
-                    },
-                    "status": {
-                        "description": "Status of the gateway",
-                        "type": "string"
                     }
                 },
                 "example": {
-                    "id": "",
-                    "external-ip": "",
-                    "subnet-to-expose": "",
-                    "mgmt-ip": "",
-                    "mgmt-port": "",
-                    "pub-key": ""
+                    "external-ip": "some text",
+                    "subnet-to-expose": "some text",
+                    "mgmt-ip": "some text",
+                    "mgmt-port": "some text",
+                    "pub-key": "some text"
                 }
             },
             "ErrorResponse": {

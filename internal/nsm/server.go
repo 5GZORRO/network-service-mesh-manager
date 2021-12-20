@@ -1,5 +1,5 @@
 // Package to implement all of the handlers in the ServerInterface
-package nbi
+package nsm
 
 import (
 	"nextworks/nsm/internal/vim"

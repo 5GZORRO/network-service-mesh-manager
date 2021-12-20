@@ -13,14 +13,14 @@ import (
 
 	nsmapi "nextworks/nsm/api"
 	"nextworks/nsm/internal/config"
-	"nextworks/nsm/internal/nbi"
+	nsm "nextworks/nsm/internal/nsm"
 	"nextworks/nsm/internal/vim"
 
 	middleware "github.com/deepmap/oapi-codegen/pkg/gin-middleware"
 	log "github.com/sirupsen/logrus"
 )
 
-func NewGinServer(impl *nbi.ServerInterfaceImpl, port int) *http.Server {
+func NewGinServer(impl *nsm.ServerInterfaceImpl, port int) *http.Server {
 	swagger, err := nsmapi.GetSwagger()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading swagger spec\n: %s", err)
@@ -100,7 +100,7 @@ func main() {
 	}()
 
 	// Create an instance of our server handler object, containing shared info (DB, driver)
-	sii := nbi.NewServerInterfaceImpl(db, drivers)
+	sii := nsm.NewServerInterfaceImpl(db, drivers)
 	s := NewGinServer(sii, configuration.Server.Port)
 
 	log.Fatal(s.ListenAndServe())

@@ -71,20 +71,6 @@ func SetNetResourcesResponse(ctx *gin.Context, status int, res ResourceSet) {
 	ctx.JSON(status, output)
 }
 
-// SetNetResourcesResponse creates the return type for api
-//
-func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
-	var gateway nsmmapi.Gateway
-	gateway.ExternalIp = res.Gateway.ExternalIp
-	gateway.MgmtIp = res.Gateway.MgmtIp
-	gateway.MgmtPort = parsePortToString(res.Gateway.MgmtPort)
-	// Todo publickKey of the server
-	// gateway.PubKey = res.Gateway.
-	gateway.SubnetToExpose = res.Gateway.ExposedNets
-	gateway.PubKey = res.Gateway.PubKey
-	ctx.JSON(status, gateway)
-}
-
 // LoadAssociationFromDB load from DB associations of a resource set
 // networks and sap
 func LoadAssociationFromDB(database *gorm.DB, netres *ResourceSet) error {

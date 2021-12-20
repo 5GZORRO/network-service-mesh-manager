@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -227,16 +226,4 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesId(c *gin.Context, id int) {
 	log.Trace("DeleteNetResourcesId - staring asynch job to delete network resource set with ID: ", id)
 	go deleteResources(obj.DB, netres)
 	c.Status(http.StatusOK)
-}
-
-// deleteResources is a goroutine to delete in an async way all the network resources
-func deleteResources(database *gorm.DB, res *ResourceSet) {
-	time.Sleep(time.Second * 5)
-	// TODO Delete resources from VIM
-
-	// if removal from VIM is OK then delete it from DB
-	result := database.Delete(&res)
-	if result.Error != nil {
-		log.Error("Error deleting network resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
-	}
 }

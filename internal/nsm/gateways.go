@@ -2,34 +2,13 @@ package nsm
 
 import (
 	"errors"
-	"net"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
-
-func checkGatewayConfigurationParams(input nsmmapi.Gateway) error {
-	_, err := parsePort(input.MgmtPort)
-	if err != nil {
-		return ErrGatewayConfigMgmtPort
-	}
-	if _, _, err = net.ParseCIDR(input.SubnetToExpose); err != nil {
-		return ErrGatewayConfigSubnet
-	}
-	mngmIp := net.ParseIP(input.MgmtIp)
-	externalIP := net.ParseIP(input.ExternalIp)
-	if mngmIp == nil {
-		return ErrGatewayConfigMgmtIp
-	}
-	if externalIP == nil {
-		return ErrGatewayConfigExternalIp
-	}
-	return nil
-}
 
 func (obj *ServerInterfaceImpl) GetNetResourcesIdGateway(c *gin.Context, id int) {
 	// Retrive the Resource Set state and check it, if the gateway can be configured
@@ -138,33 +117,4 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id i
 
 	// and the update the DB with nil param
 	c.Status(http.StatusNoContent)
-}
-
-// TODO configureGateway is a goroutine to configure the VM gateway, using
-// an HTTP client
-func configureGateway(database *gorm.DB, res *ResourceSet) {
-	time.Sleep(time.Second * 10)
-	// TODO configure VM gateway
-
-	// update the state
-	res.Status = READY
-	result := database.Save(&res)
-	if result.Error != nil {
-		log.Error("Error updating resource set status with ID: ", res.ID, " and slice-id: ", res.SliceId)
-	}
-}
-
-// TODO resetGateway is a goroutine to configure the VM gateway, using
-// an HTTP client
-func resetGateway(database *gorm.DB, res *ResourceSet) {
-	time.Sleep(time.Second * 10)
-	// TODO reset VM gateway
-
-	// update the state of the gateway to WAIT_FOR
-	res.Status = WAIT_FOR_GATEWAY_CONFIG
-	res.Gateway = Gateway{}
-	result := database.Save(&res)
-	if result.Error != nil {
-		log.Error("Error updating resource set status with ID: ", res.ID, " and slice-id: ", res.SliceId)
-	}
 }

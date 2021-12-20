@@ -6,16 +6,66 @@
 	},
 	"item": [
 		{
-			"name": "Network pre-provisioning",
+			"name": "net-resources",
 			"item": [
 				{
-					"name": "Create Network",
+					"name": "/net-resources",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources with query param",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources?slice-id=example3",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources"
+							],
+							"query": [
+								{
+									"key": "slice-id",
+									"value": "example3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{ \n    \"name\": \"test\",\n    \"cidr\": \"192.168.1.8/29\"\n}",
+							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"net1\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating1\",\n            \"network-name\": \"extnet1\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -23,53 +73,44 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/network?name=test",
+							"raw": "http://127.0.0.1:8080/net-resources",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"network"
-							],
-							"query": [
-								{
-									"key": "name",
-									"value": "test"
-								}
+								"net-resources"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete Network",
+					"name": "/net-resources with query param Copy",
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{ \n    \"name\": \"name\",\n    \"cidr\": \"name2\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "http://localhost:8080/network?name=test",
+							"raw": "http://127.0.0.1:8080/net-resources?slice-id=example1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"network"
+								"net-resources"
 							],
 							"query": [
 								{
-									"key": "name",
-									"value": "test"
+									"key": "slice-id",
+									"value": "example1"
 								}
 							]
 						}
@@ -77,25 +118,46 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve Network",
+					"name": "/net-resources/{{id}}",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/network?name=test",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"network"
+								"net-resources",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources/{{id}}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
 							],
-							"query": [
-								{
-									"key": "name",
-									"value": "test"
-								}
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}"
 							]
 						}
 					},
@@ -104,16 +166,40 @@
 			]
 		},
 		{
-			"name": "Network provisioning",
+			"name": "gateway config",
 			"item": [
 				{
-					"name": "Create gateway connectivity",
+					"name": "/gateway configuration",
 					"request": {
-						"method": "POST",
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway configuration",
+					"request": {
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{ \n    \"cidr\": \"192.168.1.1/29\"\n}",
+							"raw": "{\n    \"external-ip\": \"138.15.0.2\",\n    \"subnet-to-expose\": \"192.168.1.14/24\",\n    \"mgmt-ip\": \"172.18.8.13\",\n    \"mgmt-port\": \"8181\",\n    \"pub-key\": \"jhgdeefyujewfdfg\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -121,94 +207,43 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/gateway/connectivity?sliceId=test",
+							"raw": "http://127.0.0.1:8080/net-resources/5/gateway",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"gateway",
-								"connectivity"
-							],
-							"query": [
-								{
-									"key": "sliceId",
-									"value": "test"
-								}
+								"net-resources",
+								"5",
+								"gateway"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Gateway connectivity infos",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/gateway/connectivity?sliceId=test",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"gateway",
-								"connectivity"
-							],
-							"query": [
-								{
-									"key": "sliceId",
-									"value": "test"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Gateway connectivity",
+					"name": "/gateway configuration",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/gateway/connectivity?sliceId=test",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"gateway",
-								"connectivity"
-							],
-							"query": [
-								{
-									"key": "sliceId",
-									"value": "test"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "FloatingIP",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/gateway/connectivity/ip",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"gateway",
-								"connectivity",
-								"ip"
+								"net-resources",
+								"{{id}}",
+								"gateway"
 							]
 						}
 					},
@@ -217,133 +252,141 @@
 			]
 		},
 		{
-			"name": "Utils",
+			"name": "connections",
 			"item": [
 				{
-					"name": "clean",
+					"name": "/connections",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/management/clean",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"management",
-								"clean"
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "clean",
+					"name": "/connections",
 					"request": {
 						"method": "POST",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"networkID\": \"e7aafe7f-a9bc-4f17-91d1-89f18c1dde93\",\n    \"subnetID\": \"5d23909c-3eef-4561-bdf8-a2c13b7ce102\",\n    \"routerID\": \"b6c8332c-0c99-4e20-9a10-a23896b4b722\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "http://localhost:8080/management/clean",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"management",
-								"clean"
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "retrieve all DB entries",
+					"name": "/connections/{{id}}",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/management/db",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{id}}",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"management",
-								"db"
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections",
+								"{{id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "add GC entry in DB",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"sliceID\": \"test\",\n    \"networkID\": \"b836b7d7-44fe-4414-b401-c8bc995b7f4b\",\n    \"subnetID\": \"139bca7f-a963-4232-9ab1-5c0140d36d6b\",\n    \"routerID\": \"b836b7d7-44fe-4414-b401-c8bc995b7f4b\",\n    \"interfaceID\" : \"f6e9b96c-fe79-4c74-a312-af9751705333\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/management/db",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"management",
-								"db"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "delete GC entry in DB",
+					"name": "/connections/{{id}}",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/management/db?sliceId=test",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{id}}",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"127",
+								"0",
+								"0",
+								"1"
 							],
 							"port": "8080",
 							"path": [
-								"management",
-								"db"
-							],
-							"query": [
-								{
-									"key": "sliceId",
-									"value": "test"
-								}
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections",
+								"{{id}}"
 							]
 						}
 					},
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "cid",
+			"value": "1"
 		}
 	]
 }

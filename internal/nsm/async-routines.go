@@ -1,6 +1,7 @@
 package nsm
 
 import (
+	"nextworks/nsm/internal/vim"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -8,9 +9,10 @@ import (
 )
 
 // deleteResources is a goroutine to delete in an async way all the network resources
-func deleteResources(database *gorm.DB, res *ResourceSet) {
+func deleteResources(database *gorm.DB, vim *vim.VimDriver, res *ResourceSet) {
 	time.Sleep(time.Second * 5)
 	// TODO Delete resources from VIM
+	(*vim).DeleteNetwork()
 
 	// if removal from VIM is OK then delete it from DB
 	result := database.Delete(&res)

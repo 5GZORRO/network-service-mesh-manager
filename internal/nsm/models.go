@@ -10,8 +10,8 @@ type ResourceSet struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Gateway   Gateway   `gorm:"embedded;embeddedPrefix:gw_"`
-	Networks  []Network `gorm:"foreignKey:ResourceSetId;OnDelete:CASCADE"`
-	Saps      []Sap     `gorm:"foreignKey:ResourceSetId;OnDelete:CASCADE;"`
+	Networks  []Network `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE"`
+	Saps      []Sap     `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE;"`
 }
 
 type Gateway struct {

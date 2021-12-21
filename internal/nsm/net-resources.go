@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
+	"nextworks/nsm/internal/vim"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -15,31 +16,33 @@ import (
 func (obj *ServerInterfaceImpl) GetNetResources(c *gin.Context, params nsmmapi.GetNetResourcesParams) {
 
 	if params.SliceId != nil {
-		log.Trace("GetNetResources - requested retrieval of network resources for slice-id: ", *params.SliceId)
+		log.Trace("Requested retrieval of network resources for slice-id: ", *params.SliceId)
 		res, result := RetrieveResourcesFromDBbySliceID(obj.DB, *params.SliceId)
 		if result != nil {
+			log.Error("Impossible to retrieve network resources. Error reading from DB: ", result)
 			if errors.Is(result, gorm.ErrRecordNotFound) {
 				log.Error(result)
-				SetErrorResponse(c, "GetNetResources", http.StatusNotFound, ErrSliceNotExists)
+				SetErrorResponse(c, http.StatusNotFound, ErrSliceNotExists)
 				return
 			}
-			SetErrorResponse(c, "GetNetResources", http.StatusInternalServerError, ErrGeneral)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 		SetNetResourcesResponse(c, http.StatusOK, *res)
 	} else {
-		log.Trace("GetNetResources - requested retrieval of all network resources")
+		log.Trace("Requested retrieval of all network resources")
 		var resources []ResourceSet
 		result := obj.DB.Find(&resources)
 		if result.Error != nil {
-			SetErrorResponse(c, "GetNetResources", http.StatusInternalServerError, ErrGeneral)
+			log.Error("Impossible to retrieve network resources. Error reading from DB: ", result.Error)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 		for i := range resources {
 			err := LoadAssociationFromDB(obj.DB, &resources[i])
 			if err != nil {
-				log.Error("GetNetResources error retrieving associations of resource set with ID: ", resources[i].ID)
-				SetErrorResponse(c, "GetNetResources", http.StatusInternalServerError, ErrGeneral)
+				log.Error("Error retrieving associations of resource set with ID: ", resources[i].ID)
+				SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 				return
 			}
 			log.Trace(resources[i])
@@ -56,33 +59,35 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	var jsonBody nsmmapi.PostSliceResources
 
 	if err := c.ShouldBindJSON(&jsonBody); err != nil {
-		SetErrorResponse(c, "PostNetResources", http.StatusBadRequest, ErrBodyMissingInfo)
+		log.Error("Impossible to create network resources. Error in the request, wrong json body")
+		SetErrorResponse(c, http.StatusBadRequest, ErrBodyMissingInfo)
 		return
 	}
-	log.Trace("PostNetResources - requested creation of network resources for SliceId: ", jsonBody.SliceId, " on VIM: ", jsonBody.VimName)
+	log.Trace("Requested creation of network resources for SliceId: ", jsonBody.SliceId, " on VIM: ", jsonBody.VimName)
 
 	// TODO select vim
 	// Check if a Vim with this name exists
-	// if !obj.Vims.Exists(jsonBody.VimName) {
-	// 	SetErrorResponse(c, "PostNetResources", http.StatusForbidden, vim.ErrVimNotFound)
-	// 	return
-	// }
+	if !obj.Vims.Exists(jsonBody.VimName) {
+		log.Error("Impossible to create network resources. Vim with name: ", jsonBody.VimName, " does not exist")
+		SetErrorResponse(c, http.StatusForbidden, vim.ErrVimNotFound)
+		return
+	}
 
 	// Check if resources for slice-id already exists
 	var netres ResourceSet
 	result = obj.DB.First(&netres, "slice_id = ?", jsonBody.SliceId)
 
 	if result.Error == nil {
-		SetErrorResponse(c, "PostNetResources", http.StatusForbidden, ErrSliceExists)
+		log.Error("Impossible to create network resources. Network resources for SliceID: ", jsonBody.SliceId, " already exist")
+		SetErrorResponse(c, http.StatusForbidden, ErrSliceExists)
 		return
 	} else {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, "PostNetResources", http.StatusInternalServerError, ErrGeneral)
+			log.Error("Impossible to create network resources. Error reading from DB")
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 	}
-	// resources for requested slice do not exist
-
 	// scan resources and create them on the VIM
 	resset := &ResourceSet{
 		Status:  CREATING,
@@ -92,15 +97,19 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 
 	result = obj.DB.Save(resset)
 	if result.Error != nil {
-		log.Error("PostNetResources - error writing in DB")
-		SetErrorResponse(c, "", http.StatusInternalServerError, ErrGeneral)
+		log.Error("Impossible to create network resources. Error reading from DB")
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
 	log.Trace("PostNetResources saved resources set: ", *resset)
 
+	// retrieve VIM
+	vim := obj.Vims.GetVim(jsonBody.VimName)
+
 	// create networks:
 	for _, net := range jsonBody.Networks {
 		// TODO create on vim
+		(*vim).CreateNetwork()
 		log.Trace("PostNetResources - creating Network ", net)
 		ne := Network{
 			ResourceSetId: resset.ID,
@@ -112,6 +121,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	// create saps:
 	for _, sap := range jsonBody.ServiceAccessPoints {
 		// TODO crate on vim
+		(*vim).CreateSAP()
 		log.Trace("PostNetResources - creating SAP ", sap)
 		ap := Sap{
 			ResourceSetId:   resset.ID,
@@ -125,11 +135,11 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	resset.Status = WAIT_FOR_GATEWAY_CONFIG
 	result = obj.DB.Save(resset)
 	if result.Error != nil {
-		log.Error("PostNetResources - error writing in DB for slice: ", resset.SliceId)
-		SetErrorResponse(c, "", http.StatusInternalServerError, ErrGeneral)
+		log.Error("Impossible to create network resources. Error saving in DB")
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	log.Debug("PostNetResources resource set with ID: ", resset.ID, " and Slice-ID: ", resset.SliceId, "updated")
+	log.Trace("PostNetResources updated ", *resset)
 	SetNetResourcesResponse(c, http.StatusOK, *resset)
 }
 
@@ -141,52 +151,37 @@ func (obj *ServerInterfaceImpl) DeleteNetResources(c *gin.Context, params nsmmap
 	var netres ResourceSet
 
 	if params.SliceId == "" {
-		log.Error("DeleteNetResources - no query param slice-id specified")
-		SetErrorResponse(c, "DeleteNetResources", http.StatusBadRequest, ErrMissingQueryParameter)
+		log.Error("Impossible to delete network resources. Error in the request, missing slice-id query param")
+		SetErrorResponse(c, http.StatusBadRequest, ErrMissingQueryParameter)
 		return
 	}
 
-	log.Trace("DeleteNetResources - Received request to delete network resources for slice-id: ", params.SliceId)
+	log.Trace("Received request to delete network resources for slice-id: ", params.SliceId)
 	// Read from DB
 	result := obj.DB.First(&netres, "slice_id = ?", params.SliceId)
 
 	if result.Error != nil {
+		log.Error("Impossible to delete network resources. Error reading from DB: ", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, "DeleteNetResources", http.StatusNotFound, ErrSliceNotExists)
+			SetErrorResponse(c, http.StatusNotFound, ErrSliceNotExists)
 			return
 		}
-		SetErrorResponse(c, "DeleteNetResources", http.StatusInternalServerError, ErrGeneral)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	// check status
-	if netres.Status != WAIT_FOR_GATEWAY_CONFIG && netres.Status != CREATION_ERROR {
-		log.Info("DeleteNetResources - impossible to delete network resources. The current state is ", netres.Status)
-		SetErrorResponse(c, "DeleteGatewaysId", http.StatusForbidden, ErrResourcesCantBeDeleted)
-		return
-	}
-	log.Trace("DeleteNetResources - deleting network resources for slice-id: ", params.SliceId)
-	// Set current stats to DELETING and the async. delete them from VIM and DB
-	// and all the resources associated to the set
-	netres.Status = DELETING_RESOURCES
-	result = obj.DB.Save(netres)
-	if result.Error != nil {
-		SetErrorResponse(c, "DeleteNetResources", http.StatusInternalServerError, ErrGeneral)
-		return
-	}
-	log.Trace("DeleteNetResources - starting asynch routine for deleting resources of Slice-ID: ", params.SliceId)
-	go deleteResources(obj.DB, &netres)
-	c.Status(http.StatusOK)
+	obj.deleteNetResources(c, &netres)
 }
 
 // GetNetResourcesId retrieves the info of a set of network resources by its ID
 func (obj *ServerInterfaceImpl) GetNetResourcesId(c *gin.Context, id int) {
 	resources, error := RetrieveResourcesFromDB(obj.DB, id)
 	if error != nil {
+		log.Error("Impossible to retrieve network resources. Error reading from DB: ", error)
 		if errors.Is(error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, "PostNetResources", http.StatusNotFound, ErrSliceNotExists)
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
 			return
 		} else {
-			SetErrorResponse(c, "PostNetResources", http.StatusInternalServerError, ErrGeneral)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 	}
@@ -201,30 +196,47 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesId(c *gin.Context, id int) {
 	log.Trace("DeleteNetResourcesId - Received request to delete network resources with ID: ", id)
 	netres, error := RetrieveResourcesFromDB(obj.DB, id)
 	if error != nil {
+		log.Error("Impossible to delete network resources. Error reading from DB: ", error)
 		if errors.Is(error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, "DeleteNetResourcesId", http.StatusNotFound, ErrSliceNotExists)
+			SetErrorResponse(c, http.StatusNotFound, ErrSliceNotExists)
 			return
 		} else {
-			SetErrorResponse(c, "DeleteNetResourcesId", http.StatusInternalServerError, ErrGeneral)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 	}
+	obj.deleteNetResources(c, netres)
+}
+
+func (obj *ServerInterfaceImpl) deleteNetResources(c *gin.Context, netres *ResourceSet) {
 	// check status
 	if netres.Status != WAIT_FOR_GATEWAY_CONFIG && netres.Status != CREATION_ERROR {
-		log.Info("DeleteNetResourcesId - impossible to delete network resources. The current state is ", netres.Status)
-		SetErrorResponse(c, "DeleteNetResourcesId", http.StatusForbidden, ErrResourcesCantBeDeleted)
+		log.Error("Impossible to delete network resources. The current state is ", netres.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrResourcesCantBeDeleted)
 		return
 	}
-	log.Trace("DeleteNetResourcesId - removing network resources with ID: ", id)
-	// Set currrent stats to DELETING and the async. delete them from VIM and DB
+
+	// Check/Retrieve VIM
+	vim := obj.Vims.GetVim(netres.VimName)
+	if *vim == nil {
+		log.Error("Network resources cannot be canceled: vim ", netres.VimName, " does not exist")
+		SetErrorResponse(c, http.StatusInternalServerError, ErrVimNotExists)
+		return
+	}
+
+	log.Trace("Removing network resources with ID: ", netres.ID)
+	log.Trace("Removing network resources - ", *netres)
+
+	// Set current state to DELETING and the async. delete them from VIM and DB
 	// and all the resources associated to the set
 	netres.Status = DELETING_RESOURCES
 	result := obj.DB.Save(netres)
 	if result.Error != nil {
-		SetErrorResponse(c, "DeleteNetResourcesId", http.StatusInternalServerError, ErrGeneral)
+		log.Error("Network resources cannot be canceled: error saving on DB")
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	log.Trace("DeleteNetResourcesId - staring asynch job to delete network resource set with ID: ", id)
-	go deleteResources(obj.DB, netres)
+	log.Trace("Removing network resources - staring asynch job to delete network resource set with ID: ", netres.ID)
+	go deleteResources(obj.DB, vim, netres)
 	c.Status(http.StatusOK)
 }

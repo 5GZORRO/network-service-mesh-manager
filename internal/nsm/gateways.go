@@ -16,18 +16,20 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGateway(c *gin.Context, id int)
 	log.Trace("GetNetResourcesIdGateway - requested retrieve of gateway configuration for resource set with ID: ", id)
 	resource, error := RetrieveResourcesFromDB(obj.DB, id)
 	if error != nil {
+		log.Error("Impossible to retrieve gateway configuration. Error reading from DB: ", error)
 		if errors.Is(error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, "GetNetResourcesIdGateway", http.StatusNotFound, ErrSliceNotExists)
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
 			return
 		} else {
-			SetErrorResponse(c, "GetNetResourcesIdGateway", http.StatusInternalServerError, ErrGeneral)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 	}
 
 	// check if it is configured
 	if resource.Gateway.ExternalIp == "" {
-		SetErrorResponse(c, "GetNetResourcesIdGateway", http.StatusNotFound, ErrGatewayNotConfigured)
+		log.Error("Impossible to retrieve gateway configuration. It does not exist")
+		SetErrorResponse(c, http.StatusNotFound, ErrGatewayNotConfigured)
 		return
 	}
 	SetGatewayResponse(c, http.StatusOK, *resource)
@@ -37,31 +39,33 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 	var jsonBody nsmmapi.Gateway
 
 	if err := c.ShouldBindJSON(&jsonBody); err != nil {
-		SetErrorResponse(c, "PutNetResourcesIdGateway", http.StatusBadRequest, ErrRequestConfigurationGateway)
+		log.Error("Impossible to create a gateway configuration. Error in the request, wrong json body")
+		SetErrorResponse(c, http.StatusBadRequest, ErrRequestConfigurationGateway)
 		return
 	}
 
 	log.Trace("PutNetResourcesIdGateway - requested configuration of gateway for resource set with ID: ", id)
 	resource, error := RetrieveResourcesFromDB(obj.DB, id)
 	if error != nil {
-		log.Error(error)
+		log.Error("Impossible to create gateway configuration. Error reading from DB: ", error)
 		if errors.Is(error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, "PutNetResourcesIdGateway", http.StatusNotFound, ErrResourcesNotExists)
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
 			return
 		} else {
-			SetErrorResponse(c, "PutNetResourcesIdGateway", http.StatusInternalServerError, ErrGeneral)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 	}
 	// check status
 	if resource.Status != WAIT_FOR_GATEWAY_CONFIG {
-		log.Error("PutNetResourcesIdGateway - impossibile to configure gateway. The current state is ", resource.Status)
-		SetErrorResponse(c, "PutNetResourcesIdGateway", http.StatusForbidden, ErrConfiguringGateway)
+		log.Error("Impossibile to create gateway configuration. The current state is ", resource.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrConfiguringGateway)
 		return
 	}
 
 	if err := checkGatewayConfigurationParams(jsonBody); err != nil {
-		SetErrorResponse(c, "PutNetResourcesIdGateway", http.StatusBadRequest, err)
+		log.Error("Impossible to create gateway configuration - error in json body ", err)
+		SetErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
@@ -73,11 +77,11 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 	// If it is configurable update the state to -> CONFIGURING
 	// and store params
 	resource.Status = CONFIGURING
-	log.Trace("PutNetResourcesIdGateway - updating gateway configuration for resource set with ID: ", id)
+	log.Trace("Creating gateway configuration - updating network resource set with ID: ", id)
 	err := obj.DB.Save(&resource)
 	if err.Error != nil {
-		log.Error("PutNetResourcesIdGateway - error updating resource set with gateway configuration ", err.Error)
-		SetErrorResponse(c, "PutNetResourcesIdGateway", http.StatusInternalServerError, ErrGeneral)
+		log.Error("Impossible to create gateway configuration - error saving in DB when updating network resource set  ", err.Error)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
 	// TODO go routine with httpclient to configure the VPN server
@@ -91,25 +95,27 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id i
 	log.Trace("DeleteNetResourcesIdGateway - requested removal of gateway configuration for resource set with ID: ", id)
 	resource, error := RetrieveResourcesFromDB(obj.DB, id)
 	if error != nil {
+		log.Error("Impossible to delete gateway configuration. Error reading from DB: ", error)
 		if errors.Is(error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, "DeleteNetResourcesIdGateway", http.StatusNotFound, ErrResourcesNotExists)
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
 			return
 		} else {
-			SetErrorResponse(c, "DeleteNetResourcesIdGateway", http.StatusInternalServerError, ErrGeneral)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
 	}
 	// check status
 	if resource.Status != READY {
-		log.Error("DeleteNetResourcesIdGateway - impossibile to configure gateway. The current state is ", resource.Status)
-		SetErrorResponse(c, "DeleteNetResourcesIdGateway", http.StatusForbidden, ErrDeleteConfigurationGateway)
+		log.Error("Impossibile to configure gateway. The current state is ", resource.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrDeleteConfigurationGateway)
 		return
 	}
 	// If it is configurable update the state to -> CONFIGURING
 	resource.Status = DELETING_CONFIGURATION
 	err := obj.DB.Save(&resource)
 	if err.Error != nil {
-		SetErrorResponse(c, "DeleteNetResourcesIdGateway", http.StatusInternalServerError, ErrGeneral)
+		log.Error("Impossible to delete gateway configuration. Error saving in DB: ", error)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
 	// TODO creates go routine with httpclient to reset VPN server?

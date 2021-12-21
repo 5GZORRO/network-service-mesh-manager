@@ -31,6 +31,9 @@ func NewGinServer(impl *nsm.ServerInterfaceImpl, port int) *http.Server {
 	// that server names match. We don't know how this thing will be run.
 	swagger.Servers = nil
 
+	// TODO set to production mode
+	// gin.SetMode(gin.ReleaseMode)
+
 	// This is how you set up a basic chi router
 	r := gin.Default()
 
@@ -80,10 +83,12 @@ func main() {
 		log.Error("Error connecting to the database")
 		return
 	}
+	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&nsm.ResourceSet{}, &nsm.Network{}, &nsm.Sap{})
 	// log.Trace(db)
 
 	// STEP VIM
-	// initizialize a driver for each vim, also reading from DB
+	// initizialize a driver for each vim,
+	// TODO also reading from DB
 	drivers := vim.InizializeVims(db, configuration.Vim)
 	log.Trace(drivers)
 

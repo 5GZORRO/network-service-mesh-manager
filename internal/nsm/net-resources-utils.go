@@ -8,8 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetErrorResponse(ctx *gin.Context, method string, errorStatus int, err error) {
-	log.Error(method, " - ", err.Error())
+func SetErrorResponse(ctx *gin.Context, errorStatus int, err error) {
 	outputJson := nsmmapi.ErrorResponse{Error: err.Error()}
 	ctx.JSON(errorStatus, outputJson)
 }

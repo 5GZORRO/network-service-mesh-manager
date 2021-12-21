@@ -36,4 +36,6 @@ var (
 	ErrConfiguringGateway = errors.New("gateway can't be configured")
 	//
 	ErrDeleteConfigurationGateway = errors.New("configuration of gateway can't be removed")
+	// VIM Errors
+	ErrVimNotExists = errors.New("vim does not exist")
 )

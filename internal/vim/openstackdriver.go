@@ -34,6 +34,22 @@ func (obj *OpenStackDriver) Authenticate() {
 	log.Info("Authenticating...")
 }
 
+func (obj *OpenStackDriver) CreateNetwork() {
+	log.Info("Creating Network...")
+}
+
+func (obj *OpenStackDriver) DeleteNetwork() {
+	log.Info("Deleting Network...")
+}
+
+func (obj *OpenStackDriver) CreateSAP() {
+	log.Info("Creating SAP...")
+}
+
+func (obj *OpenStackDriver) DeleteSAP() {
+	log.Info("Deleting SAP...")
+}
+
 // CreateGatewayConnectivity
 func (obj *OpenStackDriver) CreateGatewayConnectivity(sliceId string, subnet string) (string, string, string, error) {
 	// Create private_network, router with gateway, interface and returns the VIM-id

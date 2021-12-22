@@ -1,9 +1,8 @@
-package vim
+package openstackdriver
 
 import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -85,71 +84,6 @@ func (client *OpenStackDriver) Authenticate() {
 		log.Fatal(err)
 	}
 	log.Info("Compute Endpoint " + client.computeClient.Endpoint)
-}
-
-func (obj *OpenStackDriver) CreateNetwork() {
-	log.Info("Creating Network...")
-}
-
-func (client *OpenStackDriver) RetrieveNetwork() {
-	log.Info("Retrieving Network...")
-	log.Info("Authentication TokenString used: ", client.provider.Token())
-
-	sharedNetworks := false
-	listOpts := networks.ListOpts{
-		TenantID: client.TenantID,
-		Name:     "private",
-		Shared:   &sharedNetworks,
-	}
-
-	allPages, err := networks.List(client.networkClient, listOpts).AllPages()
-	if err != nil {
-		log.Error(err)
-	}
-
-	pages, _ := allPages.IsEmpty()
-	if !pages {
-		allNetworks, err := networks.ExtractNetworks(allPages)
-		if err != nil {
-			log.Error(err)
-		}
-		log.Info("Networks: ", len(allNetworks))
-	} else {
-		// Network not found
-		log.Error("Network not found")
-
-	}
-}
-
-func (obj *OpenStackDriver) DeleteNetwork() {
-	log.Info("Deleting Network...")
-}
-
-func (obj *OpenStackDriver) CreateSAP() {
-	log.Info("Creating SAP...")
-}
-
-func (obj *OpenStackDriver) DeleteSAP() {
-	log.Info("Deleting SAP...")
-}
-
-// CreateGatewayConnectivity
-func (obj *OpenStackDriver) CreateGatewayConnectivity(sliceId string, subnet string) (string, string, string, error) {
-	// Create private_network, router with gateway, interface and returns the VIM-id
-	log.Info("CreateGatewayConnectivity...")
-	return "", "", "", nil
-}
-
-// DeleteGatewayConnectivity
-func (obj *OpenStackDriver) DeleteGatewayConnectivity(networkId string, subnetId string, routerId string) error {
-	// Delete all the gateway resources
-	log.Info("DeleteGatewayConnectivity...")
-	return nil
-}
-
-// GetGatewayConnectivity
-func (obj *OpenStackDriver) GetGatewayConnectivity(networkId string, subnetId string, routerId string) {
-	log.Info("GetGatewayConnectivity...")
 }
 
 // Revoke

@@ -3,6 +3,7 @@ package nsm
 import (
 	"net"
 	nsmmapi "nextworks/nsm/api"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,8 +13,10 @@ func checkGatewayConfigurationParams(input nsmmapi.Gateway) error {
 	if err != nil {
 		return ErrGatewayConfigMgmtPort
 	}
-	if _, _, err = net.ParseCIDR(input.SubnetToExpose); err != nil {
-		return ErrGatewayConfigSubnet
+	for _, sub := range input.SubnetToExpose {
+		if _, _, err = net.ParseCIDR(sub); err != nil {
+			return ErrGatewayConfigSubnet
+		}
 	}
 	mngmIp := net.ParseIP(input.MgmtIp)
 	externalIP := net.ParseIP(input.ExternalIp)
@@ -33,9 +36,23 @@ func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
 	gateway.ExternalIp = res.Gateway.ExternalIp
 	gateway.MgmtIp = res.Gateway.MgmtIp
 	gateway.MgmtPort = parsePortToString(res.Gateway.MgmtPort)
-	// Todo publickKey of the server
-	// gateway.PubKey = res.Gateway.
-	gateway.SubnetToExpose = res.Gateway.ExposedNets
+	gateway.SubnetToExpose = SubnetsToArray(res.Gateway.ExposedNets)
 	gateway.PubKey = res.Gateway.PubKey
 	ctx.JSON(status, gateway)
+}
+
+func SubnetsToString(subnets []string) string {
+	stringSubs := ""
+	for i, sub := range subnets {
+		if i == 0 {
+			stringSubs = stringSubs + sub
+		} else {
+			stringSubs = stringSubs + "," + sub
+		}
+	}
+	return stringSubs
+}
+
+func SubnetsToArray(subnets string) []string {
+	return strings.Split(subnets, ",")
 }

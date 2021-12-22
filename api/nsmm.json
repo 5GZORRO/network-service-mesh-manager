@@ -295,7 +295,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Gateway"
+                                "$ref": "#/components/schemas/PostGateway"
                             }
                         }
                     },
@@ -641,7 +641,11 @@
                     }
                 },
                 "example": {
-                    "network-name": ""
+                    "network-name": "some text",
+                    "exclude-cidr": [
+                        "some text",
+                        "some text"
+                    ]
                 }
             },
             "PostConnection": {
@@ -651,19 +655,12 @@
                     "pub-key",
                     "remote-peer-ip",
                     "remote-peer-port",
-                    "subnets-to-expose"
+                    "exposed-subnets"
                 ],
                 "type": "object",
                 "properties": {
-                    "subnets-to-expose": {
-                        "description": "Subnet to expose",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "pub-key": {
-                        "description": "Public key pf the remote peer",
+                        "description": "Public key of the remote peer",
                         "type": "string"
                     },
                     "remote-peer-ip": {
@@ -673,16 +670,17 @@
                     "remote-peer-port": {
                         "description": "Remote peer VPN port",
                         "type": "string"
+                    },
+                    "exposed-subnets": {
+                        "description": "Subnets exposed by VPN server",
+                        "type": "string"
                     }
                 },
                 "example": {
-                    "subnets-to-expose": [
-                        "some text",
-                        "some text"
-                    ],
                     "pub-key": "some text",
                     "remote-peer-ip": "some text",
-                    "remote-peer-port": "some text"
+                    "remote-peer-port": "some text",
+                    "exposed-subnet": "some text"
                 }
             },
             "Connection": {
@@ -762,6 +760,10 @@
                     "vim-name": {
                         "description": "Name of the VIM where to create the requested resources",
                         "type": "string"
+                    },
+                    "exclude-subnet": {
+                        "description": "Last subnet used by the peer",
+                        "type": "string"
                     }
                 },
                 "example": {
@@ -784,7 +786,8 @@
                         }
                     ],
                     "slice-id": "some text",
-                    "vim-name": "some text"
+                    "vim-name": "some text",
+                    "exclude-subnet": "some text"
                 }
             },
             "SliceResources": {
@@ -856,47 +859,6 @@
                     "status": "some text"
                 }
             },
-            "Gateway": {
-                "title": "Root Type for Gateway",
-                "description": "Configuration of a gateway ",
-                "required": [
-                    "external-ip",
-                    "mgmt-ip",
-                    "mgmt-port",
-                    "pub-key",
-                    "subnet-to-expose"
-                ],
-                "type": "object",
-                "properties": {
-                    "external-ip": {
-                        "description": "External IP of the gateway",
-                        "type": "string"
-                    },
-                    "subnet-to-expose": {
-                        "description": "Subnet to expose",
-                        "type": "string"
-                    },
-                    "mgmt-ip": {
-                        "description": "Gateway VM management IP",
-                        "type": "string"
-                    },
-                    "mgmt-port": {
-                        "description": "Gateway VM management port",
-                        "type": "string"
-                    },
-                    "pub-key": {
-                        "description": "Public key of the peer",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "external-ip": "some text",
-                    "subnet-to-expose": "some text",
-                    "mgmt-ip": "some text",
-                    "mgmt-port": "some text",
-                    "pub-key": "some text"
-                }
-            },
             "ErrorResponse": {
                 "title": "Root Type for ErrorResponse",
                 "description": "",
@@ -911,6 +873,131 @@
                 },
                 "example": {
                     "error": ""
+                }
+            },
+            "PostGateway": {
+                "title": "Root Type for Gateway",
+                "description": "Configuration of a gateway ",
+                "required": [
+                    "external-ip",
+                    "mgmt-ip",
+                    "mgmt-port",
+                    "pub-key",
+                    "subnet-to-expose",
+                    "private-vpn-range"
+                ],
+                "type": "object",
+                "properties": {
+                    "external-ip": {
+                        "description": "External IP of the gateway",
+                        "type": "string"
+                    },
+                    "subnet-to-expose": {
+                        "description": "Subnet to expose",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": "172.24.0.0/24"
+                    },
+                    "mgmt-ip": {
+                        "description": "Gateway VM management IP",
+                        "type": "string"
+                    },
+                    "mgmt-port": {
+                        "description": "Gateway VM management port",
+                        "type": "string",
+                        "example": "2111"
+                    },
+                    "pub-key": {
+                        "description": "Public key of the server",
+                        "type": "string",
+                        "example": "vOSSIowa3KWF5j/YOrKrbr9yEmbmpeaP4jYppL+ybCA="
+                    },
+                    "private-vpn-range": {
+                        "description": "Private VPN subnet",
+                        "type": "string",
+                        "example": "10.0.0.0/24"
+                    },
+                    "private-vpn-peer-ip": {
+                        "description": "Private VPN Ip of the peer on the private VPN subnet",
+                        "type": "string",
+                        "example": "10.0.0.2"
+                    }
+                },
+                "example": {
+                    "external-ip": "some text",
+                    "subnet-to-expose": [
+                        "some text",
+                        "some text"
+                    ],
+                    "mgmt-ip": "some text",
+                    "mgmt-port": "some text",
+                    "pub-key": "some text",
+                    "private-vpn-range": "some text",
+                    "private-vpn-peer-ip": "some text"
+                }
+            },
+            "Gateway": {
+                "title": "Root Type for Gateway",
+                "description": "Actual gateway configuration of a VPN server gateway",
+                "required": [
+                    "pub-key",
+                    "subnet-to-expose",
+                    "external-ip",
+                    "mgmt-ip",
+                    "mgmt-port",
+                    "private-vpn-ip",
+                    "private-vpn-range"
+                ],
+                "type": "object",
+                "properties": {
+                    "external-ip": {
+                        "description": "External IP of the gateway",
+                        "type": "string"
+                    },
+                    "subnet-to-expose": {
+                        "description": "Subnet to expose",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": "172.24.0.0/24"
+                    },
+                    "mgmt-ip": {
+                        "description": "Gateway VM management IP",
+                        "type": "string"
+                    },
+                    "mgmt-port": {
+                        "description": "Gateway VM management port",
+                        "type": "string"
+                    },
+                    "pub-key": {
+                        "description": "Public key of the server",
+                        "type": "string"
+                    },
+                    "private-vpn-range": {
+                        "description": "Private VPN subnet",
+                        "type": "string",
+                        "example": "10.0.0.0/24"
+                    },
+                    "private-vpn-ip": {
+                        "description": "Private VPN IP of the server",
+                        "type": "string",
+                        "example": "10.0.0.1"
+                    }
+                },
+                "example": {
+                    "external-ip": "some text",
+                    "subnet-to-expose": [
+                        "some text",
+                        "some text"
+                    ],
+                    "mgmt-ip": "some text",
+                    "mgmt-port": "some text",
+                    "pub-key": "some text",
+                    "private-vpn-range": "some text",
+                    "private-vpn-ip": "some text"
                 }
             }
         }

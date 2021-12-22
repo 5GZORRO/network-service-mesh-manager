@@ -54,16 +54,27 @@ func (obj *ServerInterfaceImpl) GetNetResources(c *gin.Context, params nsmmapi.G
 }
 
 // PostNetResources creates a new set of resources and creates them on the VIM
+// excluding some CIDR passed as optional parameters
+// TODO
 func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	var result *gorm.DB
 	var jsonBody nsmmapi.PostSliceResources
 
 	if err := c.ShouldBindJSON(&jsonBody); err != nil {
 		log.Error("Impossible to create network resources. Error in the request, wrong json body")
-		SetErrorResponse(c, http.StatusBadRequest, ErrBodyMissingInfo)
+		SetErrorResponse(c, http.StatusBadRequest, ErrBodyWrongInfo)
 		return
 	}
 	log.Trace("Requested creation of network resources for SliceId: ", jsonBody.SliceId, " on VIM: ", jsonBody.VimName)
+	if jsonBody.ExcludeSubnet != nil {
+		log.Trace("with excluded subnetes", jsonBody.ExcludeSubnet)
+		err := checkExcludedSubnetsParams(jsonBody.ExcludeSubnet)
+		if err != nil {
+			log.Error("Impossible to create network resources. Error in JSON Body: exclude-subnets")
+			SetErrorResponse(c, http.StatusBadRequest, err)
+			return
+		}
+	}
 
 	// TODO select vim
 	// Check if a Vim with this name exists
@@ -109,7 +120,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	// create networks:
 	for _, net := range jsonBody.Networks {
 		// TODO create on vim
-		(*vim).CreateNetwork()
+		// (*vim).CreateNetwork()
 		log.Trace("PostNetResources - creating Network ", net)
 		ne := Network{
 			ResourceSetId: resset.ID,

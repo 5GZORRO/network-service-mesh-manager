@@ -12,7 +12,7 @@ import (
 func deleteResources(database *gorm.DB, vim *vim.VimDriver, res *ResourceSet) {
 	time.Sleep(time.Second * 5)
 	// TODO Delete resources from VIM
-	(*vim).DeleteNetwork()
+	// (*vim).DeleteNetwork()
 
 	// if removal from VIM is OK then delete it from DB
 	result := database.Delete(&res)

@@ -26,7 +26,7 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// Configuration of a gateway
+// Actual gateway configuration of a VPN server gateway
 type Gateway struct {
 	// External IP of the gateway
 	ExternalIp string `json:"external-ip"`
@@ -37,11 +37,17 @@ type Gateway struct {
 	// Gateway VM management port
 	MgmtPort string `json:"mgmt-port"`
 
-	// Public key of the peer
+	// Private VPN IP of the server
+	PrivateVpnIp string `json:"private-vpn-ip"`
+
+	// Private VPN subnet
+	PrivateVpnRange string `json:"private-vpn-range"`
+
+	// Public key of the server
 	PubKey string `json:"pub-key"`
 
 	// Subnet to expose
-	SubnetToExpose string `json:"subnet-to-expose"`
+	SubnetToExpose []string `json:"subnet-to-expose"`
 }
 
 // Network defines model for Network.
@@ -52,7 +58,10 @@ type Network struct {
 
 // Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose
 type PostConnection struct {
-	// Public key pf the remote peer
+	// Subnets exposed by VPN server
+	ExposedSubnets string `json:"exposed-subnets"`
+
+	// Public key of the remote peer
 	PubKey string `json:"pub-key"`
 
 	// Public IP of the remote peer VPN
@@ -60,13 +69,37 @@ type PostConnection struct {
 
 	// Remote peer VPN port
 	RemotePeerPort string `json:"remote-peer-port"`
+}
+
+// Configuration of a gateway
+type PostGateway struct {
+	// External IP of the gateway
+	ExternalIp string `json:"external-ip"`
+
+	// Gateway VM management IP
+	MgmtIp string `json:"mgmt-ip"`
+
+	// Gateway VM management port
+	MgmtPort string `json:"mgmt-port"`
+
+	// Private VPN Ip of the peer on the private VPN subnet
+	PrivateVpnPeerIp *string `json:"private-vpn-peer-ip,omitempty"`
+
+	// Private VPN subnet
+	PrivateVpnRange string `json:"private-vpn-range"`
+
+	// Public key of the server
+	PubKey string `json:"pub-key"`
 
 	// Subnet to expose
-	SubnetsToExpose []string `json:"subnets-to-expose"`
+	SubnetToExpose []string `json:"subnet-to-expose"`
 }
 
 // POST to create all the network resources of a slice on a vim
 type PostSliceResources struct {
+	// Last subnet used by the peer
+	ExcludeSubnet *string `json:"exclude-subnet,omitempty"`
+
 	// Name of the networks specified in the NSD
 	Networks []Network `json:"networks"`
 
@@ -126,7 +159,7 @@ type GetNetResourcesParams struct {
 type PostNetResourcesJSONBody PostSliceResources
 
 // PutNetResourcesIdGatewayJSONBody defines parameters for PutNetResourcesIdGateway.
-type PutNetResourcesIdGatewayJSONBody Gateway
+type PutNetResourcesIdGatewayJSONBody PostGateway
 
 // PostNetResourcesIdGatewayConnectionsJSONBody defines parameters for PostNetResourcesIdGatewayConnections.
 type PostNetResourcesIdGatewayConnectionsJSONBody PostConnection

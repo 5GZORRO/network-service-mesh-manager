@@ -72,7 +72,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 	resource.Gateway.ExternalIp = jsonBody.ExternalIp
 	resource.Gateway.MgmtIp = jsonBody.MgmtIp
 	resource.Gateway.MgmtPort, _ = parsePort(jsonBody.MgmtPort)
-	resource.Gateway.ExposedNets = jsonBody.SubnetToExpose
+	resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
 	resource.Gateway.PubKey = jsonBody.PubKey
 	// If it is configurable update the state to -> CONFIGURING
 	// and store params

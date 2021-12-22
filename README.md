@@ -72,3 +72,7 @@ go run cmd/oapi-codegen/oapi-codegen.go -generate types api/nsmm-api.json > api/
 # SBI
 First design of SBI is a Postman Collection:
 [Readme](sbi/README.md)
+
+# TODO
+Create a mgmt api to interact with OS, to test the ReAuth field
+https://github.com/gophercloud/gophercloud/blob/master/auth_options.go

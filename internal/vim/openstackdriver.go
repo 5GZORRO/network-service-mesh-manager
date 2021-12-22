@@ -1,6 +1,9 @@
 package vim
 
 import (
+	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -13,10 +16,10 @@ type OpenStackDriver struct {
 	TenantID         string
 	DomainID         string
 	// openstack
-	// provider       *gophercloud.ProviderClient
-	// identityClient *gophercloud.ServiceClient
-	// networkClient  *gophercloud.ServiceClient
-	// computeClient  *gophercloud.ServiceClient
+	provider       *gophercloud.ProviderClient
+	identityClient *gophercloud.ServiceClient
+	networkClient  *gophercloud.ServiceClient
+	computeClient  *gophercloud.ServiceClient
 }
 
 func NewOpenStackDriver(identityEndpoint string, username string, password string, tenantID string, domainID string) *OpenStackDriver {
@@ -30,12 +33,92 @@ func NewOpenStackDriver(identityEndpoint string, username string, password strin
 }
 
 // Authenticate function towards OpenStack, it has to be executed before all the other methods
-func (obj *OpenStackDriver) Authenticate() {
-	log.Info("Authenticating...")
+func (client *OpenStackDriver) Authenticate() {
+	log.Info("Authenticating to OpenStack...")
+	var err error
+
+	// Without token and scope
+	opts := gophercloud.AuthOptions{
+		IdentityEndpoint: client.IdentityEndpoint,
+		Username:         client.Username,
+		Password:         client.Password,
+		TenantID:         client.TenantID,
+		DomainID:         client.DomainID,
+		AllowReauth:      true,
+	}
+
+	// OpenStack providerClient
+	client.provider, err = openstack.AuthenticatedClient(opts)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Authentication Token provided: ", client.provider.Token())
+
+	// retrieve IdentityClient as a ServiceClient
+	client.identityClient, err = openstack.NewIdentityV3(client.provider, gophercloud.EndpointOpts{
+		Region: "RegionOne",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Identity Endpoint: " + client.identityClient.IdentityEndpoint)
+	// token, err := tokens.Get(client.identityClient, client.provider.Token()).Extract()
+	// if err != nil {
+	// 	log.Error("Retriving Authentication token error: ", err)
+	// }
+
+	// retrieve NetworkClient as a ServiceClient
+	client.networkClient, err = openstack.NewNetworkV2(client.provider, gophercloud.EndpointOpts{
+		Name:   "neutron",
+		Region: "RegionOne",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Network Endpoint " + client.networkClient.Endpoint)
+
+	// retrieve ComputeClient as a ServiceClient
+	client.computeClient, err = openstack.NewComputeV2(client.provider, gophercloud.EndpointOpts{
+		Region: "RegionOne",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Compute Endpoint " + client.computeClient.Endpoint)
 }
 
 func (obj *OpenStackDriver) CreateNetwork() {
 	log.Info("Creating Network...")
+}
+
+func (client *OpenStackDriver) RetrieveNetwork() {
+	log.Info("Retrieving Network...")
+	log.Info("Authentication TokenString used: ", client.provider.Token())
+
+	sharedNetworks := false
+	listOpts := networks.ListOpts{
+		TenantID: client.TenantID,
+		Name:     "private",
+		Shared:   &sharedNetworks,
+	}
+
+	allPages, err := networks.List(client.networkClient, listOpts).AllPages()
+	if err != nil {
+		log.Error(err)
+	}
+
+	pages, _ := allPages.IsEmpty()
+	if !pages {
+		allNetworks, err := networks.ExtractNetworks(allPages)
+		if err != nil {
+			log.Error(err)
+		}
+		log.Info("Networks: ", len(allNetworks))
+	} else {
+		// Network not found
+		log.Error("Network not found")
+
+	}
 }
 
 func (obj *OpenStackDriver) DeleteNetwork() {
@@ -70,6 +153,11 @@ func (obj *OpenStackDriver) GetGatewayConnectivity(networkId string, subnetId st
 }
 
 // Revoke
-func (obj *OpenStackDriver) Revoke() {
+func (client *OpenStackDriver) Revoke() {
 	log.Info("Revoking token...")
+	// token, err := tokens.Revoke(client.identityClient, client.provider.Token()).Extract()
+	// if err != nil {
+	// 	log.Error(err)
+	// }
+	// log.Info(*token)
 }

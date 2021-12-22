@@ -51,6 +51,7 @@ func InizializeVims(db *gorm.DB, vimConfigs []config.VimConfigurations) *VimDriv
 			case string(Openstack):
 				openstackclient := NewOpenStackDriver(configVim.IdentityEndpoint, configVim.Username, configVim.Password, configVim.TenantID, configVim.DomainID)
 				log.Trace("Loaded vim: ", openstackclient)
+				// openstackclient.Authenticate()
 				vimList.addVim(configVim.Name, openstackclient)
 			case string(Kubernetes):
 				// TODO

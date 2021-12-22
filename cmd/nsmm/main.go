@@ -63,7 +63,7 @@ func main() {
 
 	//  Read config file
 	configuration := config.ReadConfigFile()
-	log.Info(*configuration)
+	// log.Info(*configuration)
 
 	// set log level
 	level, err := config.LogLevel(configuration)
@@ -72,6 +72,7 @@ func main() {
 	} else {
 		log.SetLevel(level)
 	}
+	log.Info(configuration)
 
 	// STEP DB
 	// Connect to the DB
@@ -106,7 +107,7 @@ func main() {
 	}()
 
 	// Create an instance of our server handler object, containing shared info (DB, driver)
-	sii := nsm.NewServerInterfaceImpl(db, drivers)
+	sii := nsm.NewServerInterfaceImpl(db, drivers, &configuration.Networks)
 	s := NewGinServer(sii, configuration.Server.Port)
 
 	log.Fatal(s.ListenAndServe())

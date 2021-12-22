@@ -12,16 +12,16 @@ type Network_manager struct {
 	next_subnet  *net.IPNet
 }
 
-func (this *Network_manager) Next() *net.IPNet {
-	if this.subnets_init != nil {
-		ip := this.next_subnet
+func (ob *Network_manager) NextSubnet() *net.IPNet {
+	if ob.subnets_init != nil {
+		ip := ob.next_subnet
 		net2, v := cidr.NextSubnet(ip, 28)
 		if !v {
-			this.next_subnet = net2
+			ob.next_subnet = net2
 			return ip
 		} else {
 			log.Error("Error")
-			this.next_subnet = nil
+			ob.next_subnet = nil
 			return ip
 		}
 	} else {
@@ -30,38 +30,34 @@ func (this *Network_manager) Next() *net.IPNet {
 	}
 }
 
-func (this *Network_manager) NextSubnet(lastUsed string) *net.IPNet {
-	_, net, err := net.ParseCIDR(lastUsed)
-	if err != nil {
-		log.Error("Error")
-		return nil
-	}
-	net1, v := cidr.NextSubnet(net, 28)
-	if v {
-		log.Error("Error")
-		this.next_subnet = nil
-		return nil
-	}
-	net2, v := cidr.NextSubnet(net1, 28)
-	if !v {
-		this.next_subnet = net2
-		return net1
+// NewNetworkManager returns a Network_Manager to allocate subnets.
+// start is the starting subnet
+// skip indicates if the first subnet should be avoid (in case of an exclude)
+func NewNetworkManager(start string, skip bool) *Network_manager {
+	if !skip {
+		_, net, err := net.ParseCIDR(start)
+		if err != nil {
+			log.Error("Error")
+			return nil
+		}
+		return &Network_manager{
+			subnets_init: net,
+			next_subnet:  net,
+		}
 	} else {
-		log.Error("Error")
-		this.next_subnet = nil
-		return net1
-	}
-
-}
-
-func NewNetworkManager(start string) *Network_manager {
-	_, net, err := net.ParseCIDR(start)
-	if err != nil {
-		log.Error("Error")
-		return nil
-	}
-	return &Network_manager{
-		subnets_init: net,
-		next_subnet:  net,
+		_, net, err := net.ParseCIDR(start)
+		if err != nil {
+			log.Error("Error")
+			return nil
+		}
+		net1, v := cidr.NextSubnet(net, 28)
+		if v {
+			log.Error("Error")
+			return nil
+		}
+		return &Network_manager{
+			subnets_init: net1,
+			next_subnet:  net1,
+		}
 	}
 }

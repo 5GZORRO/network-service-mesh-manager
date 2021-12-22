@@ -11,6 +11,9 @@ database:
   username: "root"
   password: "root"
 
+networks:
+  start: "192.168.161.0/28"
+
 vim:
   - name: "vim1"
     type: "openstack"

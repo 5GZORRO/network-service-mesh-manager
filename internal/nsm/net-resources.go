@@ -55,7 +55,6 @@ func (obj *ServerInterfaceImpl) GetNetResources(c *gin.Context, params nsmmapi.G
 
 // PostNetResources creates a new set of resources and creates them on the VIM
 // excluding some CIDR passed as optional parameters
-// TODO
 func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	var result *gorm.DB
 	var jsonBody nsmmapi.PostSliceResources
@@ -76,7 +75,6 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 		}
 	}
 
-	// TODO select vim
 	// Check if a Vim with this name exists
 	if !obj.Vims.Exists(jsonBody.VimName) {
 		log.Error("Impossible to create network resources. Vim with name: ", jsonBody.VimName, " does not exist")
@@ -108,7 +106,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 
 	result = obj.DB.Save(resset)
 	if result.Error != nil {
-		log.Error("Impossible to create network resources. Error reading from DB")
+		log.Error("Impossible to create network resources. Error writing in DB")
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
@@ -117,29 +115,52 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	// retrieve VIM
 	vim := obj.Vims.GetVim(jsonBody.VimName)
 
+	// management of allocated networks
+	netmng := NewNetworkManager(obj.Netconfig.Start, jsonBody.ExcludeSubnet != nil)
+
 	// create networks:
 	for _, net := range jsonBody.Networks {
 		// TODO create on vim
-		// (*vim).CreateNetwork()
-		log.Trace("PostNetResources - creating Network ", net)
-		ne := Network{
-			ResourceSetId: resset.ID,
-			NetworkName:   net.NetworkName,
+		ipnet := netmng.NextSubnet()
+		if ipnet != nil {
+			cidr := ipnet.String()
+			(*vim).CreateNetwork(net.NetworkName, cidr)
+			log.Trace("PostNetResources - creating Network ", net, " with cidr: ", cidr)
+			ne := Network{
+				ResourceSetId: resset.ID,
+				NetworkName:   net.NetworkName,
+				SubnetCidr:    cidr,
+			}
+			resset.Networks = append(resset.Networks, ne)
+		} else {
+			log.Error("Impossible to create network resources. Error allocating IP addresses")
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+			resset.Status = CREATION_ERROR
+			_ = obj.DB.Save(resset)
 		}
-		resset.Networks = append(resset.Networks, ne)
 	}
 
 	// create saps:
 	for _, sap := range jsonBody.ServiceAccessPoints {
 		// TODO crate on vim
-		(*vim).CreateSAP()
-		log.Trace("PostNetResources - creating SAP ", sap)
-		ap := Sap{
-			ResourceSetId:   resset.ID,
-			NetworkName:     sap.NetworkName,
-			FloatingNetName: sap.FloatingNetworkName,
+		ipnet := netmng.NextSubnet()
+		if ipnet != nil {
+			cidr := ipnet.String()
+			(*vim).CreateSAP()
+			log.Trace("PostNetResources - creating SAP ", sap, " with cidr: "+cidr)
+			ap := Sap{
+				ResourceSetId:   resset.ID,
+				NetworkName:     sap.NetworkName,
+				FloatingNetName: sap.FloatingNetworkName,
+				SubnetCidr:      cidr,
+			}
+			resset.Saps = append(resset.Saps, ap)
+		} else {
+			log.Error("Impossible to create network resources. Error allocating IP addresses")
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+			resset.Status = CREATION_ERROR
+			_ = obj.DB.Save(resset)
 		}
-		resset.Saps = append(resset.Saps, ap)
 	}
 
 	log.Trace("ResourceSet with additional infos: ", *resset)

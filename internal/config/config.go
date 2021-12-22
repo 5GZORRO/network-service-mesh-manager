@@ -10,6 +10,7 @@ type Configurations struct {
 	Log      string
 	Server   ServerConfigurations
 	Database DatabaseConfigurations
+	Networks NetworkConfigurations
 	Vim      []VimConfigurations
 }
 
@@ -25,6 +26,11 @@ type DatabaseConfigurations struct {
 	DB       string
 	Username string
 	Password string
+}
+
+// NetworkConfigurations exported
+type NetworkConfigurations struct {
+	Start string
 }
 
 // VimConfigurations exported
@@ -67,6 +73,7 @@ func ReadConfigFile() *Configurations {
 
 	// Set default values
 	viper.SetDefault("server.port", 8080)
+	viper.SetDefault("networks.start", "192.168.161.0/28")
 
 	// Read and initialize
 	if err := viper.ReadInConfig(); err != nil {

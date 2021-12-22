@@ -9,9 +9,14 @@ import (
 func main() {
 	log.Info("test ")
 
-	subs := []string{"1", "2", "3"}
-	s := nsm.SubnetsToString(subs)
-	log.Info(s)
-	ss := nsm.SubnetsToArray(s)
-	log.Info(ss)
+	mng := nsm.NewNetworkManager("192.168.161.16/28", true)
+	log.Info(*mng)
+	nn := mng.NextSubnet()
+	log.Info(*mng)
+	log.Info(nn.String())
+
+	nn = mng.NextSubnet()
+	log.Info(*mng)
+	log.Info(nn)
+
 }

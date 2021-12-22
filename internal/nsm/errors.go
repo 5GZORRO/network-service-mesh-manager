@@ -23,6 +23,8 @@ var (
 	ErrGatewayConfigMgmtIp         = errors.New("configuration gateway body request contains wrong info: management IP")
 	ErrGatewayConfigExternalIp     = errors.New("configuration gateway body request contains wrong info: external IP")
 	ErrGatewayConfigSubnet         = errors.New("configuration gateway body request contains wrong info: subnet to expose")
+	ErrGatewayVpnPrivateRange      = errors.New("configuration gateway body request contains wrong info: VPN private range")
+	ErrGatewayVpnPeerPrivateIp     = errors.New("configuration gateway body request contains wrong info: VPN peer private ip")
 	ErrConfiguringGateway          = errors.New("gateway can't be configured")
 	ErrDeleteConfigurationGateway  = errors.New("configuration of gateway can't be removed")
 	// VIM Errors

@@ -2,9 +2,11 @@ package nsm
 
 import (
 	"errors"
+	"net"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
 
+	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -35,8 +37,9 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGateway(c *gin.Context, id int)
 	SetGatewayResponse(c, http.StatusOK, *resource)
 }
 
+// TODO added params in the NBI
 func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int) {
-	var jsonBody nsmmapi.Gateway
+	var jsonBody nsmmapi.PostGateway
 
 	if err := c.ShouldBindJSON(&jsonBody); err != nil {
 		log.Error("Impossible to create a gateway configuration. Error in the request, wrong json body")
@@ -74,6 +77,21 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 	resource.Gateway.MgmtPort, _ = parsePort(jsonBody.MgmtPort)
 	resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
 	resource.Gateway.PubKey = jsonBody.PubKey
+
+	// ranges and private ips
+	_, privNet, _ := net.ParseCIDR(jsonBody.PrivateVpnRange)
+	resource.Gateway.PrivateVpnRange = privNet.String()
+	log.Info("Setting private VPN range as ", resource.Gateway.PrivateVpnRange)
+	// TODO to check
+	if jsonBody.PrivateVpnPeerIp != nil {
+		peerIp := net.ParseIP(*jsonBody.PrivateVpnPeerIp)
+		resource.Gateway.PrivateVpnIp = cidr.Inc(peerIp).String()
+		log.Info("Setting private VPN IP as ", resource.Gateway.PrivateVpnIp, " knowing the IP of the peer")
+	} else {
+		resource.Gateway.PrivateVpnIp = cidr.Inc(privNet.IP).String()
+		log.Info("Setting private VPN IP as ", resource.Gateway.PrivateVpnIp)
+	}
+
 	// If it is configurable update the state to -> CONFIGURING
 	// and store params
 	resource.Status = CONFIGURING

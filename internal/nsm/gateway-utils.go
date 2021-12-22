@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func checkGatewayConfigurationParams(input nsmmapi.Gateway) error {
+func checkGatewayConfigurationParams(input nsmmapi.PostGateway) error {
 	_, err := parsePort(input.MgmtPort)
 	if err != nil {
 		return ErrGatewayConfigMgmtPort
@@ -26,6 +26,16 @@ func checkGatewayConfigurationParams(input nsmmapi.Gateway) error {
 	if externalIP == nil {
 		return ErrGatewayConfigExternalIp
 	}
+	if _, _, err = net.ParseCIDR(input.PrivateVpnRange); err != nil {
+		return ErrGatewayVpnPrivateRange
+	}
+	if input.PrivateVpnPeerIp != nil {
+		peerIp := net.ParseIP(input.ExternalIp)
+		if peerIp == nil {
+			return ErrGatewayVpnPeerPrivateIp
+		}
+	}
+	// TODO check if PrivateVpnPeerIp belongs to PrivateVpnRange
 	return nil
 }
 
@@ -38,6 +48,8 @@ func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
 	gateway.MgmtPort = parsePortToString(res.Gateway.MgmtPort)
 	gateway.SubnetToExpose = SubnetsToArray(res.Gateway.ExposedNets)
 	gateway.PubKey = res.Gateway.PubKey
+	gateway.PrivateVpnIp = res.Gateway.PrivateVpnIp
+	gateway.PrivateVpnRange = res.Gateway.PrivateVpnRange
 	ctx.JSON(status, gateway)
 }
 

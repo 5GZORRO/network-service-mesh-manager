@@ -17,7 +17,7 @@ func deleteResources(database *gorm.DB, vim *vim.VimDriver, res *ResourceSet) {
 	// if removal from VIM is OK then delete it from DB
 	result := database.Delete(&res)
 	if result.Error != nil {
-		log.Error("Error deleting network resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
+		log.Error("Error deleting network resource set with ID: ", res.ID, " and slice-id: ", res.SliceId, " from DB")
 	}
 }
 
@@ -31,7 +31,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet) {
 	res.Status = READY
 	result := database.Save(&res)
 	if result.Error != nil {
-		log.Error("Error updating resource set status with ID: ", res.ID, " and slice-id: ", res.SliceId)
+		log.Error("Error updating resource set status with ID: ", res.ID, " and slice-id: ", res.SliceId, " from DB")
 	}
 }
 

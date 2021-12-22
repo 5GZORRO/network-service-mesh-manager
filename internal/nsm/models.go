@@ -15,11 +15,13 @@ type ResourceSet struct {
 }
 
 type Gateway struct {
-	MgmtIp      string
-	MgmtPort    uint16
-	ExternalIp  string
-	PubKey      string
-	ExposedNets string
+	MgmtIp          string
+	MgmtPort        uint16
+	PrivateVpnRange string
+	PrivateVpnIp    string
+	ExternalIp      string
+	PubKey          string
+	ExposedNets     string
 }
 
 type Network struct {

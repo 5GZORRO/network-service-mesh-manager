@@ -3,6 +3,7 @@ package vim
 import (
 	"nextworks/nsm/internal/config"
 	osdriver "nextworks/nsm/internal/openstackdriver"
+	"nextworks/nsm/internal/stubdriver"
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -54,7 +55,12 @@ func InizializeVims(db *gorm.DB, vimConfigs []config.VimConfigurations) *VimDriv
 				log.Trace("Loaded vim: ", openstackclient)
 				// openstackclient.Authenticate()
 				vimList.addVim(configVim.Name, openstackclient)
+			case string(None):
+				client := stubdriver.NewStubDriver(configVim.Username, configVim.Password)
+				log.Info("Loaded a StubDriver for testing purpose")
+				vimList.addVim(configVim.Name, client)
 			case string(Kubernetes):
+				log.Error("Kubernetes driver not yet implemented")
 				// TODO
 			default:
 				log.Error(config.ErrWrongVimType.Error())

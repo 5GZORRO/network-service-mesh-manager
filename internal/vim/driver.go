@@ -6,6 +6,7 @@ type VimType string
 const (
 	Openstack  VimType = "openstack"
 	Kubernetes VimType = "kubernetes"
+	None       VimType = "none"
 )
 
 type VimDriver interface {

@@ -66,7 +66,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	}
 	log.Trace("Requested creation of network resources for SliceId: ", jsonBody.SliceId, " on VIM: ", jsonBody.VimName)
 	if jsonBody.ExcludeSubnet != nil {
-		log.Trace("with excluded subnetes", jsonBody.ExcludeSubnet)
+		log.Trace("with excluded subnet: ", *jsonBody.ExcludeSubnet)
 		err := checkExcludedSubnetsParams(jsonBody.ExcludeSubnet)
 		if err != nil {
 			log.Error("Impossible to create network resources. Error in JSON Body: exclude-subnets")
@@ -116,7 +116,13 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	vim := obj.Vims.GetVim(jsonBody.VimName)
 
 	// management of allocated networks
-	netmng := NewNetworkManager(obj.Netconfig.Start, jsonBody.ExcludeSubnet != nil)
+	var netmng *Network_manager
+	if jsonBody.ExcludeSubnet == nil {
+		netmng = NewNetworkManager(obj.Netconfig.Start, jsonBody.ExcludeSubnet != nil)
+	} else {
+		netmng = NewNetworkManager(*jsonBody.ExcludeSubnet, jsonBody.ExcludeSubnet != nil)
+	}
+	log.Info(netmng.next_subnet)
 
 	// create networks:
 	for _, net := range jsonBody.Networks {

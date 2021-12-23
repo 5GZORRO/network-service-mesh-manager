@@ -88,7 +88,8 @@ func (client *OpenStackDriver) Authenticate() {
 
 // Revoke
 func (client *OpenStackDriver) Revoke() {
-	log.Info("Revoking token...")
+	// TODO add when authenticated, otherwise SIGSEGV
+	// log.Info("Revoking token...")
 	// token, err := tokens.Revoke(client.identityClient, client.provider.Token()).Extract()
 	// if err != nil {
 	// 	log.Error(err)

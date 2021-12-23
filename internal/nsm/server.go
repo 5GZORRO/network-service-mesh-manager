@@ -13,8 +13,7 @@ import (
 type ServerInterfaceImpl struct {
 	DB        *gorm.DB
 	Netconfig *config.NetworkConfigurations
-	// TODO handle more than one VIMs
-	Vims *vim.VimDriverList
+	Vims      *vim.VimDriverList
 	// Lock     sync.Mutex
 }
 

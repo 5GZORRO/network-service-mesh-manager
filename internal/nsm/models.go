@@ -45,6 +45,5 @@ type Sap struct {
 	RouterId        string
 	RouterName      string
 	RouterPortId    string
-	FloatingNetId   string
 	FloatingNetName string
 }

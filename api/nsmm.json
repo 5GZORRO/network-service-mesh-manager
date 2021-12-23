@@ -604,50 +604,6 @@
     },
     "components": {
         "schemas": {
-            "Sap": {
-                "title": "Root Type for Sap",
-                "description": "",
-                "required": [
-                    "floating-network-name",
-                    "network-name"
-                ],
-                "type": "object",
-                "properties": {
-                    "floating-network-name": {
-                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
-                        "type": "string"
-                    },
-                    "network-name": {
-                        "description": "Network name specified in the NSD",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "floating-network-name": "some text",
-                    "network-name": "some text"
-                }
-            },
-            "Network": {
-                "title": "Root Type for Network",
-                "description": "",
-                "required": [
-                    "network-name"
-                ],
-                "type": "object",
-                "properties": {
-                    "network-name": {
-                        "description": "Network name specified in the NSD",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "network-name": "some text",
-                    "exclude-cidr": [
-                        "some text",
-                        "some text"
-                    ]
-                }
-            },
             "PostConnection": {
                 "title": "Root Type for PostConnection",
                 "description": "Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose",
@@ -743,14 +699,14 @@
                         "description": "Name of the networks specified in the NSD",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Network"
+                            "$ref": "#/components/schemas/PostNetwork"
                         }
                     },
                     "service-access-points": {
                         "description": "SAP specified in the NSD",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sap"
+                            "$ref": "#/components/schemas/PostSap"
                         }
                     },
                     "slice-id": {
@@ -835,23 +791,27 @@
                     }
                 },
                 "example": {
-                    "id": 49,
+                    "id": 34,
                     "networks": [
                         {
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         },
                         {
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         }
                     ],
                     "service-access-points": [
                         {
                             "floating-network-name": "some text",
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         },
                         {
                             "floating-network-name": "some text",
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         }
                     ],
                     "slice-id": "some text",
@@ -998,6 +958,96 @@
                     "pub-key": "some text",
                     "private-vpn-range": "some text",
                     "private-vpn-ip": "some text"
+                }
+            },
+            "PostSap": {
+                "title": "Root Type for Sap",
+                "description": "",
+                "required": [
+                    "floating-network-name",
+                    "network-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "floating-network-name": {
+                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
+                        "type": "string"
+                    },
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "floating-network-name": "some text",
+                    "network-name": "some text"
+                }
+            },
+            "PostNetwork": {
+                "title": "Root Type for Network",
+                "description": "",
+                "required": [
+                    "network-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "network-name": "some text"
+                }
+            },
+            "Network": {
+                "title": "Root Type for Network",
+                "description": "",
+                "required": [
+                    "network-name",
+                    "subnet-cidr"
+                ],
+                "type": "object",
+                "properties": {
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    },
+                    "subnet-cidr": {
+                        "description": "Network address used for this subnet",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "network-name": "some text"
+                }
+            },
+            "Sap": {
+                "title": "Root Type for Sap",
+                "description": "",
+                "required": [
+                    "floating-network-name",
+                    "network-name",
+                    "subnet-cidr"
+                ],
+                "type": "object",
+                "properties": {
+                    "floating-network-name": {
+                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
+                        "type": "string"
+                    },
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    },
+                    "subnet-cidr": {
+                        "description": "Network address used for this subnet",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "floating-network-name": "some text",
+                    "network-name": "some text"
                 }
             }
         }

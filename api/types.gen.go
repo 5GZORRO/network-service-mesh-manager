@@ -54,6 +54,9 @@ type Gateway struct {
 type Network struct {
 	// Network name specified in the NSD
 	NetworkName string `json:"network-name"`
+
+	// Network address used for this subnet
+	SubnetCidr string `json:"subnet-cidr"`
 }
 
 // Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose
@@ -95,16 +98,31 @@ type PostGateway struct {
 	SubnetToExpose []string `json:"subnet-to-expose"`
 }
 
+// PostNetwork defines model for PostNetwork.
+type PostNetwork struct {
+	// Network name specified in the NSD
+	NetworkName string `json:"network-name"`
+}
+
+// PostSap defines model for PostSap.
+type PostSap struct {
+	// Network name of the floating network, specified in the SAP information of the NSD
+	FloatingNetworkName string `json:"floating-network-name"`
+
+	// Network name specified in the NSD
+	NetworkName string `json:"network-name"`
+}
+
 // POST to create all the network resources of a slice on a vim
 type PostSliceResources struct {
 	// Last subnet used by the peer
 	ExcludeSubnet *string `json:"exclude-subnet,omitempty"`
 
 	// Name of the networks specified in the NSD
-	Networks []Network `json:"networks"`
+	Networks []PostNetwork `json:"networks"`
 
 	// SAP specified in the NSD
-	ServiceAccessPoints []Sap `json:"service-access-points"`
+	ServiceAccessPoints []PostSap `json:"service-access-points"`
 
 	// Id of the network slice owning the network resources, assigned by the Slicer
 	SliceId string `json:"slice-id"`
@@ -120,6 +138,9 @@ type Sap struct {
 
 	// Network name specified in the NSD
 	NetworkName string `json:"network-name"`
+
+	// Network address used for this subnet
+	SubnetCidr string `json:"subnet-cidr"`
 }
 
 // SliceResources defines model for SliceResources.

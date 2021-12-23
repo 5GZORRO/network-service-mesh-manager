@@ -28,13 +28,17 @@ func SetNetResourcesListResponse(ctx *gin.Context, status int, resources []Resou
 	for _, resource := range resources {
 		var netlist []nsmmapi.Network
 		var saplist []nsmmapi.Sap
-		for _, sap := range resource.Networks {
-			netlist = append(netlist, nsmmapi.Network{NetworkName: sap.NetworkName})
+		for _, net := range resource.Networks {
+			netlist = append(netlist, nsmmapi.Network{
+				NetworkName: net.NetworkName,
+				SubnetCidr:  net.SubnetCidr,
+			})
 		}
 		for _, sap := range resource.Saps {
 			saplist = append(saplist, nsmmapi.Sap{
 				FloatingNetworkName: sap.FloatingNetName,
-				NetworkName:         sap.NetworkName})
+				NetworkName:         sap.NetworkName,
+				SubnetCidr:          sap.SubnetCidr})
 		}
 		outResource := nsmmapi.SliceResources{
 			Id:                  resource.ID,

@@ -70,7 +70,13 @@ func (client *OpenStackDriver) RetrieveNetwork(id string) {
 	log.Info(network)
 }
 
-func (obj *OpenStackDriver) DeleteNetwork(networkID string, subnetID string) error {
-	log.Info("Deleting Network...")
+func (client *OpenStackDriver) DeleteNetwork(networkID string, subnetID string) error {
+	log.Info("Deleting Network with ID ", networkID)
+	err := networks.Delete(client.networkClient, networkID).ExtractErr()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	log.Info("Network with ID" + networkID + " deleted ")
 	return nil
 }

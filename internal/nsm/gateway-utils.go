@@ -26,16 +26,20 @@ func checkGatewayConfigurationParams(input nsmmapi.PostGateway) error {
 	if externalIP == nil {
 		return ErrGatewayConfigExternalIp
 	}
-	if _, _, err = net.ParseCIDR(input.PrivateVpnRange); err != nil {
+	_, privateVpnNet, err := net.ParseCIDR(input.PrivateVpnRange)
+	if err != nil {
 		return ErrGatewayVpnPrivateRange
 	}
 	if input.PrivateVpnPeerIp != nil {
-		peerIp := net.ParseIP(input.ExternalIp)
-		if peerIp == nil {
+		privateVpnPeerIp := net.ParseIP(*input.PrivateVpnPeerIp)
+		if privateVpnPeerIp == nil {
 			return ErrGatewayVpnPeerPrivateIp
 		}
+		// check if privateVpnPeerIp belongs to privateVpnNet
+		if !privateVpnNet.Contains(privateVpnPeerIp) {
+			return ErrGatewayVpnPeerPrivateIpRange
+		}
 	}
-	// TODO check if PrivateVpnPeerIp belongs to PrivateVpnRange
 	return nil
 }
 

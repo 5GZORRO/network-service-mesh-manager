@@ -11,8 +11,20 @@ import (
 // deleteResources is a goroutine to delete in an async way all the network resources
 func deleteResources(database *gorm.DB, vim *vim.VimDriver, res *ResourceSet) {
 	time.Sleep(time.Second * 5)
-	// TODO Delete resources from VIM
-	// (*vim).DeleteNetwork()
+
+	// try to delete all resources
+	for _, net := range res.Networks {
+		err := (*vim).DeleteNetwork(net.NetworkId, net.SubnetId)
+		if err != nil {
+			log.Error("Error deleting network name ", net.NetworkName)
+		}
+	}
+	for _, sap := range res.Saps {
+		err := (*vim).DeleteSAP(sap.NetworkId, sap.SubnetId, sap.RouterId, sap.RouterPortId)
+		if err != nil {
+			log.Error("Error deleting SAP with network name ", sap.NetworkName)
+		}
+	}
 
 	// if removal from VIM is OK then delete it from DB
 	result := database.Delete(&res)

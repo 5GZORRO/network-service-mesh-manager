@@ -124,43 +124,69 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	}
 	log.Info(netmng.next_subnet)
 
+	// createResources()
+
 	// create networks:
 	for _, net := range jsonBody.Networks {
-		// TODO create on vim
 		ipnet := netmng.NextSubnet()
 		if ipnet != nil {
 			cidr := ipnet.String()
-			(*vim).CreateNetwork(net.NetworkName, cidr)
-			log.Trace("PostNetResources - creating Network ", net, " with cidr: ", cidr)
+			netID, subnetID, subnetName, err := (*vim).CreateNetwork(net.NetworkName, cidr)
 			ne := Network{
 				ResourceSetId: resset.ID,
+				NetworkId:     netID,
 				NetworkName:   net.NetworkName,
+				SubnetId:      subnetID,
+				SubnetName:    subnetName,
 				SubnetCidr:    cidr,
 			}
 			resset.Networks = append(resset.Networks, ne)
+			if err != nil {
+				log.Error("Impossible to create network resources. Error creating network ", net.NetworkName)
+				SetErrorResponse(c, http.StatusInternalServerError, ErrVimCreatingNetwork)
+				resset.Status = CREATION_ERROR
+				_ = obj.DB.Save(resset)
+				return
+			} else {
+				log.Trace("PostNetResources - created Network ", net.NetworkName, " with cidr: ", cidr)
+			}
 		} else {
 			log.Error("Impossible to create network resources. Error allocating IP addresses")
 			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			resset.Status = CREATION_ERROR
 			_ = obj.DB.Save(resset)
+			return
 		}
 	}
 
 	// create saps:
 	for _, sap := range jsonBody.ServiceAccessPoints {
-		// TODO crate on vim
 		ipnet := netmng.NextSubnet()
 		if ipnet != nil {
 			cidr := ipnet.String()
-			(*vim).CreateSAP()
-			log.Trace("PostNetResources - creating SAP ", sap, " with cidr: "+cidr)
+			netID, subID, subName, routerID, routerName, portID, err := (*vim).CreateSAP(sap.FloatingNetworkName, sap.NetworkName, cidr)
 			ap := Sap{
 				ResourceSetId:   resset.ID,
+				NetworkId:       netID,
 				NetworkName:     sap.NetworkName,
-				FloatingNetName: sap.FloatingNetworkName,
+				SubnetId:        subID,
+				SubnetName:      subName,
 				SubnetCidr:      cidr,
+				RouterId:        routerID,
+				RouterName:      routerName,
+				RouterPortId:    portID,
+				FloatingNetName: sap.FloatingNetworkName,
 			}
 			resset.Saps = append(resset.Saps, ap)
+			if err != nil {
+				log.Error("Impossible to create network resources. Error creating SAP ", sap.NetworkName)
+				SetErrorResponse(c, http.StatusInternalServerError, ErrVimCreatingSAP)
+				resset.Status = CREATION_ERROR
+				_ = obj.DB.Save(resset)
+				return
+			} else {
+				log.Trace("PostNetResources - creating SAP ", sap.NetworkName, " with cidr: "+cidr)
+			}
 		} else {
 			log.Error("Impossible to create network resources. Error allocating IP addresses")
 			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
@@ -236,7 +262,7 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesId(c *gin.Context, id int) {
 	if error != nil {
 		log.Error("Impossible to delete network resources. Error reading from DB: ", error)
 		if errors.Is(error, gorm.ErrRecordNotFound) {
-			SetErrorResponse(c, http.StatusNotFound, ErrSliceNotExists)
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
 			return
 		} else {
 			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)

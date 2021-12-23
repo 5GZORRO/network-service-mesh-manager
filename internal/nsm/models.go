@@ -27,9 +27,9 @@ type Gateway struct {
 type Network struct {
 	ID            int `gorm:"autoIncrement"`
 	ResourceSetId int
-	NetworkID     string
+	NetworkId     string
 	NetworkName   string
-	SubnetID      string
+	SubnetId      string
 	SubnetName    string
 	SubnetCidr    string
 }

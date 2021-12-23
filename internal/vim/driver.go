@@ -11,13 +11,13 @@ const (
 
 type VimDriver interface {
 	Authenticate()
-	// // Set of methods to prepare the environment before NS instantiation
-	// // CreateNetwork() creates a network with a subnet
+	// CreateNetwork() creates a network with a subnet
 	CreateNetwork(name string, cidr string) (string, string, string, error)
+	DeleteNetwork(networkID string, subnetID string) error
+	// CreateSAP() creates the infrastructure to have a floating-ip, it could be for a gateway or for other sap of the ns
+	CreateSAP(floatingNetName string, networkName string, cidr string) (string, string, string, string, string, string, error)
+	DeleteSAP(networkID string, subnetID string, routerID string, portID string) error
+	//
 	RetrieveNetwork(id string)
-	DeleteNetwork(id string)
-	// // CreateSAP() creates the infrastructure to have a floating-ip, it could be for a gateway or for other sap of the ns
-	CreateSAP()
-	DeleteSAP()
 	Revoke()
 }

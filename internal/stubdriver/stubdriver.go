@@ -27,23 +27,37 @@ func (client *StubDriver) Revoke() {
 	log.Info("Close connection to Stub...")
 }
 
-func (obj *StubDriver) CreateNetwork(name string, cidr string) (string, string, string, error) {
-	log.Info("Creating Network on Stub...")
-	return "", "", "", nil
+func (obj *StubDriver) CreateNetwork(networkName string, cidr string) (string, string, string, error) {
+	log.Info("Creating Network network name ", networkName, " on Stub...")
+	networkID := "test"
+	subnetID := "test"
+	subnetName := networkName + "_subnet"
+
+	return networkID, subnetID, subnetName, nil
+}
+
+func (obj *StubDriver) DeleteNetwork(networkID string, subnetID string) error {
+	log.Info("Deleting Network on Stub...")
+	return nil
+}
+
+func (obj *StubDriver) CreateSAP(floatingNetName string, networkName string, cidr string) (string, string, string, string, string, string, error) {
+	networkID := "test"
+	subnetID := "test"
+	subnetName := networkName + "_subnet"
+	routerID := "routertest"
+	routerName := "routername"
+	portID := "porttest"
+	// floatingID := "floatingID"
+	log.Info("Creating SAP with network name ", networkName, " on Stub... network + router + interface to floating")
+	return networkID, subnetID, subnetName, routerID, routerName, portID, nil
+}
+
+func (obj *StubDriver) DeleteSAP(networkID string, subnetID string, routerID string, portID string) error {
+	log.Info("Deleting SAP on Stub...")
+	return nil
 }
 
 func (client *StubDriver) RetrieveNetwork(id string) {
 	log.Info("Retrieving Network on Stub...")
-}
-
-func (obj *StubDriver) DeleteNetwork(id string) {
-	log.Info("Deleting Network on Stub...")
-}
-
-func (obj *StubDriver) CreateSAP() {
-	log.Info("Creating SAP on Stub...")
-}
-
-func (obj *StubDriver) DeleteSAP() {
-	log.Info("Deleting SAP on Stub...")
 }

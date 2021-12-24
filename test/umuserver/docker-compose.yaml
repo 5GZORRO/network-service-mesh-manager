@@ -1,0 +1,50 @@
+version: '3.3'
+
+networks:
+  test1:
+    name: test1
+    driver: bridge 
+    ipam:  
+     config: 
+       - subnet: 172.22.0.0/16
+         gateway: 172.22.0.10 
+
+services:
+  peer1:
+    image: umu-server
+    build: ./
+    container_name: peer1
+    hostname: peer1
+    command: python3 test.py 8082
+    environment:
+      - PUID=1000
+      - PGID=1000
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      test1:
+        ipv4_address: 172.22.0.1
+    volumes:
+      - './server.py:/test.py'
+  peer2:
+    image: umu-server
+    build: ./
+    container_name: peer2
+    hostname: peer2
+    command: python3 test.py 8082
+    environment:
+      - PUID=1000
+      - PGID=1000
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      test1:
+        ipv4_address: 172.22.0.2
+    volumes:
+      - './server.py:/test.py'

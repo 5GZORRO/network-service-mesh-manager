@@ -136,6 +136,36 @@
 					"response": []
 				},
 				{
+					"name": "Check token",
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "X-Auth-Token",
+								"value": "{{TOKEN}}"
+							},
+							{
+								"key": "X-Subject-Token",
+								"value": "{{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "http://{{IP}}:{{KEYSTONE_PORT}}/v3/auth/tokens",
+							"protocol": "http",
+							"host": [
+								"{{IP}}"
+							],
+							"port": "{{KEYSTONE_PORT}}",
+							"path": [
+								"v3",
+								"auth",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Revoke token",
 					"event": [
 						{
@@ -1303,6 +1333,44 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Show Server Details Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{TOKEN}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{IP}}:{{NOVA_V2_PORT}}/{{NOVA_API_VERSION}}/servers/{{server_id}}",
+					"protocol": "http",
+					"host": [
+						"{{IP}}"
+					],
+					"port": "{{NOVA_V2_PORT}}",
+					"path": [
+						"{{NOVA_API_VERSION}}",
+						"servers",
+						"{{server_id}}"
+					]
+				},
+				"description": "/servers/{server_id}"
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -1389,6 +1457,10 @@
 		{
 			"key": "private_subnet_cidr",
 			"value": "192.168.1.8/29"
+		},
+		{
+			"key": "server_id",
+			"value": "af9e6bcd-356e-46f6-b625-1dbba06e21dc"
 		}
 	]
 }

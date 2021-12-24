@@ -1,9 +1,0 @@
-clouds:
- local:
-   auth:
-     username: 'timeo'
-     password: 'nextworks'
-     project_name: 'service-mesh'
-     user_domain_name: 'default'
-     project_domain_name: 'default'
-     auth_url: 'http://10.30.7.10:5000/v3'

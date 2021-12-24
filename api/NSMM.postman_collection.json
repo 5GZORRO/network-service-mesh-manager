@@ -1,0 +1,392 @@
+{
+	"info": {
+		"_postman_id": "c6bd9d71-c534-4745-a372-3a9946daeb47",
+		"name": "NSMM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "net-resources",
+			"item": [
+				{
+					"name": "/net-resources",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources with query param",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources?slice-id=example3",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources"
+							],
+							"query": [
+								{
+									"key": "slice-id",
+									"value": "example3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"net1\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating1\",\n            \"network-name\": \"extnet1\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources with query param Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources?slice-id=example1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources"
+							],
+							"query": [
+								{
+									"key": "slice-id",
+									"value": "example1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources/{{id}}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources/{{id}}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "gateway config",
+			"item": [
+				{
+					"name": "/gateway configuration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway configuration",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"external-ip\": \"138.15.0.2\",\n    \"subnet-to-expose\": \"192.168.1.14/24\",\n    \"mgmt-ip\": \"172.18.8.13\",\n    \"mgmt-port\": \"8181\",\n    \"pub-key\": \"jhgdeefyujewfdfg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/5/gateway",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"5",
+								"gateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway configuration",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "connections",
+			"item": [
+				{
+					"name": "/connections",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/connections",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/connections/{{id}}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{id}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/connections/{{id}}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{id}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"connections",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "cid",
+			"value": "1"
+		}
+	]
+}

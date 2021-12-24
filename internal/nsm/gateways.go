@@ -123,7 +123,7 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id i
 		}
 	}
 	// check status
-	if resource.Status != READY {
+	if resource.Status != READY && resource.Status != CONFIGURATION_ERROR {
 		log.Error("Impossibile to configure gateway. The current state is ", resource.Status)
 		SetErrorResponse(c, http.StatusForbidden, ErrDeleteConfigurationGateway)
 		return

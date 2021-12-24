@@ -1,6 +1,9 @@
 package nsm
 
 import (
+	"fmt"
+	"net"
+	gatewayconfig "nextworks/nsm/internal/gateway-config"
 	"nextworks/nsm/internal/vim"
 	"time"
 
@@ -33,17 +36,26 @@ func deleteResources(database *gorm.DB, vim *vim.VimDriver, res *ResourceSet) {
 	}
 }
 
-// TODO configureGateway is a goroutine to configure the VM gateway, using
-// an HTTP client
+// configureGateway is a goroutine to configure and start the VPN server in the gateway,
+// using an HTTP client
 func configureGateway(database *gorm.DB, res *ResourceSet) {
-	time.Sleep(time.Second * 10)
-	// TODO configure VM gateway
+	time.Sleep(time.Second * 5)
 
+	// TODO change mgmt port to string?
+	// configure VM gateway, starting the VPN server
+	client := gatewayconfig.New(net.ParseIP(res.Gateway.MgmtIp), fmt.Sprint(res.Gateway.MgmtPort))
+	// TODO check parameters
+	output := client.Start("", "", "")
+	if output {
+		res.Status = READY
+	} else {
+		res.Status = CONFIGURATION_ERROR
+	}
+	log.Trace("Update gateway and resource set state in DB")
 	// update the state
-	res.Status = READY
 	result := database.Save(&res)
 	if result.Error != nil {
-		log.Error("Error updating resource set status with ID: ", res.ID, " and slice-id: ", res.SliceId, " from DB")
+		log.Error("Error updating resource after gateway configuration in DB, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
 	}
 }
 

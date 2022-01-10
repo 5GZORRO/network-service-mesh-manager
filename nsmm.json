@@ -36,6 +36,16 @@
                             }
                         },
                         "description": "It returns all the network resources of all slices or the network resources for a particular slice if the query parameter is used"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Resource set with slice-id does not exist"
                     }
                 },
                 "summary": "Retrieval of all the set of network resources",
@@ -67,10 +77,34 @@
                         "description": "All the network resources specified in the body have been correctly created. It returns the internal ID associated to the set of network resources of the slice, with the list of the resources created."
                     },
                     "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Error in the request body"
                     },
                     "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Some resources cannot be created on the VIM"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Network resources for slice-id already exists"
                     }
                 },
                 "summary": "Creation of network-resources for a new slice",
@@ -96,12 +130,33 @@
                         "description": "Resources for slice with slice-id passed as query param. deleted"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Resources for slice with slice-id passed as query param. not found"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Resources for slice with slice-id passed as query param. cannot be deleted"
                     },
                     "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Error during the removal of some resouces on the VIM"
                     }
                 },
@@ -127,7 +182,24 @@
                         "description": "It returns all the resources related to the specified ID"
                     },
                     "404": {
-                        "description": "id does not exist"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "The requested resource set ID does not exist"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server error"
                     }
                 },
                 "summary": "Retrieval of a set of network resources using ID",
@@ -142,12 +214,33 @@
                         "description": "Correctly removal of all the network resources associated with the specified ID"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Resources associated with the ID cannot be canceled"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Network resources associated to the ID do not exist"
                     },
                     "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Error during the removal of some resource"
                     }
                 },
@@ -184,6 +277,13 @@
                         "description": "It returns the current configuration of the gateway of the network resources set with id passed in the path parameter"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
                     }
                 },
@@ -195,7 +295,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Gateway"
+                                "$ref": "#/components/schemas/PostGateway"
                             }
                         }
                     },
@@ -206,16 +306,54 @@
                 ],
                 "responses": {
                     "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Gateway"
+                                }
+                            }
+                        },
                         "description": "It configure the gateway of the slice"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Gateway cannot be configured yet or it is already configured"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
                     },
                     "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Error during the request of gateway configuration"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "The request body is not correctly formatted or information are not correct"
                     }
                 },
                 "summary": "Configuration of the gateway",
@@ -227,12 +365,33 @@
                 ],
                 "responses": {
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Gateway is in used so it cannot be reset, or it is not yet configured"
                     },
                     "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Error during the initialization of the reset process"
                     },
                     "204": {
@@ -262,14 +421,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "content": {
-                            "application/json": {
-
-                            }
-                        },
                         "description": "It returns all the VPN connections"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
                     }
                 },
@@ -301,12 +462,33 @@
                         "description": "It returns the information of the VPN connection created"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- the set of network resources with {id} does not exist"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "the gateway identified by the set with {id} is not yet configured"
                     },
                     "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Error during the creation of the VPN connection"
                     }
                 },
@@ -343,6 +525,13 @@
                         "description": "It returns the VPN connection information"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured\n- the connection with {cid} does not exist"
                     }
                 },
@@ -358,10 +547,34 @@
                         "description": "VPN connection correctly deleted"
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "- slice resources with {id} do not exist\n- connection with {cid} does not exist"
                     },
                     "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
                         "description": "Connection cannot be canceled"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server error"
                     }
                 },
                 "summary": "Removal of a VPN connection",
@@ -391,42 +604,6 @@
     },
     "components": {
         "schemas": {
-            "Sap": {
-                "title": "Root Type for Sap",
-                "description": "",
-                "required": [
-                    "floating-network-name"
-                ],
-                "type": "object",
-                "properties": {
-                    "floating-network-name": {
-                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
-                        "type": "string"
-                    },
-                    "network-name": {
-                        "description": "Network name specified in the NSD",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "floating-network-name": "some text",
-                    "network-name": "some text"
-                }
-            },
-            "Network": {
-                "title": "Root Type for Network",
-                "description": "",
-                "type": "object",
-                "properties": {
-                    "network-name": {
-                        "description": "Network name specified in the NSD",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "network-name": ""
-                }
-            },
             "PostConnection": {
                 "title": "Root Type for PostConnection",
                 "description": "Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose",
@@ -434,19 +611,12 @@
                     "pub-key",
                     "remote-peer-ip",
                     "remote-peer-port",
-                    "subnets-to-expose"
+                    "exposed-subnets"
                 ],
                 "type": "object",
                 "properties": {
-                    "subnets-to-expose": {
-                        "description": "Subnet to expose",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "pub-key": {
-                        "description": "Public key pf the remote peer",
+                        "description": "Public key of the remote peer",
                         "type": "string"
                     },
                     "remote-peer-ip": {
@@ -456,21 +626,29 @@
                     "remote-peer-port": {
                         "description": "Remote peer VPN port",
                         "type": "string"
+                    },
+                    "exposed-subnets": {
+                        "description": "Subnets exposed by VPN server",
+                        "type": "string"
                     }
                 },
                 "example": {
-                    "subnets-to-expose": [
-                        "some text",
-                        "some text"
-                    ],
                     "pub-key": "some text",
                     "remote-peer-ip": "some text",
-                    "remote-peer-port": "some text"
+                    "remote-peer-port": "some text",
+                    "exposed-subnet": "some text"
                 }
             },
             "Connection": {
                 "title": "Root Type for Connection",
                 "description": "",
+                "required": [
+                    "id",
+                    "remote-peer-ip",
+                    "remote-peer-port",
+                    "subnets-to-expose",
+                    "pub-key"
+                ],
                 "type": "object",
                 "properties": {
                     "id": {
@@ -521,14 +699,14 @@
                         "description": "Name of the networks specified in the NSD",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Network"
+                            "$ref": "#/components/schemas/PostNetwork"
                         }
                     },
                     "service-access-points": {
                         "description": "SAP specified in the NSD",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sap"
+                            "$ref": "#/components/schemas/PostSap"
                         }
                     },
                     "slice-id": {
@@ -537,6 +715,10 @@
                     },
                     "vim-name": {
                         "description": "Name of the VIM where to create the requested resources",
+                        "type": "string"
+                    },
+                    "exclude-subnet": {
+                        "description": "Last subnet used by the peer",
                         "type": "string"
                     }
                 },
@@ -560,7 +742,8 @@
                         }
                     ],
                     "slice-id": "some text",
-                    "vim-name": "some text"
+                    "vim-name": "some text",
+                    "exclude-subnet": "some text"
                 }
             },
             "SliceResources": {
@@ -569,39 +752,29 @@
                 "required": [
                     "vim-name",
                     "slice-id",
-                    "status"
+                    "status",
+                    "id",
+                    "networks",
+                    "service-access-points"
                 ],
                 "type": "object",
                 "properties": {
                     "id": {
                         "description": "Unique identifier of the set of network resources of the slice",
-                        "type": "string"
+                        "type": "integer"
                     },
                     "networks": {
                         "description": "Name of the networks specified in the NSD",
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "network-name": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/Network"
                         }
                     },
                     "service-access-points": {
                         "description": "SAP specified in the NSD",
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "floating-network-name": {
-                                    "type": "string"
-                                },
-                                "network-name": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/Sap"
                         }
                     },
                     "slice-id": {
@@ -618,34 +791,60 @@
                     }
                 },
                 "example": {
-                    "id": "some text",
+                    "id": 34,
                     "networks": [
                         {
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         },
                         {
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         }
                     ],
                     "service-access-points": [
                         {
                             "floating-network-name": "some text",
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         },
                         {
                             "floating-network-name": "some text",
-                            "network-name": "some text"
+                            "network-name": "some text",
+                            "subnet-cidr": "some text"
                         }
                     ],
                     "slice-id": "some text",
-                    "vim-name": "some text"
+                    "vim-name": "some text",
+                    "status": "some text"
                 }
             },
-            "Gateway": {
+            "ErrorResponse": {
+                "title": "Root Type for ErrorResponse",
+                "description": "",
+                "required": [
+                    "error"
+                ],
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "error": ""
+                }
+            },
+            "PostGateway": {
                 "title": "Root Type for Gateway",
                 "description": "Configuration of a gateway ",
                 "required": [
-                    "status"
+                    "external-ip",
+                    "mgmt-ip",
+                    "mgmt-port",
+                    "pub-key",
+                    "subnet-to-expose",
+                    "private-vpn-range"
                 ],
                 "type": "object",
                 "properties": {
@@ -655,7 +854,75 @@
                     },
                     "subnet-to-expose": {
                         "description": "Subnet to expose",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": "172.24.0.0/24"
+                    },
+                    "mgmt-ip": {
+                        "description": "Gateway VM management IP",
                         "type": "string"
+                    },
+                    "mgmt-port": {
+                        "description": "Gateway VM management port",
+                        "type": "string",
+                        "example": "2111"
+                    },
+                    "pub-key": {
+                        "description": "Public key of the server",
+                        "type": "string",
+                        "example": "vOSSIowa3KWF5j/YOrKrbr9yEmbmpeaP4jYppL+ybCA="
+                    },
+                    "private-vpn-range": {
+                        "description": "Private VPN subnet",
+                        "type": "string",
+                        "example": "10.0.0.0/24"
+                    },
+                    "private-vpn-peer-ip": {
+                        "description": "Private VPN Ip of the peer on the private VPN subnet",
+                        "type": "string",
+                        "example": "10.0.0.2"
+                    }
+                },
+                "example": {
+                    "external-ip": "some text",
+                    "subnet-to-expose": [
+                        "some text",
+                        "some text"
+                    ],
+                    "mgmt-ip": "some text",
+                    "mgmt-port": "some text",
+                    "pub-key": "some text",
+                    "private-vpn-range": "some text",
+                    "private-vpn-peer-ip": "some text"
+                }
+            },
+            "Gateway": {
+                "title": "Root Type for Gateway",
+                "description": "Actual gateway configuration of a VPN server gateway",
+                "required": [
+                    "pub-key",
+                    "subnet-to-expose",
+                    "external-ip",
+                    "mgmt-ip",
+                    "mgmt-port",
+                    "private-vpn-ip",
+                    "private-vpn-range"
+                ],
+                "type": "object",
+                "properties": {
+                    "external-ip": {
+                        "description": "External IP of the gateway",
+                        "type": "string"
+                    },
+                    "subnet-to-expose": {
+                        "description": "Subnet to expose",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": "172.24.0.0/24"
                     },
                     "mgmt-ip": {
                         "description": "Gateway VM management IP",
@@ -666,21 +933,121 @@
                         "type": "string"
                     },
                     "pub-key": {
-                        "description": "Public key of the peer",
+                        "description": "Public key of the server",
                         "type": "string"
                     },
-                    "status": {
-                        "description": "Status of the gateway",
+                    "private-vpn-range": {
+                        "description": "Private VPN subnet",
+                        "type": "string",
+                        "example": "10.0.0.0/24"
+                    },
+                    "private-vpn-ip": {
+                        "description": "Private VPN IP of the server",
+                        "type": "string",
+                        "example": "10.0.0.1"
+                    }
+                },
+                "example": {
+                    "external-ip": "some text",
+                    "subnet-to-expose": [
+                        "some text",
+                        "some text"
+                    ],
+                    "mgmt-ip": "some text",
+                    "mgmt-port": "some text",
+                    "pub-key": "some text",
+                    "private-vpn-range": "some text",
+                    "private-vpn-ip": "some text"
+                }
+            },
+            "PostSap": {
+                "title": "Root Type for Sap",
+                "description": "",
+                "required": [
+                    "floating-network-name",
+                    "network-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "floating-network-name": {
+                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
+                        "type": "string"
+                    },
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
                         "type": "string"
                     }
                 },
                 "example": {
-                    "id": "",
-                    "external-ip": "",
-                    "subnet-to-expose": "",
-                    "mgmt-ip": "",
-                    "mgmt-port": "",
-                    "pub-key": ""
+                    "floating-network-name": "some text",
+                    "network-name": "some text"
+                }
+            },
+            "PostNetwork": {
+                "title": "Root Type for Network",
+                "description": "",
+                "required": [
+                    "network-name"
+                ],
+                "type": "object",
+                "properties": {
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "network-name": "some text"
+                }
+            },
+            "Network": {
+                "title": "Root Type for Network",
+                "description": "",
+                "required": [
+                    "network-name",
+                    "subnet-cidr"
+                ],
+                "type": "object",
+                "properties": {
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    },
+                    "subnet-cidr": {
+                        "description": "Network address used for this subnet",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "network-name": "some text"
+                }
+            },
+            "Sap": {
+                "title": "Root Type for Sap",
+                "description": "",
+                "required": [
+                    "floating-network-name",
+                    "network-name",
+                    "subnet-cidr"
+                ],
+                "type": "object",
+                "properties": {
+                    "floating-network-name": {
+                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
+                        "type": "string"
+                    },
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    },
+                    "subnet-cidr": {
+                        "description": "Network address used for this subnet",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "floating-network-name": "some text",
+                    "network-name": "some text"
                 }
             }
         }

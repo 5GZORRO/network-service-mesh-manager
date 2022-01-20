@@ -1,8 +1,11 @@
 package main
 
+// Executable to test the VPNaaS Client and the interaction with the VPNaaS module (UMU)
+
 import (
 	"net"
 	gatewayconfig "nextworks/nsm/internal/gateway-config"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -73,6 +76,8 @@ func main() {
 	res3 := umuclient1.Connect(gw2ip, gw2port, "192.168.2.1/32, 192.168.162.0/24", "192.168.161.0/24")
 	log.Debug(res3)
 
-	// res4 := umuclient.Disconnect("", "")
-	// log.Debug(res4)
+	time.Sleep(10 * time.Second)
+
+	res4 := umuclient1.Disconnect(gw2ip, gw2port)
+	log.Debug(res4)
 }

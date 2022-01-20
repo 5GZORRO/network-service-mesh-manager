@@ -13,13 +13,15 @@ Following the basic layout for Go application projects (https://github.com/golan
 ├── cmd/                # Main applications
     └── nsmm
         └── main.go
-    └── openapi         # Test with OpenAPI code gen
-        └── main.go
+    └── test         # Test executable (for VPNaaS or other tests)
+        └── test.go
 ├── docs/               # Docs/images
 ├── internal/           # Internal packages
-    ├── config
-    ├── nbi
-    ├── openstackclient
+    ├── config          # NSMM config package
+    ├── gateway-config  # VPNaaS client to configure the gateway and VPN
+    ├── nsm             # NSMM core package
+    ├── openstackdriver
+    ├── stubdriver
     └── vim
 ├── sbi/                # SBI realized as a Postman Collection (test)
 ├── test/
@@ -28,14 +30,15 @@ Following the basic layout for Go application projects (https://github.com/golan
 ├── go.sum
 └── README.md
 ```
-- The functionalities of the Network Manager are implemented in internal/nbi/api-network-resources.go
-- The functionalities of the Gateway Manager are implemented in internal/nbi/api-gateways.go
+- The functionalities of the Network Manager and Gateway Manager are implemented in `internal/nsm/`
+- The functionalities of the Gateway Config are implemented in `internal/gateway-config`
 
 ## NBI API
 It exposes API to create networks and saps, configure the gateway and create/delete secure connections.
 These API are described in the Postman collection `NSMM.postman_collection.json`
 
-
+## Configuration
+The main program (NSMM) loads some configuration parameters from the `config.yaml`, for example, the DB credential, the VIM's info.
 
 ## Run
 Install Go: https://golang.org/doc/install
@@ -45,11 +48,6 @@ All the dependencies are listed in the `go.mod`
 Run the code:
 ```
 go run cmd/nsmm/main.go
-```
-or
-```
-cd /cmd/nsmm
-go run .
 ```
 or creating an executable file:
 ```
@@ -70,9 +68,5 @@ go run cmd/oapi-codegen/oapi-codegen.go -generate types api/nsmm-api.json > api/
 ```
 
 # SBI
-First design of SBI is a Postman Collection:
+The SBI, which is OpenStack API used to create needed network resources, are definedin in a Postman Collection:
 [Readme](sbi/README.md)
-
-# TODO
-Create a mgmt api to interact with OS, to test the ReAuth field
-https://github.com/gophercloud/gophercloud/blob/master/auth_options.go

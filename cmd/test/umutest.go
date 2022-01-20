@@ -55,16 +55,24 @@ func main() {
 
 	// Test HTTP client
 
-	umuclient := gatewayconfig.New(net.ParseIP("172.22.0.1"), "8082")
-	res1 := umuclient.Start("", "", "")
-	log.Debug(res1)
+	gw1ip := "10.30.8.84"
+	gw2ip := "10.30.8.129"
+	gw1port := "8080"
+	gw2port := "8080"
 
-	res2 := umuclient.GetCurrentConfiguration()
+	umuclient1 := gatewayconfig.New(net.ParseIP(gw1ip), gw1port)
+	umuclient2 := gatewayconfig.New(net.ParseIP(gw2ip), gw2port)
+	res1 := umuclient1.Launch("192.168.1.1/24", "ens4", gw1port)
+	log.Debug(res1)
+	res2 := umuclient2.Launch("192.168.2.1/24", "ens4", gw2port)
 	log.Debug(res2)
 
-	res3 := umuclient.Connect("", "", "")
+	// res2 := umuclient.GetCurrentConfiguration()
+	// log.Debug(res2)
+
+	res3 := umuclient1.Connect(gw2ip, gw2port, "192.168.2.1/32, 192.168.162.0/24", "192.168.161.0/24")
 	log.Debug(res3)
 
-	res4 := umuclient.Disconnect("", "")
-	log.Debug(res4)
+	// res4 := umuclient.Disconnect("", "")
+	// log.Debug(res4)
 }

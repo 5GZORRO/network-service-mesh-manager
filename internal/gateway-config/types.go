@@ -19,9 +19,10 @@ type PostDisconnect struct {
 }
 
 type PostConnect struct {
-	IpAddressServer   string `json:"ip_address_server"`
-	PortServer        string `json:"port_server"`
-	IPRangeToRedirect string `json:"IP_range_to_redirect"`
+	IpAddressServer string `json:"ip_address_server"`
+	PortServer      string `json:"port_server"`
+	RemoteSubnet    string `json:"IP_range_to_redirect"`
+	LocalSubnet     string `json:"destination_IP_range_to_redirect"`
 }
 
 type ClientAccepted struct {

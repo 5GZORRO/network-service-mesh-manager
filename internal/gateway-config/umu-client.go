@@ -23,8 +23,7 @@ func New(addr net.IP, port string) *UmuClient {
 	}
 }
 
-func (client *UmuClient) Start(ipRange string, netInterface string, port string) bool {
-	log.Trace("Starting VPN Server... mgmt info {", client.ip.String(), " ", client.port, "}")
+func (client *UmuClient) Launch(ipRange string, netInterface string, port string) bool {
 	c := http.Client{Timeout: time.Duration(1) * time.Second}
 
 	bodyrequest := PostLaunch{
@@ -33,7 +32,7 @@ func (client *UmuClient) Start(ipRange string, netInterface string, port string)
 		Port:         port,
 	}
 	jsonBody, _ := json.Marshal(bodyrequest)
-	log.Trace("Starting VPN Server... with body request ", bodyrequest)
+	log.Trace("UmuClient {", client.ip.String(), " ", client.port, "} invokes Launch() with body ", bodyrequest)
 	req, err := http.NewRequest("POST", "http://"+client.ip.String()+":"+client.port+"/launch", bytes.NewReader(jsonBody))
 	if err != nil {
 		log.Error(err)
@@ -46,7 +45,7 @@ func (client *UmuClient) Start(ipRange string, netInterface string, port string)
 		log.Error(err)
 		return false
 	}
-	log.Debug("Starting VPN Server... Response status: ", resp.Status)
+	log.Debug("UmuClient {", client.ip.String(), " ", client.port, "} -- Response status: ", resp.Status)
 	if resp.StatusCode == 200 {
 		return true
 	} else {
@@ -76,15 +75,16 @@ func (client *UmuClient) GetCurrentConfiguration() *VpnInfo {
 	return &info
 }
 
-func (client *UmuClient) Connect(peerIp string, peerPort string, exposedNets string) bool {
-	log.Trace("Connecting to peer... ")
+func (client *UmuClient) Connect(peerIp string, peerPort string, remoteIPs string, localIPs string) bool {
 	c := http.Client{Timeout: time.Duration(1) * time.Second}
 	requestConnect := PostConnect{
-		IpAddressServer:   peerIp,
-		PortServer:        peerPort,
-		IPRangeToRedirect: exposedNets,
+		IpAddressServer: peerIp,
+		PortServer:      peerPort,
+		RemoteSubnet:    remoteIPs,
+		LocalSubnet:     localIPs,
 	}
 	jsonBody2, _ := json.Marshal(requestConnect)
+	log.Trace("UmuClient {", client.ip.String(), " ", client.port, "} -- Connecting to peer... with body ", jsonBody2)
 	req, err := http.NewRequest("POST", "http://"+client.ip.String()+":"+client.port+"/connect_to_VPN", bytes.NewReader(jsonBody2))
 	if err != nil {
 		log.Error(err)
@@ -97,7 +97,7 @@ func (client *UmuClient) Connect(peerIp string, peerPort string, exposedNets str
 		log.Error(err)
 		return false
 	}
-	log.Debug("Connecting to peer... Response status: ", resp.Status)
+	log.Debug("UmuClient {", client.ip.String(), " ", client.port, "} -- Connecting to peer... Response status: ", resp.Status)
 	if resp.StatusCode == 200 {
 		return true
 	} else {
@@ -106,7 +106,7 @@ func (client *UmuClient) Connect(peerIp string, peerPort string, exposedNets str
 }
 
 func (client *UmuClient) Disconnect(peerIP string, peerPort string) bool {
-	log.Trace("Connecting to peer... ")
+	log.Trace("Disconnecting to peer... ")
 	c := http.Client{Timeout: time.Duration(1) * time.Second}
 	requestDisconnect := PostDisconnect{
 		IpAddressServer: peerIP,

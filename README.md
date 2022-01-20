@@ -34,8 +34,9 @@ Following the basic layout for Go application projects (https://github.com/golan
 - The functionalities of the Gateway Config are implemented in `internal/gateway-config`
 
 ## NBI API
-It exposes API to create networks and saps, configure the gateway and create/delete secure connections.
-These API are described in the Postman collection `NSMM.postman_collection.json`
+It exposes API to create networks and saps, configure the gateway and create/delete secure connections, the API is defined in `api/nsmm.json`.
+
+Usage examples of the NBI are in the Postman collection `api/NSMM.postman_collection.json`
 
 ## Configuration
 The main program (NSMM) loads some configuration parameters from the `config.yaml`, for example, the DB credential, the VIM's info.

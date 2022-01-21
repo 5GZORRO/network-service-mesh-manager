@@ -85,7 +85,7 @@ func main() {
 		return
 	}
 	// init tables
-	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&nsm.ResourceSet{}, &nsm.Network{}, &nsm.Sap{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&nsm.ResourceSet{}, &nsm.Network{}, &nsm.Sap{}, &nsm.Connection{})
 	// log.Trace(db)
 
 	// STEP VIM

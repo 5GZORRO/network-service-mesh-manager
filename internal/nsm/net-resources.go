@@ -39,7 +39,7 @@ func (obj *ServerInterfaceImpl) GetNetResources(c *gin.Context, params nsmmapi.G
 			return
 		}
 		for i := range resources {
-			err := LoadAssociationFromDB(obj.DB, &resources[i])
+			err := LoadNetworkAssociationFromDB(obj.DB, &resources[i])
 			if err != nil {
 				log.Error("Error retrieving associations of resource set with ID: ", resources[i].ID)
 				SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)

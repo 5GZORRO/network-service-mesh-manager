@@ -1,21 +1,288 @@
 package nsm
 
 import (
+	"errors"
+	"fmt"
+	"net"
+	"net/http"
+	nsmmapi "nextworks/nsm/api"
+	gatewayconfig "nextworks/nsm/internal/gateway-config"
+
 	"github.com/gin-gonic/gin"
-	// log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
-// TODO implement connection logic
-// (GET /gateways/{id}/vpn/connections)
-func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnections(c *gin.Context, id int) {}
+// (GET /net-resources/{{id}}/gateway/connections)
+func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnections(c *gin.Context, id int) {
 
-// (POST /gateways/{id}/vpn/connections)
-func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Context, id int) {}
+	// Retrieve the ResNet element with all the active connections
+	res, error := RetrieveResourcesFromDB(obj.DB, id)
+	if error != nil {
+		log.Error("Impossible to retrieve network resources. Error reading from DB: ", error)
+		if errors.Is(error, gorm.ErrRecordNotFound) {
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
+			return
+		} else {
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+			return
+		}
+	}
+	// check status, it should be in running to have active connections
+	if res.Status != RUNNING {
+		log.Error("Impossibile to retrieve VPN connections. The current state is ", res.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrGatewayNotRunning)
+		return
+	}
 
-// (DELETE /gateways/{id}/vpn/connections/{connectionid}/)
-func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayConnectionsCid(c *gin.Context, id int, connectionid int) {
+	err := LoadConnectionAssociationFromDB(obj.DB, res)
+	if err != nil {
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+		return
+	}
+	log.Trace("Requested connection: ", res.Connections)
+
+	// List all the connections found
+	if len(res.Connections) == 0 {
+		SetErrorResponse(c, http.StatusNotFound, ErrNoConnection)
+	} else {
+		var output []nsmmapi.Connection
+		for _, conn := range res.Connections {
+			apicon := nsmmapi.Connection{
+				Id: conn.ID,
+				// TODO save also pubkey
+				PubKey:          "",
+				RemotePeerIp:    conn.PeerIp,
+				RemotePeerPort:  conn.PeerPort,
+				SubnetsToExpose: SubnetsToArray(conn.PeerNets),
+			}
+			output = append(output, apicon)
+		}
+		c.JSON(http.StatusOK, output)
+	}
+
 }
 
-// (GET /gateways/{id}/vpn/connections/{connectionid}/)
+// (POST /net-resources/{{id}}/gateway/connections)
+func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Context, id int) {
+	var jsonBody nsmmapi.PostConnection
+
+	// read from DB the requested resNet and check current status
+	res, error := RetrieveResourcesFromDB(obj.DB, id)
+	if error != nil {
+		log.Error("Impossible to retrieve network-resources. Error reading from DB: ", error)
+		if errors.Is(error, gorm.ErrRecordNotFound) {
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
+			return
+		} else {
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+			return
+		}
+	}
+	// check status
+	if res.Status != READY {
+		log.Error("Impossibile to create a VPN connection. The current state is ", res.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrGatewayNotConfigured)
+		return
+	}
+	// read json body
+	if err := c.ShouldBindJSON(&jsonBody); err != nil {
+		log.Error("Impossible to create a VPN connection. Error in the request, wrong json body")
+		SetErrorResponse(c, http.StatusBadRequest, ErrBodyWrongInfo)
+		return
+	}
+
+	// TODO check params
+
+	// build the VPNaaS service
+	client := gatewayconfig.New(net.ParseIP(res.Gateway.MgmtIp), fmt.Sprint(res.Gateway.MgmtPort))
+
+	// call the Connect_to_VPN
+	remoteSubnets := ParseExposedSubnets(jsonBody.ExposedSubnets)
+	output := client.Connect(jsonBody.RemotePeerIp, jsonBody.RemotePeerPort, remoteSubnets, res.Gateway.ExposedNets)
+	log.Debug("VPNaaS connect output: ", output)
+	if output {
+		res.Status = RUNNING
+		log.Trace("Creating a VPN connection object in DB")
+		// create the state for the new VPN connection and save in BD
+		conn := Connection{
+			ResourceSetId: res.ID,
+			PeerIp:        jsonBody.RemotePeerIp,
+			PeerPort:      jsonBody.RemotePeerPort,
+			PeerNets:      SubnetsToString(jsonBody.ExposedSubnets),
+		}
+		result := obj.DB.Create(&conn)
+		if result.Error != nil {
+			log.Error("Error creation VPN connection in DB for resource set with ID ", res.ID, " and slice-id: ", res.SliceId)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrSavingConnectionDB)
+			return
+		}
+
+		log.Trace("Updating resource-set state in DB...")
+		// update the state of netres
+		result = obj.DB.Save(&res)
+		if result.Error != nil {
+			log.Error("Error updating resource-set for VPN connection creation, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrUpdatingGatewayInDB)
+			return
+		}
+		output := nsmmapi.Connection{
+			Id: conn.ID,
+			// TODO to be added
+			PubKey:          "",
+			RemotePeerIp:    conn.PeerIp,
+			RemotePeerPort:  conn.PeerPort,
+			SubnetsToExpose: SubnetsToArray(conn.PeerNets),
+		}
+		c.JSON(http.StatusCreated, output)
+	} else {
+		log.Error("Error creating VPN connection with peer: ", jsonBody.RemotePeerIp)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrCreatingConnection)
+		return
+	}
+}
+
+// (DELETE /gateways/{id}/vpn/connections/{{cid}}/)
+func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayConnectionsCid(c *gin.Context, id int, connectionid int) {
+	// Delete the connection with ID connectionid and if no other connection are active and state is running switch to READY
+
+	// Retrieve the ResNet element with all the active connections
+	res, error := RetrieveResourcesFromDB(obj.DB, id)
+	if error != nil {
+		log.Error("Impossible to retrieve network-resources. Error reading from DB: ", error)
+		if errors.Is(error, gorm.ErrRecordNotFound) {
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
+			return
+		} else {
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+			return
+		}
+	}
+	// check status
+	if res.Status != RUNNING {
+		log.Error("Impossibile to delete a VPN connection. The current state is ", res.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrGatewayNotRunning)
+		return
+	}
+
+	// Search connection ID connectionid
+	conn, err := SearchConnectionAssociationFromDB(obj.DB, res, connectionid)
+	if err != nil {
+		SetErrorResponse(c, http.StatusNotFound, ErrNoConnection)
+		return
+	}
+	log.Trace("Requested connection: ", conn)
+
+	// Create umu client to shutdown the connection
+	client := gatewayconfig.New(net.ParseIP(res.Gateway.MgmtIp), fmt.Sprint(res.Gateway.MgmtPort))
+
+	// call the Connect_to_VPN
+	output := client.Disconnect(conn.PeerIp, conn.PeerPort)
+	log.Debug("VPNaaS disconnect output: ", output)
+	if !output {
+		log.Error("Error removing VPN connection with peer: ", conn.PeerIp)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrCreatingConnection)
+		return
+	}
+	log.Trace("Closed VPN connection with peer: ", conn.PeerIp, " removing it from DB...")
+
+	// remove from DB
+	result := obj.DB.Delete(&conn)
+	if result.Error != nil {
+		log.Error("Error deleting connection, for resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrSavingConnectionDB)
+		return
+	}
+	//check if other connections exists
+	// Search connection ID connectionid
+	err = LoadConnectionAssociationFromDB(obj.DB, res)
+	if err != nil {
+		SetErrorResponse(c, http.StatusNotFound, ErrNoConnection)
+		return
+	}
+	if len(res.Connections) == 0 {
+		log.Debug("Remaining connections for this resource-set are 0, switch back to READY status")
+		// Move back to READY STATE
+		res.Status = READY
+		result = obj.DB.Save(&res)
+		if result.Error != nil {
+			log.Error("Error updating resource-set VPN for connection deletion, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
+			SetErrorResponse(c, http.StatusInternalServerError, ErrUpdatingGatewayInDB)
+			return
+		}
+	}
+	c.Status(http.StatusOK)
+}
+
+// LoadAssociationFromDB loads from DB all the active connection of a resource set
+func LoadConnectionAssociationFromDB(database *gorm.DB, netres *ResourceSet) error {
+	var conns []Connection
+
+	// Retrieve connections association
+	a := database.Model(&netres).Association("Connections")
+	result := a.Find(&conns)
+	if result != nil {
+		return result
+	}
+	netres.Connections = conns
+	return nil
+}
+
+// SearchConnectionAssociationFromDB searches a Connection by ConnectionID of a resource set
+func SearchConnectionAssociationFromDB(database *gorm.DB, netres *ResourceSet, cid int) (*Connection, error) {
+	var conn []Connection
+
+	// Retrieve connections association
+	result := database.Model(&netres).Where("id = " + fmt.Sprint(cid)).Association("Connections").Find(&conn)
+	if result != nil {
+		log.Error("Error retrieving connections for resource set ", netres.ID)
+		return nil, result
+	}
+	if len(conn) == 0 {
+		log.Error("Error no connections found for resource set ", netres.ID)
+		return nil, ErrNoConnection
+	}
+	return &conn[0], nil
+}
+
+// (GET /net-resources/{{id}}/gateway/connections/{{cid}})
 func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnectionsCid(c *gin.Context, id int, connectionid int) {
+
+	// Retrieve the ResNet element with all the active connections
+	res, error := RetrieveResourcesFromDB(obj.DB, id)
+	if error != nil {
+		log.Error("Impossible to retrieve network-resources. Error reading from DB: ", error)
+		if errors.Is(error, gorm.ErrRecordNotFound) {
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
+			return
+		} else {
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+			return
+		}
+	}
+
+	// check status, it should be in running to have active connections
+	if res.Status != RUNNING {
+		log.Error("Impossibile to retrieve VPN connections. The current state is ", res.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrGatewayNotRunning)
+		return
+	}
+
+	conn, err := SearchConnectionAssociationFromDB(obj.DB, res, connectionid)
+	if err != nil {
+		SetErrorResponse(c, http.StatusNotFound, ErrNoConnection)
+		return
+	}
+	log.Trace("Requested connection: ", conn)
+
+	output := nsmmapi.Connection{
+		Id: conn.ID,
+		// TODO save also pubkey
+		PubKey:          "",
+		RemotePeerIp:    conn.PeerIp,
+		RemotePeerPort:  conn.PeerPort,
+		SubnetsToExpose: SubnetsToArray(conn.PeerNets),
+	}
+
+	c.JSON(http.StatusOK, output)
 }

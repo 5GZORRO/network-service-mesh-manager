@@ -44,8 +44,9 @@ func configureGateway(database *gorm.DB, res *ResourceSet) {
 	// TODO change mgmt port to string?
 	// configure VM gateway, starting the VPN server
 	client := gatewayconfig.New(net.ParseIP(res.Gateway.MgmtIp), fmt.Sprint(res.Gateway.MgmtPort))
-	// TODO check parameters
-	output := client.Start("", "", "")
+	// TODO netinterface name? Should be better an IP, how can I know the interface name to be used?
+	output := client.Launch(res.Gateway.PrivateVpnRange, "ens4", fmt.Sprint(res.Gateway.MgmtPort))
+	log.Debug(output)
 	if output {
 		res.Status = READY
 	} else {

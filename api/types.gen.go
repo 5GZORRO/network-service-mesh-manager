@@ -6,7 +6,7 @@ package Nsmm
 // Connection defines model for Connection.
 type Connection struct {
 	// Unique identifier of the connection-id
-	Id string `json:"id"`
+	Id int `json:"id"`
 
 	// Public key of the remote peer
 	PubKey string `json:"pub-key"`
@@ -62,7 +62,7 @@ type Network struct {
 // Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose
 type PostConnection struct {
 	// Subnets exposed by VPN server
-	ExposedSubnets string `json:"exposed-subnets"`
+	ExposedSubnets []string `json:"exposed-subnets"`
 
 	// Public key of the remote peer
 	PubKey string `json:"pub-key"`

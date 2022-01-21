@@ -2,7 +2,7 @@ package gatewayconfig
 
 type GatewayHttpClient interface {
 	GetCurrentConfiguration()
-	Start()
+	Launch()
 	Connect()
 	Disconnect()
 }

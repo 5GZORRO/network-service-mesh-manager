@@ -3,7 +3,6 @@ package nsm
 import (
 	"net"
 	nsmmapi "nextworks/nsm/api"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,20 +54,4 @@ func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
 	gateway.PrivateVpnIp = res.Gateway.PrivateVpnIp
 	gateway.PrivateVpnRange = res.Gateway.PrivateVpnRange
 	ctx.JSON(status, gateway)
-}
-
-func SubnetsToString(subnets []string) string {
-	stringSubs := ""
-	for i, sub := range subnets {
-		if i == 0 {
-			stringSubs = stringSubs + sub
-		} else {
-			stringSubs = stringSubs + "," + sub
-		}
-	}
-	return stringSubs
-}
-
-func SubnetsToArray(subnets string) []string {
-	return strings.Split(subnets, ",")
 }

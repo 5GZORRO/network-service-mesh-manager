@@ -28,8 +28,15 @@ var (
 	ErrGatewayVpnPeerPrivateIpRange = errors.New("configuration gateway body request contains wrong info: VPN peer private ip does not belong to private-vpn-range")
 	ErrConfiguringGateway           = errors.New("gateway can't be configured")
 	ErrDeleteConfigurationGateway   = errors.New("configuration of gateway can't be removed")
+	ErrUpdatingGatewayInDB          = errors.New("error updating gateway in DB")
+	ErrGatewayNotRunning            = errors.New("error gateway is not running")
 	// VIM Errors
 	ErrVimNotExists       = errors.New("vim does not exist")
 	ErrVimCreatingNetwork = errors.New("error creating network on vim")
 	ErrVimCreatingSAP     = errors.New("error creating SAP on vim")
+	// Connections
+	ErrNoConnection            = errors.New("no connection found")
+	ErrCreatingConnection      = errors.New("error creating VPN connection")
+	ErrSavingConnectionDB      = errors.New("error saving connection in DB")
+	ErrConnectionCanBeCanceled = errors.New("error deleting a VPN connection, gateway is not running")
 )

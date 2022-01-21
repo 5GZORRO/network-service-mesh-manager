@@ -89,7 +89,7 @@ func SetNetResourcesResponse(ctx *gin.Context, status int, res ResourceSet) {
 
 // LoadAssociationFromDB load from DB associations of a resource set
 // networks and sap
-func LoadAssociationFromDB(database *gorm.DB, netres *ResourceSet) error {
+func LoadNetworkAssociationFromDB(database *gorm.DB, netres *ResourceSet) error {
 	var nets []Network
 	var saps []Sap
 
@@ -124,7 +124,7 @@ func RetrieveResourcesFromDB(database *gorm.DB, id int) (*ResourceSet, error) {
 		return nil, result.Error
 	}
 	// Retrieve associations - networks and saps
-	err := LoadAssociationFromDB(database, &netres)
+	err := LoadNetworkAssociationFromDB(database, &netres)
 	if err != nil {
 		return &netres, err
 	}
@@ -143,7 +143,7 @@ func RetrieveResourcesFromDBbySliceID(database *gorm.DB, sliceId string) (*Resou
 		return nil, result.Error
 	}
 	// Retrieve associations - networks and saps
-	err := LoadAssociationFromDB(database, &netres)
+	err := LoadNetworkAssociationFromDB(database, &netres)
 	if err != nil {
 		return &netres, err
 	}

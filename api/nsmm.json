@@ -421,6 +421,16 @@
                 ],
                 "responses": {
                     "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Connection"
+                                    }
+                                }
+                            }
+                        },
                         "description": "It returns all the VPN connections"
                     },
                     "404": {
@@ -432,6 +442,16 @@
                             }
                         },
                         "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server error (read/write DB, etc...)"
                     }
                 },
                 "summary": "Retrieve all the active VPN connection of the gateway",
@@ -629,7 +649,10 @@
                     },
                     "exposed-subnets": {
                         "description": "Subnets exposed by VPN server",
-                        "type": "string"
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "example": {
@@ -653,7 +676,7 @@
                 "properties": {
                     "id": {
                         "description": "Unique identifier of the connection-id",
-                        "type": "string"
+                        "type": "integer"
                     },
                     "subnets-to-expose": {
                         "description": "Subnet to expose",
@@ -676,13 +699,14 @@
                     }
                 },
                 "example": {
-                    "id": "",
+                    "id": 37,
                     "subnets-to-expose": [
-                        ""
+                        "some text",
+                        "some text"
                     ],
-                    "pub-key": "",
-                    "remote-peer-ip": "",
-                    "remote-peer-port": ""
+                    "pub-key": "some text",
+                    "remote-peer-ip": "some text",
+                    "remote-peer-port": "some text"
                 }
             },
             "PostSliceResources": {

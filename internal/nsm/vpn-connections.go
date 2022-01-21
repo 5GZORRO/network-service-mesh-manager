@@ -49,9 +49,8 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnections(c *gin.Conte
 		var output []nsmmapi.Connection
 		for _, conn := range res.Connections {
 			apicon := nsmmapi.Connection{
-				Id: conn.ID,
-				// TODO save also pubkey
-				PubKey:          "",
+				Id:              conn.ID,
+				PubKey:          conn.PeerPubKey,
 				RemotePeerIp:    conn.PeerIp,
 				RemotePeerPort:  conn.PeerPort,
 				SubnetsToExpose: SubnetsToArray(conn.PeerNets),
@@ -80,7 +79,8 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 		}
 	}
 	// check status
-	if res.Status != READY {
+	// !(!= READY && != RUNNING)
+	if res.Status != READY && res.Status != RUNNING {
 		log.Error("Impossibile to create a VPN connection. The current state is ", res.Status)
 		SetErrorResponse(c, http.StatusForbidden, ErrGatewayNotConfigured)
 		return
@@ -92,17 +92,21 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 		return
 	}
 
-	// TODO check params
+	out := net.ParseIP(jsonBody.RemotePeerIp)
+	port := checkPort(jsonBody.RemotePeerPort)
+	remoteSubnets, err := ParseExposedSubnets(jsonBody.ExposedSubnets)
+	if out == nil || err != nil || !port {
+		SetErrorResponse(c, http.StatusBadRequest, ErrConnectionParameters)
+		return
+	}
 
 	// build the VPNaaS service
 	client := gatewayconfig.New(net.ParseIP(res.Gateway.MgmtIp), fmt.Sprint(res.Gateway.MgmtPort))
 
 	// call the Connect_to_VPN
-	remoteSubnets := ParseExposedSubnets(jsonBody.ExposedSubnets)
 	output := client.Connect(jsonBody.RemotePeerIp, jsonBody.RemotePeerPort, remoteSubnets, res.Gateway.ExposedNets)
 	log.Debug("VPNaaS connect output: ", output)
 	if output {
-		res.Status = RUNNING
 		log.Trace("Creating a VPN connection object in DB")
 		// create the state for the new VPN connection and save in BD
 		conn := Connection{
@@ -118,18 +122,20 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 			return
 		}
 
-		log.Trace("Updating resource-set state in DB...")
-		// update the state of netres
-		result = obj.DB.Save(&res)
-		if result.Error != nil {
-			log.Error("Error updating resource-set for VPN connection creation, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
-			SetErrorResponse(c, http.StatusInternalServerError, ErrUpdatingGatewayInDB)
-			return
+		// update the state of netres if necessary
+		if res.Status == READY {
+			log.Trace("Updating resource-set state to RUNNING in DB...")
+			res.Status = RUNNING
+			result = obj.DB.Save(&res)
+			if result.Error != nil {
+				log.Error("Error updating resource-set for VPN connection creation, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
+				SetErrorResponse(c, http.StatusInternalServerError, ErrUpdatingGatewayInDB)
+				return
+			}
 		}
 		output := nsmmapi.Connection{
-			Id: conn.ID,
-			// TODO to be added
-			PubKey:          "",
+			Id:              conn.ID,
+			PubKey:          conn.PeerPubKey,
 			RemotePeerIp:    conn.PeerIp,
 			RemotePeerPort:  conn.PeerPort,
 			SubnetsToExpose: SubnetsToArray(conn.PeerNets),
@@ -276,9 +282,8 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnectionsCid(c *gin.Co
 	log.Trace("Requested connection: ", conn)
 
 	output := nsmmapi.Connection{
-		Id: conn.ID,
-		// TODO save also pubkey
-		PubKey:          "",
+		Id:              conn.ID,
+		PubKey:          conn.PeerPubKey,
 		RemotePeerIp:    conn.PeerIp,
 		RemotePeerPort:  conn.PeerPort,
 		SubnetsToExpose: SubnetsToArray(conn.PeerNets),

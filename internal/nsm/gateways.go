@@ -37,7 +37,6 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGateway(c *gin.Context, id int)
 	SetGatewayResponse(c, http.StatusOK, *resource)
 }
 
-// TODO added params in the NBI
 func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int) {
 	var jsonBody nsmmapi.PostGateway
 
@@ -60,7 +59,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 		}
 	}
 	// check status
-	if resource.Status != WAIT_FOR_GATEWAY_CONFIG {
+	if resource.Status != WAIT_FOR_GATEWAY_CONFIG && resource.Status != CONFIGURATION_ERROR {
 		log.Error("Impossibile to create gateway configuration. The current state is ", resource.Status)
 		SetErrorResponse(c, http.StatusForbidden, ErrConfiguringGateway)
 		return

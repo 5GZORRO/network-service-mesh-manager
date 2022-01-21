@@ -39,7 +39,6 @@ func deleteResources(database *gorm.DB, vim *vim.VimDriver, res *ResourceSet) {
 // configureGateway is a goroutine to configure and start the VPN server in the gateway,
 // using an HTTP client
 func configureGateway(database *gorm.DB, res *ResourceSet) {
-	time.Sleep(time.Second * 5)
 
 	// TODO change mgmt port to string?
 	// configure VM gateway, starting the VPN server
@@ -63,9 +62,6 @@ func configureGateway(database *gorm.DB, res *ResourceSet) {
 // TODO resetGateway is a goroutine to configure the VM gateway, using
 // an HTTP client
 func resetGateway(database *gorm.DB, res *ResourceSet) {
-	time.Sleep(time.Second * 10)
-	// TODO reset VM gateway
-
 	// update the state of the gateway to WAIT_FOR
 	res.Status = WAIT_FOR_GATEWAY_CONFIG
 	res.Gateway = Gateway{}

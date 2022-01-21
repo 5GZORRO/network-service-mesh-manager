@@ -35,6 +35,7 @@ var (
 	ErrVimCreatingNetwork = errors.New("error creating network on vim")
 	ErrVimCreatingSAP     = errors.New("error creating SAP on vim")
 	// Connections
+	ErrConnectionParameters    = errors.New("connection parameters in body request are wrong")
 	ErrNoConnection            = errors.New("no connection found")
 	ErrCreatingConnection      = errors.New("error creating VPN connection")
 	ErrSavingConnectionDB      = errors.New("error saving connection in DB")

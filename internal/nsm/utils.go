@@ -2,9 +2,18 @@ package nsm
 
 import (
 	"errors"
+	"net"
+	nsmmapi "nextworks/nsm/api"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
+
+func SetErrorResponse(ctx *gin.Context, errorStatus int, err error) {
+	outputJson := nsmmapi.ErrorResponse{Error: err.Error()}
+	ctx.JSON(errorStatus, outputJson)
+}
 
 func parsePort(port string) (uint16, error) {
 	portInt, err := strconv.ParseUint(port, 10, 16)
@@ -20,6 +29,13 @@ func parsePort(port string) (uint16, error) {
 
 func parsePortToString(port uint16) string {
 	return strconv.Itoa(int(port))
+}
+
+func checkPort(port string) bool {
+	if _, err := parsePort(port); err != nil {
+		return false
+	}
+	return true
 }
 
 func SubnetsToString(subnets []string) string {
@@ -39,14 +55,17 @@ func SubnetsToArray(subnets string) []string {
 }
 
 // parseExposedSubnets returns a string to be used in WireGuard file and VPNaaS API
-func ParseExposedSubnets(subnets []string) string {
+func ParseExposedSubnets(subnets []string) (string, error) {
 	stringSubs := ""
 	for i, sub := range subnets {
+		if _, _, err := net.ParseCIDR(sub); err != nil {
+			return "", ErrConnectionParameters
+		}
 		if i == 0 {
 			stringSubs = stringSubs + sub
 		} else {
 			stringSubs = stringSubs + ", " + sub
 		}
 	}
-	return stringSubs
+	return stringSubs, nil
 }

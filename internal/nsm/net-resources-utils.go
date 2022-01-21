@@ -9,11 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetErrorResponse(ctx *gin.Context, errorStatus int, err error) {
-	outputJson := nsmmapi.ErrorResponse{Error: err.Error()}
-	ctx.JSON(errorStatus, outputJson)
-}
-
 func checkExcludedSubnetsParams(subs *string) error {
 	if _, _, err := net.ParseCIDR(*subs); err != nil {
 		return ErrGatewayConfigSubnet

@@ -52,6 +52,7 @@ type Sap struct {
 type Connection struct {
 	ID            int `gorm:"autoIncrement"`
 	ResourceSetId int
+	PeerPubKey    string
 	PeerIp        string
 	PeerPort      string
 	PeerNets      string

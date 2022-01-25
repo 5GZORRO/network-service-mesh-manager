@@ -3,10 +3,16 @@ package openstackdriver
 import (
 	"errors"
 
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	log "github.com/sirupsen/logrus"
 )
+
+var networkWithPortSecurityExt struct {
+	networks.Network
+	portsecurity.PortSecurityExt
+}
 
 func (client *OpenStackDriver) CreateNetwork(name string, cidr string) (string, string, string, error) {
 	log.Trace("Creating Network with name ", name)
@@ -39,6 +45,25 @@ func (client *OpenStackDriver) CreateNetwork(name string, cidr string) (string, 
 		return network.ID, "", "", err
 	}
 	log.Debug("Created subnet with name: ", subnet.Name, " and ID: ", subnet.ID)
+
+	// TODO not all the networks requires the port security disabled (?)
+	// only the one exposed
+
+	// disable port security on an existing network
+	log.Debug("Disabling port security on network ", network.Name)
+	var portSecurity bool = false
+	networkUpdateOpts := networks.UpdateOpts{}
+	updateOpts := portsecurity.NetworkUpdateOptsExt{
+		UpdateOptsBuilder:   networkUpdateOpts,
+		PortSecurityEnabled: &portSecurity,
+	}
+
+	err = networks.Update(client.networkClient, network.ID, updateOpts).ExtractInto(&networkWithPortSecurityExt)
+	if err != nil {
+		log.Error("Error disabling port security on network " + network.Name)
+		return network.ID, subnet.ID, subnet.Name, err
+	}
+
 	return network.ID, subnet.ID, subnet.Name, nil
 	// return "", "", "", nil
 }

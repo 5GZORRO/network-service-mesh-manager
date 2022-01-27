@@ -23,7 +23,7 @@ func (client *OpenStackDriver) CreateSAP(floatingNetName string, networkName str
 	}
 
 	// // 2. Create the private network with the subnet
-	netID, subnetID, subnetName, err := client.CreateNetwork(networkName, cidr)
+	netID, subnetID, subnetName, err := client.CreateNetwork(networkName, cidr, true)
 	if err != nil {
 		log.Error("Error creating SAP: impossible to create the network")
 		return "", "", "", "", "", "", ErrNetworkCreation

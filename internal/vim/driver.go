@@ -14,7 +14,7 @@ type VimDriver interface {
 	// CreateNetwork() creates a network with a subnet
 	// It returns:
 	// networkID, subnetID, subnetName
-	CreateNetwork(name string, cidr string) (string, string, string, error)
+	CreateNetwork(name string, cidr string, gateway bool) (string, string, string, error)
 	DeleteNetwork(networkID string, subnetID string) error
 	// CreateSAP() creates the infrastructure to have a floating-ip, it could be for a gateway or for other sap of the ns
 	// It returns:

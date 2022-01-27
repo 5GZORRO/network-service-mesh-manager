@@ -27,7 +27,7 @@ func (client *StubDriver) Revoke() {
 	log.Info("Close connection to Stub...")
 }
 
-func (obj *StubDriver) CreateNetwork(networkName string, cidr string) (string, string, string, error) {
+func (obj *StubDriver) CreateNetwork(networkName string, cidr string, gateway bool) (string, string, string, error) {
 	log.Info("Creating Network network name ", networkName, " on Stub...")
 	networkID := "test"
 	subnetID := "test"

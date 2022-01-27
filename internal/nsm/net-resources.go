@@ -131,7 +131,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 		ipnet := netmng.NextSubnet()
 		if ipnet != nil {
 			cidr := ipnet.String()
-			netID, subnetID, subnetName, err := (*vim).CreateNetwork(net.NetworkName, cidr)
+			netID, subnetID, subnetName, err := (*vim).CreateNetwork(net.NetworkName, cidr, false)
 			ne := Network{
 				ResourceSetId: resset.ID,
 				NetworkId:     netID,

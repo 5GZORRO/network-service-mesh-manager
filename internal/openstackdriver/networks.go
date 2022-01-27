@@ -14,7 +14,7 @@ var networkWithPortSecurityExt struct {
 	portsecurity.PortSecurityExt
 }
 
-func (client *OpenStackDriver) CreateNetwork(name string, cidr string) (string, string, string, error) {
+func (client *OpenStackDriver) CreateNetwork(name string, cidr string, gateway bool) (string, string, string, error) {
 	log.Trace("Creating Network with name ", name)
 	// network global params
 	var sharedNetworks bool = false
@@ -39,14 +39,14 @@ func (client *OpenStackDriver) CreateNetwork(name string, cidr string) (string, 
 	// Create subnet
 	subnetName := name + "_subnet"
 	log.Trace("Creating Subnet " + subnetName)
-	subnet, err := client.createSubnet(subnetName, network.ID, cidr)
+	subnet, err := client.createSubnet(subnetName, network.ID, cidr, gateway)
 	if err != nil {
 		log.Error("Error creating Subnet " + subnetName)
 		return network.ID, "", "", err
 	}
 	log.Debug("Created subnet with name: ", subnet.Name, " and ID: ", subnet.ID)
 
-	// TODO not all the networks requires the port security disabled (?)
+	// TODO not all the networks require the port security disabled (?)
 	// only the one exposed
 
 	// disable port security on an existing network
@@ -69,12 +69,19 @@ func (client *OpenStackDriver) CreateNetwork(name string, cidr string) (string, 
 }
 
 // Function to create a Subnet
-func (client *OpenStackDriver) createSubnet(name string, networkID string, cidr string) (*subnets.Subnet, error) {
+func (client *OpenStackDriver) createSubnet(name string, networkID string, cidr string, gateway bool) (*subnets.Subnet, error) {
 	var enableDHCP = true
+	var gatewayIP *string = nil
+	if !gateway {
+		// case where we dont want a default gateway
+		str := ""
+		gatewayIP = &str
+	}
 	createOpts := subnets.CreateOpts{
 		NetworkID:  networkID,
 		Name:       name,
 		TenantID:   client.TenantID,
+		GatewayIP:  gatewayIP, // handle default gateway
 		EnableDHCP: &enableDHCP,
 		IPVersion:  4,
 		CIDR:       cidr,

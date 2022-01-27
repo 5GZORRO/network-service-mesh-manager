@@ -27,12 +27,13 @@ func New(addr net.IP, port string) *VPNaaSClient {
 
 // Start the VPN service calling the /launch() endpoint
 func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port string) bool {
-	c := http.Client{Timeout: time.Duration(1) * time.Second}
+	c := http.Client{Timeout: time.Duration(10) * time.Second}
 
 	bodyrequest := PostLaunch{
 		IpRange:      ipRange,
 		NetInterface: netInterface,
 		Port:         port,
+		Environment:  "local",
 	}
 	jsonBody, _ := json.Marshal(bodyrequest)
 	log.Trace("VPNaaS {", client.ip.String(), " ", client.port, "} -- Starting with body ", bodyrequest)
@@ -80,12 +81,13 @@ func (client *VPNaaSClient) GetCurrentConfiguration() *VpnInfo {
 
 // Connect to a client (peer2), calling the /connect_to_VPN
 func (client *VPNaaSClient) Connect(peerIp string, peerPort string, remoteIPs string, localIPs string) bool {
-	c := http.Client{Timeout: time.Duration(1) * time.Second}
+	c := http.Client{Timeout: time.Duration(10) * time.Second}
 	requestConnect := PostConnect{
 		IpAddressServer: peerIp,
 		PortServer:      peerPort,
 		RemoteSubnet:    remoteIPs,
 		LocalSubnet:     localIPs,
+		Environment:     "local",
 	}
 	jsonBody2, _ := json.Marshal(requestConnect)
 	log.Trace("VPNaaS {", client.ip.String(), " ", client.port, "} -- Connecting to peer... with body ", requestConnect)
@@ -111,7 +113,7 @@ func (client *VPNaaSClient) Connect(peerIp string, peerPort string, remoteIPs st
 
 // Disconnect from a client (peer), calling the /disconnect_to_VPN
 func (client *VPNaaSClient) Disconnect(peerIP string, peerPort string) bool {
-	c := http.Client{Timeout: time.Duration(1) * time.Second}
+	c := http.Client{Timeout: time.Duration(10) * time.Second}
 	requestDisconnect := PostDisconnect{
 		IpAddressServer: peerIP,
 		PortServer:      peerPort,

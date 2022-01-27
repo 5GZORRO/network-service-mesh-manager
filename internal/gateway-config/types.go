@@ -11,6 +11,7 @@ type PostLaunch struct {
 	IpRange      string `json:"ip_range"`
 	NetInterface string `json:"net_interface"`
 	Port         string `json:"port"`
+	Environment  string `json:"environment"`
 }
 
 type PostDisconnect struct {
@@ -23,6 +24,7 @@ type PostConnect struct {
 	PortServer      string `json:"port_server"`
 	RemoteSubnet    string `json:"IP_range_to_redirect"`
 	LocalSubnet     string `json:"destination_IP_range_to_redirect"`
+	Environment     string `json:"environment"`
 }
 
 type ClientAccepted struct {

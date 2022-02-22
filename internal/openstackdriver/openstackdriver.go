@@ -3,6 +3,7 @@ package openstackdriver
 import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
+	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -89,10 +90,10 @@ func (client *OpenStackDriver) Authenticate() {
 // Revoke
 func (client *OpenStackDriver) Revoke() {
 	// TODO add when authenticated, otherwise SIGSEGV
-	// log.Info("Revoking token...")
-	// token, err := tokens.Revoke(client.identityClient, client.provider.Token()).Extract()
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-	// log.Info(*token)
+	log.Info("Revoking token...")
+	token, err := tokens.Revoke(client.identityClient, client.provider.Token()).Extract()
+	if err != nil {
+		log.Error(err)
+	}
+	log.Info(*token)
 }

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nsmm-db-volume
+  labels:
+    type: local
+spec:
+  persistentVolumeReclaimPolicy: Recycle # supported only in NFS and hostpath
+  storageClassName: microk8s-hostpath
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"

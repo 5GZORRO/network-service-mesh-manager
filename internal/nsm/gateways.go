@@ -75,7 +75,6 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 	resource.Gateway.MgmtIp = jsonBody.MgmtIp
 	resource.Gateway.MgmtPort, _ = parsePort(jsonBody.MgmtPort)
 	resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
-	resource.Gateway.PubKey = jsonBody.PubKey
 
 	// ranges and private ips
 	_, privNet, _ := net.ParseCIDR(jsonBody.PrivateVpnRange)

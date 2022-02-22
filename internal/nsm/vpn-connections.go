@@ -49,11 +49,12 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnections(c *gin.Conte
 		var output []nsmmapi.Connection
 		for _, conn := range res.Connections {
 			apicon := nsmmapi.Connection{
-				Id:              conn.ID,
-				PubKey:          conn.PeerPubKey,
-				RemotePeerIp:    conn.PeerIp,
-				RemotePeerPort:  conn.PeerPort,
-				SubnetsToExpose: SubnetsToArray(conn.PeerNets),
+				Id:                 conn.ID,
+				PrivateKey:         &conn.PrivateKey,
+				PublicKey:          &conn.PublicKey,
+				RemotePeerIp:       conn.PeerIp,
+				RemotePeerPort:     conn.PeerPort,
+				PeerExposedSubnets: SubnetsToArray(conn.PeerNets),
 			}
 			output = append(output, apicon)
 		}
@@ -94,10 +95,19 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 
 	out := net.ParseIP(jsonBody.RemotePeerIp)
 	port := checkPort(jsonBody.RemotePeerPort)
-	remoteSubnets, err := ParseExposedSubnets(jsonBody.ExposedSubnets)
+	remoteSubnets, err := ParseExposedSubnets(jsonBody.PeerExposedSubnets)
 	if out == nil || err != nil || !port {
 		SetErrorResponse(c, http.StatusBadRequest, ErrConnectionParameters)
 		return
+	}
+
+	// TODO decide how to handle and manage pub/priv keys of the connection
+	publicKey := ""
+	privateKey := ""
+	if jsonBody.PrivateKey != nil && jsonBody.PublicKey != nil {
+		log.Debug("Private and Public keys passed as parameters")
+		privateKey = *jsonBody.PrivateKey
+		publicKey = *jsonBody.PublicKey
 	}
 
 	// build the VPNaaS service
@@ -111,10 +121,13 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 		// create the state for the new VPN connection and save in BD
 		conn := Connection{
 			ResourceSetId: res.ID,
+			PrivateKey:    privateKey,
+			PublicKey:     publicKey,
 			PeerIp:        jsonBody.RemotePeerIp,
 			PeerPort:      jsonBody.RemotePeerPort,
-			PeerNets:      SubnetsToString(jsonBody.ExposedSubnets),
+			PeerNets:      SubnetsToString(jsonBody.PeerExposedSubnets),
 		}
+
 		result := obj.DB.Create(&conn)
 		if result.Error != nil {
 			log.Error("Error creation VPN connection in DB for resource set with ID ", res.ID, " and slice-id: ", res.SliceId)
@@ -134,11 +147,12 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 			}
 		}
 		output := nsmmapi.Connection{
-			Id:              conn.ID,
-			PubKey:          conn.PeerPubKey,
-			RemotePeerIp:    conn.PeerIp,
-			RemotePeerPort:  conn.PeerPort,
-			SubnetsToExpose: SubnetsToArray(conn.PeerNets),
+			Id:                 conn.ID,
+			PrivateKey:         &privateKey,
+			PublicKey:          &publicKey,
+			RemotePeerIp:       conn.PeerIp,
+			RemotePeerPort:     conn.PeerPort,
+			PeerExposedSubnets: SubnetsToArray(conn.PeerNets),
 		}
 		c.JSON(http.StatusCreated, output)
 	} else {
@@ -282,11 +296,12 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnectionsCid(c *gin.Co
 	log.Trace("Requested connection: ", conn)
 
 	output := nsmmapi.Connection{
-		Id:              conn.ID,
-		PubKey:          conn.PeerPubKey,
-		RemotePeerIp:    conn.PeerIp,
-		RemotePeerPort:  conn.PeerPort,
-		SubnetsToExpose: SubnetsToArray(conn.PeerNets),
+		Id:                 conn.ID,
+		PrivateKey:         &conn.PrivateKey,
+		PublicKey:          &conn.PublicKey,
+		RemotePeerIp:       conn.PeerIp,
+		RemotePeerPort:     conn.PeerPort,
+		PeerExposedSubnets: SubnetsToArray(conn.PeerNets),
 	}
 
 	c.JSON(http.StatusOK, output)

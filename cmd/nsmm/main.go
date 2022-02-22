@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -8,7 +9,7 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	nsmapi "nextworks/nsm/api"
@@ -59,11 +60,16 @@ func main() {
 	customFormatter.FullTimestamp = true
 	log.SetFormatter(customFormatter)
 	// log.SetReportCaller(true)
-	log.SetLevel(log.ErrorLevel)
+	log.SetLevel(log.DebugLevel)
+
+	// Parsing command line arguments
+	log.Trace("Command line arguments: ", len(os.Args), os.Args)
+	configFileName := flag.String("config", "config.yaml", "config file name (YAML file)")
+	flag.Parse()
 
 	//  Read config file
-	configuration := config.ReadConfigFile()
-	// log.Info(*configuration)
+	configuration := config.ReadConfigFile(*configFileName)
+	// log.Debug(*configuration)
 
 	// set log level
 	level, err := config.LogLevel(configuration)
@@ -76,16 +82,18 @@ func main() {
 
 	// STEP DB
 	// Connect to the DB
-	dsn := configuration.Database.Username + ":" + configuration.Database.Password + "@tcp(" + configuration.Database.Host + ":" + configuration.Database.Port + ")/" + configuration.Database.DB + "?charset=utf8mb4&parseTime=True&loc=Local"
+	// dsn := configuration.Database.Username + ":" + configuration.Database.Password + "@tcp(" + configuration.Database.Host + ":" + configuration.Database.Port + ")/" + configuration.Database.DB + "?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "host=" + configuration.Database.Host + " user=" + configuration.Database.Username + " password=" + configuration.Database.Password + " dbname=" + configuration.Database.DB + " port=" + configuration.Database.Port + " sslmode=disable TimeZone=Asia/Shanghai"
 	log.Trace(dsn)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	// db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Error("Error connecting to the database")
 		return
 	}
 	// init tables
-	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&nsm.ResourceSet{}, &nsm.Network{}, &nsm.Sap{}, &nsm.Connection{})
+	db.AutoMigrate(&nsm.ResourceSet{}, &nsm.Network{}, &nsm.Sap{}, &nsm.Connection{})
 	// log.Trace(db)
 
 	// STEP VIM

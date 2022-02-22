@@ -50,7 +50,6 @@ func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
 	gateway.MgmtIp = res.Gateway.MgmtIp
 	gateway.MgmtPort = parsePortToString(res.Gateway.MgmtPort)
 	gateway.SubnetToExpose = SubnetsToArray(res.Gateway.ExposedNets)
-	gateway.PubKey = res.Gateway.PubKey
 	gateway.PrivateVpnIp = res.Gateway.PrivateVpnIp
 	gateway.PrivateVpnRange = res.Gateway.PrivateVpnRange
 	ctx.JSON(status, gateway)

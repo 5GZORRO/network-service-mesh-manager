@@ -1,6 +1,10 @@
 package config
 
 import (
+	"path"
+	"path/filepath"
+	"strings"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -63,13 +67,24 @@ func LogLevel(c *Configurations) (log.Level, error) {
 	}
 }
 
-func ReadConfigFile() *Configurations {
+func fileNameWithoutExtension(fileName string) string {
+	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
+}
+
+func ReadConfigFile(configFileName string) *Configurations {
 	var config Configurations
 
+	log.Trace("Config file name: ", configFileName)
+	base := path.Base(configFileName)
+	dir := path.Dir(configFileName)
+	ext := path.Ext(configFileName)
+	log.Debug("Selected config file name: ", base, ", path: ", dir, ", extension: ", ext)
+	ext = ext[1:]
+
 	// Set the file name of the configurations file, the path and the type file
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	viper.SetConfigType("yaml")
+	viper.SetConfigName(fileNameWithoutExtension(base))
+	viper.AddConfigPath(dir)
+	viper.SetConfigType(ext)
 
 	// Set default values
 	viper.SetDefault("server.port", 8080)
@@ -77,12 +92,12 @@ func ReadConfigFile() *Configurations {
 
 	// Read and initialize
 	if err := viper.ReadInConfig(); err != nil {
-		log.Error("Error reading config file, %s", err)
+		log.Error(err)
 	}
 
 	err := viper.Unmarshal(&config)
 	if err != nil {
-		log.Error("Unable to decode into struct, %v", err)
+		log.Error(err)
 	}
 
 	return &config

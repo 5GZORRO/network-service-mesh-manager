@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nsmm-db
+spec:
+  serviceName: "{{ .Values.database.service.name }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nsmm-db
+  template:
+    metadata:
+      labels:
+        app: nsmm-db
+    spec:
+     {{- if .Values.installation.db.persistent }}
+      volumes:
+      - name: nsmm-db-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.database.volume.claimName }}
+     {{- end}}
+      containers:
+        - name: postgres
+          image: {{ .Values.database.image.repo }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              value: "{{.Values.database.username}}"
+            - name: POSTGRES_PASSWORD
+              value: "{{.Values.database.password}}"
+            - name: POSTGRES_DB
+              value: "{{.Values.database.name}}"
+          ports:
+            - containerPort: {{ .Values.database.service.port }}
+          {{- if .Values.installation.db.persistent }}
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              name: nsmm-db-storage
+          {{- end}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.database.service.name }}
+  labels:
+    name: nsmm-db
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: nsmm-db
+  ports:
+    - port: {{ .Values.database.service.port }}
+      targetPort: 5432

@@ -21,7 +21,6 @@ type Gateway struct {
 	PrivateVpnRange string
 	PrivateVpnIp    string
 	ExternalIp      string
-	PubKey          string
 	ExposedNets     string
 }
 
@@ -52,7 +51,8 @@ type Sap struct {
 type Connection struct {
 	ID            int `gorm:"autoIncrement"`
 	ResourceSetId int
-	PeerPubKey    string
+	PublicKey     string
+	PrivateKey    string
 	PeerIp        string
 	PeerPort      string
 	PeerNets      string

@@ -15,7 +15,7 @@ var networkWithPortSecurityExt struct {
 }
 
 func (client *OpenStackDriver) CreateNetwork(name string, cidr string, gateway bool) (string, string, string, error) {
-	log.Trace("Creating Network with name ", name)
+	log.Info("Creating Network with name ", name)
 	// network global params
 	var sharedNetworks bool = false
 	var availabilityZoneHints = []string{"nova"}
@@ -142,6 +142,7 @@ func (client *OpenStackDriver) RetrieveNetwork(id string) {
 }
 
 func (client *OpenStackDriver) DeleteNetwork(networkID string, subnetID string) error {
+	log.Info("Deleting Network...")
 	if networkID != "" {
 		log.Trace("Deleting Network with ID ", networkID)
 		err := networks.Delete(client.networkClient, networkID).ExtractErr()

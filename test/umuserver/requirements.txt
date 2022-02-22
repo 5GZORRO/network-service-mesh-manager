@@ -1,7 +1,0 @@
-flask
-flask_restful
-gevent
-Werkzeug
-python-dotenv
-requests
-psutil

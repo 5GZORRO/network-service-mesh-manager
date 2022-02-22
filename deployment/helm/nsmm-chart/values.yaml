@@ -1,0 +1,54 @@
+# Values for nsmm-chart.
+
+# Installation mode: production, or test
+installation:
+  mode: test
+  db: 
+    persistent: true
+
+pgadmin:                  # PgAdmin, deployed only in test installation
+  image:
+    repo: docker.io/bitnami/phppgadmin
+    tag: 7
+  service:
+    exposedport: 30000   # Port exposed to the outside world, with the NodePort
+
+database:
+  name: nsmm
+  username: root
+  password: root 
+  image:
+    repo: postgres
+    tag: 10-alpine
+  service:
+    name: nsmm-db-service
+    port: 5432
+  volume: 
+    claimName: nsmm-db-claim
+
+nsmm:
+  # Trace, Debug, Info, Warning, Error, Fatal and Panic
+  log:
+    level: Trace
+  image:
+    repo: 10.30.8.46:5000/nsmm/nsmm
+    tag: 1.0.0
+    privateregistry: true
+  service:
+    port: 8080            # Port exposed internally, to other services in the cluster
+    exposedport: 30001    # Port exposed to the outside world, with the NodePort
+  vim:                    # Vim type can be none, or openstack - none for testing
+  - name: "vim1"
+    type: "openstack"
+    identityEndpoint: "http://10.30.7.10:5000/v3"
+    username: "user1"
+    password: "password"
+    tenantID: "7953babdca974e7ab44cc6c69f093956"
+    domainID: "default"
+  - name: "vim2"
+    type: "none"
+    identityEndpoint: "http://10.30.7.10:5000/v3"
+    username: "user2"
+    password: "password"
+    tenantID: "7953babdca974e7ab44cc6c69f093956"
+    domainID: "default"

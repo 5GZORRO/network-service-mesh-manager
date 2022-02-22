@@ -2,30 +2,30 @@
 log: Trace
 
 server:
-  port: 8080
+  port: 8080          # Listen port of nsm
 
 database:
-  db: "nsmm"
-  host: 127.0.0.1
-  port: 3306
-  username: "root"
+  db: "nsmm"          # Default db, it must exist (created by the docker container)
+  host: "postgres"    # IP address or service-name of postgres DB
+  port: 5432          # postgres port
+  username: "root"    # Default postgres username/psw (set by the docker container)
   password: "root"
 
-networks:
+networks:             # First network subnet to be used when creating subnet of NSs, subnets are /28
   start: "192.168.161.0/28"
 
-vim:
+vim:                  # Vims to be used, they can be type=openstack or type=none for testing
   - name: "vim1"
     type: "openstack"
     identityEndpoint: "http://10.30.7.10:5000/v3"
-    username: "timeo"
-    password: "nextworks"
+    username: "user1"
+    password: "password"
     tenantID: "7953babdca974e7ab44cc6c69f093956"
     domainID: "default"
   - name: "vim2"
     type: "none"
     identityEndpoint: "http://10.30.7.10:5000/v3"
-    username: "timeo"
-    password: "nextworks"
+    username: "user2"
+    password: "password"
     tenantID: "7953babdca974e7ab44cc6c69f093956"
     domainID: "default"

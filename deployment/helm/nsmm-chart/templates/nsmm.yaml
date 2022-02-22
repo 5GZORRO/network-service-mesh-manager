@@ -1,0 +1,88 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: nsmm-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nsmm
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nsmm
+    spec:
+      containers:      
+      - name: nsmm
+        image: {{ .Values.nsmm.image.repo }}:{{ .Values.nsmm.image.tag }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        {{- if eq .Values.installation.mode "production" }}
+        env:
+          - name: GIN_MODE
+            value: "release"
+        {{- end }}
+        volumeMounts:
+        - name: nsmmcfg
+          mountPath: config.yaml
+          subPath: config.yaml
+      {{- if eq .Values.nsmm.image.privateregistry true }}
+      imagePullSecrets:
+      - name: regcred
+      {{- end }}
+      volumes:
+      - name: nsmmcfg
+        configMap:
+          name: nsmm-configmap
+          items: 
+          - key: config.yaml
+            path: config.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsmm-service
+  labels:
+    name: nsmm-service
+spec:
+  type: NodePort
+  selector:
+    app: nsmm
+  ports:
+    - port: {{ .Values.nsmm.service.port }}
+      targetPort: 8080
+      nodePort: {{ .Values.nsmm.service.exposedport }}
+---
+apiVersion: v1
+data:
+  config.yaml: |
+    # levels Trace, Debug, Info, Warning, Error, Fatal and Panic
+    log: {{ .Values.nsmm.log.level }}
+
+    server:
+      port: 8080
+
+    database:
+      db: "{{ .Values.database.name }}"
+      host: "{{ .Values.database.service.name }}"
+      port: {{ .Values.database.service.port }}
+      username: "{{ .Values.database.username }}"
+      password: "{{ .Values.database.password }}"
+
+    networks:
+      start: "192.168.161.0/28"
+
+    vim:
+      {{- range .Values.nsmm.vim }}
+      - name: {{ .name | quote }}
+        type: {{ .type | quote }}
+        identityEndpoint: {{ .identityEndpoint | quote }}
+        username: {{ .username | quote }}
+        password: {{ .password | quote }}
+        tenantID: {{ .tenantID | quote }}
+        domainID: {{ .domainID | quote }}
+      {{- end }} 
+kind: ConfigMap
+metadata:
+  name: nsmm-configmap

@@ -122,7 +122,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	} else {
 		netmng = NewNetworkManager(*jsonBody.ExcludeSubnet, jsonBody.ExcludeSubnet != nil)
 	}
-	log.Info(netmng.next_subnet)
+	// log.Info(netmng.next_subnet)
 
 	// createResources()
 
@@ -212,8 +212,6 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 // and set the resource set status to DELETING
 // the actual removal is done in an async. way by a dedicated go routine
 func (obj *ServerInterfaceImpl) DeleteNetResources(c *gin.Context, params nsmmapi.DeleteNetResourcesParams) {
-	var netres ResourceSet
-
 	if params.SliceId == "" {
 		log.Error("Impossible to delete network resources. Error in the request, missing slice-id query param")
 		SetErrorResponse(c, http.StatusBadRequest, ErrMissingQueryParameter)
@@ -221,19 +219,19 @@ func (obj *ServerInterfaceImpl) DeleteNetResources(c *gin.Context, params nsmmap
 	}
 
 	log.Trace("Received request to delete network resources for slice-id: ", params.SliceId)
-	// Read from DB
-	result := obj.DB.First(&netres, "slice_id = ?", params.SliceId)
+	// Read from DB, with associations
+	netres, err := RetrieveResourcesFromDBbySliceID(obj.DB, params.SliceId)
 
-	if result.Error != nil {
-		log.Error("Impossible to delete network resources. Error reading from DB: ", result.Error)
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	if err != nil {
+		log.Error("Impossible to delete network resources. Error reading from DB: ", err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			SetErrorResponse(c, http.StatusNotFound, ErrSliceNotExists)
 			return
 		}
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	obj.deleteNetResources(c, &netres)
+	obj.deleteNetResources(c, netres)
 }
 
 // GetNetResourcesId retrieves the info of a set of network resources by its ID

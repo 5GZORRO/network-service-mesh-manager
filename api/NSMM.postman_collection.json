@@ -9,7 +9,7 @@
 			"name": "net-resources",
 			"item": [
 				{
-					"name": "/net-resources",
+					"name": "/net-resources Copy",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -65,7 +65,38 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"net1\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating1\",\n            \"network-name\": \"extnet1\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim\"\n}",
+							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"net1\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"extnet1\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources (excluded)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"extnet2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim2\",\n    \"exclude-subnet\": \"192.168.161.16/28\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -169,7 +200,7 @@
 			"name": "gateway config",
 			"item": [
 				{
-					"name": "/gateway configuration",
+					"name": "/gateway config",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -193,13 +224,13 @@
 					"response": []
 				},
 				{
-					"name": "/gateway configuration",
+					"name": "/gateway config peer1",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"external-ip\": \"138.15.0.2\",\n    \"subnet-to-expose\": \"192.168.1.14/24\",\n    \"mgmt-ip\": \"172.18.8.13\",\n    \"mgmt-port\": \"8181\",\n    \"pub-key\": \"jhgdeefyujewfdfg\"\n}",
+							"raw": "{\n    \"external-ip\": \"138.15.0.2\",\n    \"subnet-to-expose\": [\n        \"172.23.0.0/24\"\n    ],\n    \"mgmt-ip\": \"172.18.8.13\",\n    \"mgmt-port\": \"8181\",\n    \"private-vpn-range\": \"10.0.0.0/24\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -207,7 +238,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8080/net-resources/5/gateway",
+							"raw": "http://127.0.0.1:8080/net-resources/4/gateway",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -218,7 +249,7 @@
 							"port": "8080",
 							"path": [
 								"net-resources",
-								"5",
+								"4",
 								"gateway"
 							]
 						}
@@ -226,7 +257,40 @@
 					"response": []
 				},
 				{
-					"name": "/gateway configuration",
+					"name": "/gateway config peer2",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"external-ip\": \"138.15.0.2\",\n    \"subnet-to-expose\": [\n        \"172.24.0.0/24\"\n    ],\n    \"mgmt-ip\": \"172.22.0.2\",\n    \"mgmt-port\": \"8081\",\n    \"private-vpn-range\": \"10.0.0.0/24\",\n    \"private-vpn-peer-ip\": \"10.0.0.1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/net-resources/11/gateway",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"net-resources",
+								"11",
+								"gateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway config",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -284,6 +348,15 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"public-key\": \"aaaaaaaaaaaaaaaa\",\n  \"private-key\": \"bbbbbbbbbbbbbbbb\",\n  \"remote-peer-ip\": \"10.30.6.23\",\n  \"remote-peer-port\": \"8080\",\n  \"peer-exposed-subnets\": [\n      \"192.168.2.1/32\",\n      \"192.168.161.32/28\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections",
 							"protocol": "http",
@@ -310,7 +383,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{id}}",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{cid}}",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -324,7 +397,7 @@
 								"{{id}}",
 								"gateway",
 								"connections",
-								"{{id}}"
+								"{{cid}}"
 							]
 						}
 					},
@@ -336,7 +409,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{id}}",
+							"raw": "http://127.0.0.1:8080/net-resources/{{id}}/gateway/connections/{{cid}}",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -350,7 +423,7 @@
 								"{{id}}",
 								"gateway",
 								"connections",
-								"{{id}}"
+								"{{cid}}"
 							]
 						}
 					},

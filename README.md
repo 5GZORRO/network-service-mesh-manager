@@ -23,6 +23,9 @@ Following the basic layout for Go application projects (https://github.com/golan
         └── main.go
     └── test            # Test executables (for VPNaaS or other tests)
         └── test.go
+├── deployment/         # Deployment modes
+    ├── docker/ 
+    └── helm/
 ├── docs/               # Docs/images
 ├── internal/           # Internal packages
     ├── config          # NSMM config package
@@ -31,9 +34,11 @@ Following the basic layout for Go application projects (https://github.com/golan
     ├── openstackdriver # Driver for OpenstackVIM
     ├── stubdriver      # Stub driver for testing purposes
     └── vim             # General interface
+├── kubernetes/         # K8s resources to deploy on K8s cluster
 ├── sbi/                # SBI realized as a Postman Collection (test)
 ├── test/
 ├── config.yaml         # Config file
+├── Dockerfile
 ├── go.mod
 ├── go.sum
 └── README.md
@@ -61,8 +66,10 @@ go run cmd/oapi-codegen/oapi-codegen.go -generate types api/nsmm-api.json > api/
 # Configuration
 The main program (NSMM) loads some configuration parameters from the `config.yaml`, for example, the DB credential and the VIM's info.
 
-# Run
-
+# Run NSMM (standalone exec.)
+The standalone application can be built and executed following the steps below. 
+- Check the parameters in the `config.yaml` if used as config file
+- Postgres DB (`test/db` folder for a test environment with docker-compose )
 ### Dependencies
 - Install Go: https://golang.org/doc/install
 - All the dependencies are listed in the `go.mod`
@@ -73,6 +80,11 @@ Run the code:
 ```
 go run cmd/nsmm/main.go
 ```
+to specify a different config file
+```
+go run cmd/nsmm/main.go -config=<filename>
+```
+
 or creating an executable file:
 ```
 cd /cmd/nsmm
@@ -82,6 +94,48 @@ go build
 
 ### Terminate
 Terminate the program with <CTRL+C> to revoke the token
+
+# Deployment modes
+NSMM can be deployed in 2 different ways:
+1. using Docker with docker-compose
+2. using Helm (and K8s)
+
+## Prepare image:
+Before deployment, build the Docker image for NSMM:
+1. Build the executable file
+```
+go build cmd/nsmm/main.go
+```
+2. Build the Docker image:
+```
+docker build -t nsmm:1.0.0 .
+```
+
+# docker-compose deployment
+The `docker-compose.yaml` in the `deployment/docker` directory, contains a complete environment. Check the variables defined in the `.env` before starting containers.
+
+1. Start docker-compose 
+```
+docker-compose up -d
+```
+2. Terminate with
+```
+docker-compose down
+```
+
+# Helm deployment
+The Helm chart is defined in the `deployment/helm` directory. Before starting the chart, check the values in the `values.yaml` file.
+
+1. To start the chat
+```
+cd deployment/helm
+helm install nsmm nsmm-chart/
+```
+2. Terminate with
+```
+helm uninstall nsmm
+```
+
 
 # SBI
 The SBI, which is OpenStack API used to create needed network resources, are definedin in a Postman Collection:

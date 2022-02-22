@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres
+    image: ${DATABASE_IMAGE_REPO}:${DATABASE_IMAGE_TAG} 
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PWD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    networks:
+      - nsmm_network
+
+  phppgadmin:
+    container_name: phppgadmin
+    image: ${PGADMIN_IMAGE_REPO}:${PGADMIN_IMAGE_TAG}
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_HOST=postgres
+    networks:
+      - nsmm_network
+    ports:
+      - ${PGADMIN_EXPOSEDPORT}:8080
+
+  nsmm:
+    container_name: nsmm
+    image: ${NSMM_IMAGE_REPO}:${NSMM_IMAGE_TAG}
+    depends_on:
+      - postgres
+    networks:
+      - nsmm_network
+    ports:
+      - ${NSMM_EXPOSEDPORT}:8080
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "50m"
+
+networks:
+  nsmm_network:
+    name: nsmm_network
+    driver: bridge

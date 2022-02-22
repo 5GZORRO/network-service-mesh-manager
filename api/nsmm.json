@@ -628,17 +628,12 @@
                 "title": "Root Type for PostConnection",
                 "description": "Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose",
                 "required": [
-                    "pub-key",
                     "remote-peer-ip",
                     "remote-peer-port",
-                    "exposed-subnets"
+                    "peer-exposed-subnets"
                 ],
                 "type": "object",
                 "properties": {
-                    "pub-key": {
-                        "description": "Public key of the remote peer",
-                        "type": "string"
-                    },
                     "remote-peer-ip": {
                         "description": "Public IP of the remote peer VPN ",
                         "type": "string"
@@ -647,19 +642,31 @@
                         "description": "Remote peer VPN port",
                         "type": "string"
                     },
-                    "exposed-subnets": {
+                    "peer-exposed-subnets": {
                         "description": "Subnets exposed by VPN server",
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "private-key": {
+                        "description": "Private key of the local peer",
+                        "type": "string"
+                    },
+                    "public-key": {
+                        "description": "Public key of the local peer",
+                        "type": "string"
                     }
                 },
                 "example": {
-                    "pub-key": "some text",
                     "remote-peer-ip": "some text",
                     "remote-peer-port": "some text",
-                    "exposed-subnet": "some text"
+                    "peer-exposed-subnets": [
+                        "some text",
+                        "some text"
+                    ],
+                    "private-key": "some text",
+                    "public-key": "some text"
                 }
             },
             "Connection": {
@@ -669,25 +676,13 @@
                     "id",
                     "remote-peer-ip",
                     "remote-peer-port",
-                    "subnets-to-expose",
-                    "pub-key"
+                    "peer-exposed-subnets"
                 ],
                 "type": "object",
                 "properties": {
                     "id": {
                         "description": "Unique identifier of the connection-id",
                         "type": "integer"
-                    },
-                    "subnets-to-expose": {
-                        "description": "Subnet to expose",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "pub-key": {
-                        "description": "Public key of the remote peer",
-                        "type": "string"
                     },
                     "remote-peer-ip": {
                         "description": "Public IP of the remote peer VPN ",
@@ -696,17 +691,33 @@
                     "remote-peer-port": {
                         "description": "Remote peer VPN port",
                         "type": "string"
+                    },
+                    "peer-exposed-subnets": {
+                        "description": "Subnets exposed by the peer",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "public-key": {
+                        "description": "Local Public Key of the peer",
+                        "type": "string"
+                    },
+                    "private-key": {
+                        "description": "Local private Key of the peer",
+                        "type": "string"
                     }
                 },
                 "example": {
-                    "id": 37,
-                    "subnets-to-expose": [
+                    "id": 24,
+                    "remote-peer-ip": "some text",
+                    "remote-peer-port": "some text",
+                    "peer-exposed-subnets": [
                         "some text",
                         "some text"
                     ],
-                    "pub-key": "some text",
-                    "remote-peer-ip": "some text",
-                    "remote-peer-port": "some text"
+                    "public-key": "some text",
+                    "private-key": "some text"
                 }
             },
             "PostSliceResources": {
@@ -866,7 +877,6 @@
                     "external-ip",
                     "mgmt-ip",
                     "mgmt-port",
-                    "pub-key",
                     "subnet-to-expose",
                     "private-vpn-range"
                 ],
@@ -893,18 +903,13 @@
                         "type": "string",
                         "example": "2111"
                     },
-                    "pub-key": {
-                        "description": "Public key of the server",
-                        "type": "string",
-                        "example": "vOSSIowa3KWF5j/YOrKrbr9yEmbmpeaP4jYppL+ybCA="
-                    },
                     "private-vpn-range": {
                         "description": "Private VPN subnet",
                         "type": "string",
                         "example": "10.0.0.0/24"
                     },
                     "private-vpn-peer-ip": {
-                        "description": "Private VPN Ip of the peer on the private VPN subnet",
+                        "description": "Private VPN IP of the peer on the private VPN subnet. \nIf not specified, the first IP of the private-vpn-range is selected as the private VPN IP",
                         "type": "string",
                         "example": "10.0.0.2"
                     }
@@ -917,7 +922,6 @@
                     ],
                     "mgmt-ip": "some text",
                     "mgmt-port": "some text",
-                    "pub-key": "some text",
                     "private-vpn-range": "some text",
                     "private-vpn-peer-ip": "some text"
                 }
@@ -926,7 +930,6 @@
                 "title": "Root Type for Gateway",
                 "description": "Actual gateway configuration of a VPN server gateway",
                 "required": [
-                    "pub-key",
                     "subnet-to-expose",
                     "external-ip",
                     "mgmt-ip",
@@ -956,10 +959,6 @@
                         "description": "Gateway VM management port",
                         "type": "string"
                     },
-                    "pub-key": {
-                        "description": "Public key of the server",
-                        "type": "string"
-                    },
                     "private-vpn-range": {
                         "description": "Private VPN subnet",
                         "type": "string",
@@ -979,7 +978,6 @@
                     ],
                     "mgmt-ip": "some text",
                     "mgmt-port": "some text",
-                    "pub-key": "some text",
                     "private-vpn-range": "some text",
                     "private-vpn-ip": "some text"
                 }

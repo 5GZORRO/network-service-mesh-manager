@@ -1,0 +1,724 @@
+{
+	"info": {
+		"_postman_id": "eeffd1d3-65fc-471c-8ce4-1f47b1bc84a6",
+		"name": "NSMM [Test integ.]",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "VPNaaS requests",
+			"item": [
+				{
+					"name": "Launch  peer1",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ip_range\":\"192.168.1.1/24\",\n    \"net_interface\":\"ens5\",\n    \"port\":\"8080\",\n    \"environment\": \"local\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.30.8.91:8080/launch",
+							"protocol": "http",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"91"
+							],
+							"port": "8080",
+							"path": [
+								"launch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Launch  peer2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ip_range\":\"192.168.2.1/24\",\n    \"net_interface\":\"ens5\",\n    \"port\":\"8080\",\n    \"environment\": \"local\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.30.8.72:8080/launch",
+							"protocol": "http",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"72"
+							],
+							"port": "8080",
+							"path": [
+								"launch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "peer1 VPN conn. to peer2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ip_address_server\":\"10.30.6.23\",\n    \"port_server\":\"8080\",\n    \"IP_range_to_redirect\":\"192.168.2.1/32, 192.168.161.32/28\",\n    \"destination_IP_range_to_redirect\":\"192.168.161.0/28\",\n    \"environment\": \"local\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.30.8.91:8080/connect_to_VPN",
+							"protocol": "http",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"91"
+							],
+							"port": "8080",
+							"path": [
+								"connect_to_VPN"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get curr. config peer1",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ip_address_server\":\"192.168.160.9\",\n    \"port_server\":\"8080\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.30.8.84:8080//get_configuration",
+							"protocol": "http",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"84"
+							],
+							"port": "8080",
+							"path": [
+								"",
+								"get_configuration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get curr. config peer1 Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ip_address_server\":\"192.168.160.9\",\n    \"port_server\":\"8080\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.30.8.84:8080//get_configuration",
+							"protocol": "http",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"84"
+							],
+							"port": "8080",
+							"path": [
+								"",
+								"get_configuration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove connection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ip_address_server\":\"192.168.160.9\",\n    \"port_server\":\"8080\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.30.8.84:8080/disconnect_to_VPN",
+							"protocol": "http",
+							"host": [
+								"10",
+								"30",
+								"8",
+								"84"
+							],
+							"port": "8080",
+							"path": [
+								"disconnect_to_VPN"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "tests",
+			"item": [
+				{
+					"name": "test with osm",
+					"item": [
+						{
+							"name": "/net-resources NS 1 [A]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources NS2 [B]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim1\",\n    \"exclude-subnet\": \"192.168.161.16/28\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources [A]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources [B]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 [A]",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"external-ip\": \"10.30.6.6\",\n    \"subnet-to-expose\": [\n        \"192.168.161.0/28\"\n    ],\n    \"mgmt-ip\": \"10.30.8.91\",\n    \"mgmt-port\": \"8080\",\n    \"private-vpn-range\": \"192.168.1.1/24\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/3/gateway",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"3",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS2 [B]",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"external-ip\": \"10.30.6.23\",\n    \"subnet-to-expose\": [\n        \"192.168.161.32/28\"\n    ],\n    \"mgmt-ip\": \"10.30.8.72\",\n    \"mgmt-port\": \"8080\",\n    \"private-vpn-range\": \"192.168.2.1/24\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/4/gateway",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"4",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config [A]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/3/gateway",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"3",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections [A]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"public-key\": \"aaaaaaaaaaaaaaaa\",\n  \"private-key\": \"bbbbbbbbbbbbbbbb\",\n  \"remote-peer-ip\": \"10.30.6.23\",\n  \"remote-peer-port\": \"8080\",\n  \"peer-exposed-subnets\": [\n      \"192.168.2.1/32\",\n      \"192.168.161.32/28\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/3/gateway/connections",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"3",
+										"gateway",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections [A]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/3/gateway/connections",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"3",
+										"gateway",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections/{{id}} [A]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/1/gateway/connections/1",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"1",
+										"gateway",
+										"connections",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 [A]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/3/gateway",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"3",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS2 [B]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/4/gateway",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"4",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources/ NS1 [A]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/1",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources/ NS2 [B]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/2",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"2"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "stubdriver",
+					"item": [
+						{
+							"name": "/net-resources NS 1 [A] Copy",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim2\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources Test",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 Test",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"external-ip\": \"10.30.6.6\",\n    \"subnet-to-expose\": [\n        \"192.168.161.0/28\"\n    ],\n    \"mgmt-ip\": \"10.30.8.91\",\n    \"mgmt-port\": \"8080\",\n    \"pub-key\": \"aaaaaaaaaaaaaaaaaaaaaa\",\n    \"private-vpn-range\": \"192.168.1.1/24\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/2/gateway",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"2",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources/ NS1 Test",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/2",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 Test",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/3/gateway",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"3",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "cid",
+			"value": "1"
+		},
+		{
+			"key": "NSMM_DOMAIN_A_IP",
+			"value": "127.0.0.1",
+			"type": "string"
+		},
+		{
+			"key": "NSMM_DOMAIN_B_IP",
+			"value": "127.0.0.1",
+			"type": "string"
+		},
+		{
+			"key": "NSMM_DOMAIN_A_PORT",
+			"value": "8080",
+			"type": "string"
+		},
+		{
+			"key": "NSMM_DOMAIN_B_PORT",
+			"value": "8080",
+			"type": "string"
+		}
+	]
+}

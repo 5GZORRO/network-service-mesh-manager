@@ -8,17 +8,20 @@ type Connection struct {
 	// Unique identifier of the connection-id
 	Id int `json:"id"`
 
-	// Public key of the remote peer
-	PubKey string `json:"pub-key"`
+	// Subnets exposed by the peer
+	PeerExposedSubnets []string `json:"peer-exposed-subnets"`
+
+	// Local private Key of the peer
+	PrivateKey *string `json:"private-key,omitempty"`
+
+	// Local Public Key of the peer
+	PublicKey *string `json:"public-key,omitempty"`
 
 	// Public IP of the remote peer VPN
 	RemotePeerIp string `json:"remote-peer-ip"`
 
 	// Remote peer VPN port
 	RemotePeerPort string `json:"remote-peer-port"`
-
-	// Subnet to expose
-	SubnetsToExpose []string `json:"subnets-to-expose"`
 }
 
 // ErrorResponse defines model for ErrorResponse.
@@ -43,9 +46,6 @@ type Gateway struct {
 	// Private VPN subnet
 	PrivateVpnRange string `json:"private-vpn-range"`
 
-	// Public key of the server
-	PubKey string `json:"pub-key"`
-
 	// Subnet to expose
 	SubnetToExpose []string `json:"subnet-to-expose"`
 }
@@ -62,10 +62,13 @@ type Network struct {
 // Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose
 type PostConnection struct {
 	// Subnets exposed by VPN server
-	ExposedSubnets []string `json:"exposed-subnets"`
+	PeerExposedSubnets []string `json:"peer-exposed-subnets"`
 
-	// Public key of the remote peer
-	PubKey string `json:"pub-key"`
+	// Private key of the local peer
+	PrivateKey *string `json:"private-key,omitempty"`
+
+	// Public key of the local peer
+	PublicKey *string `json:"public-key,omitempty"`
 
 	// Public IP of the remote peer VPN
 	RemotePeerIp string `json:"remote-peer-ip"`
@@ -85,14 +88,12 @@ type PostGateway struct {
 	// Gateway VM management port
 	MgmtPort string `json:"mgmt-port"`
 
-	// Private VPN Ip of the peer on the private VPN subnet
+	// Private VPN IP of the peer on the private VPN subnet.
+	// If not specified, the first IP of the private-vpn-range is selected as the private VPN IP
 	PrivateVpnPeerIp *string `json:"private-vpn-peer-ip,omitempty"`
 
 	// Private VPN subnet
 	PrivateVpnRange string `json:"private-vpn-range"`
-
-	// Public key of the server
-	PubKey string `json:"pub-key"`
 
 	// Subnet to expose
 	SubnetToExpose []string `json:"subnet-to-expose"`

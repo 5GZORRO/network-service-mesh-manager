@@ -54,6 +54,9 @@ It exposes API to:
 
 The API is defined in `api/nsmm.json`. Examples of the NBI are in the Postman collection `api/NSMM.postman_collection.json`
 
+## NSMM API
+The NorthBound Interface of NSMM is described [here](https://5gzorro.github.io/network-service-mesh-manager/ "NSMM API")
+
 
 ## Generate go server NBI from JSON API
 NBI of the GIN server is generated using [oapi-codegen](https://github.com/deepmap/oapi-codegen), using the following commands:

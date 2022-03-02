@@ -4,7 +4,7 @@
 installation:
   mode: test
   db: 
-    persistent: true
+    persistent: false
 
 pgadmin:                  # PgAdmin, deployed only in test installation
   image:
@@ -31,9 +31,9 @@ nsmm:
   log:
     level: Trace
   image:
-    repo: 10.30.8.46:5000/nsmm/nsmm
-    tag: 1.0.0
-    privateregistry: true
+    repo: ghcr.io/5gzorro/network-service-mesh-manager/nsmm
+    tag: latest
+    privateregistry: false
   service:
     port: 8080            # Port exposed internally, to other services in the cluster
     exposedport: 30001    # Port exposed to the outside world, with the NodePort

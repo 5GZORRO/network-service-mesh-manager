@@ -23,4 +23,6 @@ var (
 	ErrMissingVimDomain = errors.New("missing DomainID in config file for vim")
 	//
 	ErrWrongVimType = errors.New("vim type not found")
+	//
+	ErrNoFloatingDefined = errors.New("missing Floating Network for vim")
 )

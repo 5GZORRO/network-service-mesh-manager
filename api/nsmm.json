@@ -876,7 +876,6 @@
                 "required": [
                     "external-ip",
                     "mgmt-ip",
-                    "mgmt-port",
                     "subnet-to-expose",
                     "private-vpn-range"
                 ],
@@ -898,11 +897,6 @@
                         "description": "Gateway VM management IP",
                         "type": "string"
                     },
-                    "mgmt-port": {
-                        "description": "Gateway VM management port",
-                        "type": "string",
-                        "example": "2111"
-                    },
                     "private-vpn-range": {
                         "description": "Private VPN subnet",
                         "type": "string",
@@ -921,7 +915,6 @@
                         "some text"
                     ],
                     "mgmt-ip": "some text",
-                    "mgmt-port": "some text",
                     "private-vpn-range": "some text",
                     "private-vpn-peer-ip": "some text"
                 }
@@ -986,22 +979,16 @@
                 "title": "Root Type for Sap",
                 "description": "",
                 "required": [
-                    "floating-network-name",
                     "network-name"
                 ],
                 "type": "object",
                 "properties": {
-                    "floating-network-name": {
-                        "description": "Network name of the floating network, specified in the SAP information of the NSD",
-                        "type": "string"
-                    },
                     "network-name": {
                         "description": "Network name specified in the NSD",
                         "type": "string"
                     }
                 },
                 "example": {
-                    "floating-network-name": "some text",
                     "network-name": "some text"
                 }
             },
@@ -1069,7 +1056,8 @@
                 },
                 "example": {
                     "floating-network-name": "some text",
-                    "network-name": "some text"
+                    "network-name": "some text",
+                    "subnet-cidr": "some text"
                 }
             }
         }

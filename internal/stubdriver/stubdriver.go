@@ -6,20 +6,28 @@ import (
 
 // VIM Driver for OpenStack, it implements VimDriver
 type StubDriver struct {
-	Username string
-	Password string
+	Username            string
+	Password            string
+	FloatingNetworkName string
 }
 
-func NewStubDriver(username string, password string) *StubDriver {
+func NewStubDriver(username string, password string, floatingnet string) *StubDriver {
 	return &StubDriver{
-		Username: username,
-		Password: password,
+		Username:            username,
+		Password:            password,
+		FloatingNetworkName: floatingnet,
 	}
 }
 
 // Authenticate function
 func (client *StubDriver) Authenticate() {
 	log.Info("Authenticating to Stub...")
+}
+
+// RetrieveFloatingNetworkName function
+func (client *StubDriver) RetrieveFloatingNetworkName() string {
+	log.Info("Retrieve FloatingNetworkName for Stub...")
+	return client.FloatingNetworkName
 }
 
 // Revoke token
@@ -49,7 +57,7 @@ func (obj *StubDriver) CreateSAP(floatingNetName string, networkName string, cid
 	routerName := "routername"
 	portID := "porttest"
 	// floatingID := "floatingID"
-	log.Info("Creating SAP with network name ", networkName, " on Stub... network + router + interface to floating")
+	log.Info("Creating SAP with network name ", networkName, " on Stub... network + router + interface to floating ", floatingNetName)
 	return networkID, subnetID, subnetName, routerID, routerName, portID, nil
 }
 

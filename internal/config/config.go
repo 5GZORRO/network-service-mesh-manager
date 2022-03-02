@@ -16,6 +16,7 @@ type Configurations struct {
 	Database DatabaseConfigurations
 	Networks NetworkConfigurations
 	Vim      []VimConfigurations
+	Vpnaas   VpnaasConfigurations
 }
 
 // ServerConfigurations exported
@@ -46,6 +47,12 @@ type VimConfigurations struct {
 	Password         string
 	TenantID         string
 	DomainID         string
+	FloatingNetwork  string
+}
+
+// VpnaasConfigurations exported
+type VpnaasConfigurations struct {
+	VpnaasPort int
 }
 
 func LogLevel(c *Configurations) (log.Level, error) {
@@ -89,6 +96,7 @@ func ReadConfigFile(configFileName string) *Configurations {
 	// Set default values
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("networks.start", "192.168.161.0/28")
+	viper.SetDefault("vpnaas.port", 8181)
 
 	// Read and initialize
 	if err := viper.ReadInConfig(); err != nil {
@@ -124,6 +132,9 @@ func CheckVimParams(vimConfig VimConfigurations) error {
 	}
 	if vimConfig.Username == "" {
 		return ErrMissingVimUsername
+	}
+	if vimConfig.FloatingNetwork == "" {
+		return ErrNoFloatingDefined
 	}
 	return nil
 }

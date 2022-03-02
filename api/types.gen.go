@@ -85,9 +85,6 @@ type PostGateway struct {
 	// Gateway VM management IP
 	MgmtIp string `json:"mgmt-ip"`
 
-	// Gateway VM management port
-	MgmtPort string `json:"mgmt-port"`
-
 	// Private VPN IP of the peer on the private VPN subnet.
 	// If not specified, the first IP of the private-vpn-range is selected as the private VPN IP
 	PrivateVpnPeerIp *string `json:"private-vpn-peer-ip,omitempty"`
@@ -107,9 +104,6 @@ type PostNetwork struct {
 
 // PostSap defines model for PostSap.
 type PostSap struct {
-	// Network name of the floating network, specified in the SAP information of the NSD
-	FloatingNetworkName string `json:"floating-network-name"`
-
 	// Network name specified in the NSD
 	NetworkName string `json:"network-name"`
 }

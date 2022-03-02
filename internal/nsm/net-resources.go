@@ -164,7 +164,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 		ipnet := netmng.NextSubnet()
 		if ipnet != nil {
 			cidr := ipnet.String()
-			netID, subID, subName, routerID, routerName, portID, err := (*vim).CreateSAP(sap.FloatingNetworkName, sap.NetworkName, cidr)
+			netID, subID, subName, routerID, routerName, portID, err := (*vim).CreateSAP((*vim).RetrieveFloatingNetworkName(), sap.NetworkName, cidr)
 			ap := Sap{
 				ResourceSetId:   resset.ID,
 				NetworkId:       netID,
@@ -175,7 +175,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 				RouterId:        routerID,
 				RouterName:      routerName,
 				RouterPortId:    portID,
-				FloatingNetName: sap.FloatingNetworkName,
+				FloatingNetName: (*vim).RetrieveFloatingNetworkName(),
 			}
 			resset.Saps = append(resset.Saps, ap)
 			if err != nil {

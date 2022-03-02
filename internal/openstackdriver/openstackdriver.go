@@ -10,11 +10,12 @@ import (
 // VIM Driver for OpenStack, it implements VimDriver
 type OpenStackDriver struct {
 	// Global params
-	IdentityEndpoint string
-	Username         string
-	Password         string
-	TenantID         string
-	DomainID         string
+	IdentityEndpoint    string
+	Username            string
+	Password            string
+	TenantID            string
+	DomainID            string
+	FloatingNetworkName string
 	// openstack
 	provider       *gophercloud.ProviderClient
 	identityClient *gophercloud.ServiceClient
@@ -22,14 +23,21 @@ type OpenStackDriver struct {
 	computeClient  *gophercloud.ServiceClient
 }
 
-func NewOpenStackDriver(identityEndpoint string, username string, password string, tenantID string, domainID string) *OpenStackDriver {
+func NewOpenStackDriver(identityEndpoint string, username string, password string, tenantID string, domainID string, floatNetName string) *OpenStackDriver {
 	return &OpenStackDriver{
-		IdentityEndpoint: identityEndpoint,
-		Username:         username,
-		Password:         password,
-		TenantID:         tenantID,
-		DomainID:         domainID,
+		IdentityEndpoint:    identityEndpoint,
+		Username:            username,
+		Password:            password,
+		TenantID:            tenantID,
+		DomainID:            domainID,
+		FloatingNetworkName: floatNetName,
 	}
+}
+
+// RetrieveFloatingNetworkName function
+func (client *OpenStackDriver) RetrieveFloatingNetworkName() string {
+	log.Info("Retrieve FloatingNetworkName for OpenStack...")
+	return client.FloatingNetworkName
 }
 
 // Authenticate function towards OpenStack, it has to be executed before all the other methods

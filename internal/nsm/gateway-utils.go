@@ -8,12 +8,8 @@ import (
 )
 
 func checkGatewayConfigurationParams(input nsmmapi.PostGateway) error {
-	_, err := parsePort(input.MgmtPort)
-	if err != nil {
-		return ErrGatewayConfigMgmtPort
-	}
 	for _, sub := range input.SubnetToExpose {
-		if _, _, err = net.ParseCIDR(sub); err != nil {
+		if _, _, err := net.ParseCIDR(sub); err != nil {
 			return ErrGatewayConfigSubnet
 		}
 	}

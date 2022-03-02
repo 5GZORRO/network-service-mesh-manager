@@ -61,9 +61,9 @@ The NorthBound Interface of NSMM is described [here](https://5gzorro.github.io/n
 ## Generate go server NBI from JSON API
 NBI of the GIN server is generated using [oapi-codegen](https://github.com/deepmap/oapi-codegen), using the following commands:
 ```
-go run cmd/oapi-codegen/oapi-codegen.go -generate spec api/nsmm-api.json > api/spec.go
-go run cmd/oapi-codegen/oapi-codegen.go -generate gin api/nsmm-api.json > api/server.go
-go run cmd/oapi-codegen/oapi-codegen.go -generate types api/nsmm-api.json > api/types.go
+go run cmd/oapi-codegen/oapi-codegen.go -generate spec api/nsmm.json > api/spec.gen.go
+go run cmd/oapi-codegen/oapi-codegen.go -generate gin api/nsmm.json > api/gin-server.gen.go
+go run cmd/oapi-codegen/oapi-codegen.go -generate types api/nsmm.json > api/types.gen.go
 ```
 
 # Configuration

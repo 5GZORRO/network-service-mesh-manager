@@ -23,5 +23,7 @@ type VimDriver interface {
 	DeleteSAP(networkID string, subnetID string, routerID string, portID string) error
 	//
 	RetrieveNetwork(id string)
+	// Function to return the FloatingNetworkName, set at init in the VimDriver object
+	RetrieveFloatingNetworkName() string
 	Revoke()
 }

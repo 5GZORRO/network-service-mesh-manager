@@ -115,7 +115,7 @@ func main() {
 	}()
 
 	// Create an instance of our server handler object, containing shared info (DB, driver)
-	sii := nsm.NewServerInterfaceImpl(db, drivers, &configuration.Networks)
+	sii := nsm.NewServerInterfaceImpl(db, drivers, &configuration.Networks, &configuration.Vpnaas)
 	s := NewGinServer(sii, configuration.Server.Port)
 
 	log.Fatal(s.ListenAndServe())

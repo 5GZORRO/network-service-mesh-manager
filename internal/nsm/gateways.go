@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
+	"strconv"
 
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/gin-gonic/gin"
@@ -73,7 +74,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 
 	resource.Gateway.ExternalIp = jsonBody.ExternalIp
 	resource.Gateway.MgmtIp = jsonBody.MgmtIp
-	resource.Gateway.MgmtPort, _ = parsePort(jsonBody.MgmtPort)
+	resource.Gateway.MgmtPort, _ = parsePort(strconv.Itoa(int(obj.VpnaasConfig.VpnaasPort)))
 	resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
 
 	// ranges and private ips

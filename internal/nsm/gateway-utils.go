@@ -14,12 +14,8 @@ func checkGatewayConfigurationParams(input nsmmapi.PostGateway) error {
 		}
 	}
 	mngmIp := net.ParseIP(input.MgmtIp)
-	externalIP := net.ParseIP(input.ExternalIp)
 	if mngmIp == nil {
 		return ErrGatewayConfigMgmtIp
-	}
-	if externalIP == nil {
-		return ErrGatewayConfigExternalIp
 	}
 	_, privateVpnNet, err := net.ParseCIDR(input.PrivateVpnRange)
 	if err != nil {

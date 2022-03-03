@@ -16,6 +16,7 @@ type OpenStackDriver struct {
 	TenantID            string
 	DomainID            string
 	FloatingNetworkName string
+	FloatingNetworkID   string
 	// openstack
 	provider       *gophercloud.ProviderClient
 	identityClient *gophercloud.ServiceClient
@@ -23,15 +24,23 @@ type OpenStackDriver struct {
 	computeClient  *gophercloud.ServiceClient
 }
 
-func NewOpenStackDriver(identityEndpoint string, username string, password string, tenantID string, domainID string, floatNetName string) *OpenStackDriver {
+func NewOpenStackDriver(identityEndpoint string, username string, password string, tenantID string, domainID string,
+	floatinNetID string, floatNetName string) *OpenStackDriver {
 	return &OpenStackDriver{
 		IdentityEndpoint:    identityEndpoint,
 		Username:            username,
 		Password:            password,
 		TenantID:            tenantID,
 		DomainID:            domainID,
+		FloatingNetworkID:   floatinNetID,
 		FloatingNetworkName: floatNetName,
 	}
+}
+
+// RetrieveFloatingNetworkID function
+func (client *OpenStackDriver) RetrieveFloatingNetworkID() string {
+	log.Info("Retrieve FloatingNetworkID for OpenStack...")
+	return client.FloatingNetworkID
 }
 
 // RetrieveFloatingNetworkName function

@@ -9,12 +9,14 @@ type StubDriver struct {
 	Username            string
 	Password            string
 	FloatingNetworkName string
+	FloatingNetworkID   string
 }
 
-func NewStubDriver(username string, password string, floatingnet string) *StubDriver {
+func NewStubDriver(username string, password string, floatingID string, floatingnet string) *StubDriver {
 	return &StubDriver{
 		Username:            username,
 		Password:            password,
+		FloatingNetworkID:   floatingID,
 		FloatingNetworkName: floatingnet,
 	}
 }
@@ -22,6 +24,22 @@ func NewStubDriver(username string, password string, floatingnet string) *StubDr
 // Authenticate function
 func (client *StubDriver) Authenticate() {
 	log.Info("Authenticating to Stub...")
+}
+
+func (client *StubDriver) AllocateFloatingIP(networkname string) (string, string, string, string, error) {
+	log.Info("Allocating FIP using Stub...")
+	return "portID", "ens5", "fipID", "10.30.6.6", nil
+}
+
+func (client *StubDriver) DeallocateFloatingIP(portID string, fipID string) error {
+	log.Info("Deallocating FIP using Stub...")
+	return nil
+}
+
+// RetrieveFloatingNetworkID function
+func (client *StubDriver) RetrieveFloatingNetworkID() string {
+	log.Info("Retrieve FloatingNetworkID for Stub...")
+	return client.FloatingNetworkID
 }
 
 // RetrieveFloatingNetworkName function

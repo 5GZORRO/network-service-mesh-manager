@@ -11,6 +11,10 @@ const (
 
 type VimDriver interface {
 	Authenticate()
+	// AllocateFloatingIP allocates a floatingIp identified to a (compute) port found on the SAP network, selected using the prefix network
+	// it returns the portID, the interface name associated, the floatingID, the floating ip-address
+	AllocateFloatingIP(networkid string) (string, string, string, string, error)
+	DeallocateFloatingIP(portID string, fipID string) error
 	// CreateNetwork() creates a network with a subnet
 	// It returns:
 	// networkID, subnetID, subnetName
@@ -25,5 +29,6 @@ type VimDriver interface {
 	RetrieveNetwork(id string)
 	// Function to return the FloatingNetworkName, set at init in the VimDriver object
 	RetrieveFloatingNetworkName() string
+	RetrieveFloatingNetworkID() string
 	Revoke()
 }

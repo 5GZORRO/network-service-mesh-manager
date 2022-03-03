@@ -79,9 +79,6 @@ type PostConnection struct {
 
 // Configuration of a gateway
 type PostGateway struct {
-	// External IP of the gateway
-	ExternalIp string `json:"external-ip"`
-
 	// Gateway VM management IP
 	MgmtIp string `json:"mgmt-ip"`
 

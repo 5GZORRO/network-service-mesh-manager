@@ -22,6 +22,9 @@ type Gateway struct {
 	PrivateVpnIp    string
 	ExternalIp      string
 	ExposedNets     string
+	PortID          string
+	PortName        string
+	FloatingID      string
 }
 
 type Network struct {
@@ -45,6 +48,7 @@ type Sap struct {
 	RouterId        string
 	RouterName      string
 	RouterPortId    string
+	FloatingNetID   string
 	FloatingNetName string
 }
 

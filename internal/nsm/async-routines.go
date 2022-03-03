@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"net"
 	gatewayconfig "nextworks/nsm/internal/gateway-config"
-	"nextworks/nsm/internal/vim"
+	vimdriver "nextworks/nsm/internal/vim"
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 // deleteResources is a goroutine to delete in an async way all the network resources
-func deleteResources(database *gorm.DB, vim *vim.VimDriver, res *ResourceSet) {
+func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceSet) {
 	// time.Sleep(time.Second * 5)
 
 	log.Trace("Async routine to delete resources stared")
@@ -74,8 +74,20 @@ func configureGateway(database *gorm.DB, res *ResourceSet) {
 
 // TODO resetGateway is a goroutine to configure the VM gateway, using
 // an HTTP client
-func resetGateway(database *gorm.DB, res *ResourceSet) {
+func resetGateway(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceSet) {
 	log.Trace("Async routine to reset gateway stared")
+
+	// deallocate FIP, if it exists
+	if res.Gateway.FloatingID != "" {
+		log.Trace("Deallocating and deleting floatingIP ")
+		err := (*vim).DeallocateFloatingIP(res.Gateway.PortID, res.Gateway.FloatingID)
+		if err != nil {
+			log.Error("Error deallocating/deleting floating IP with ID: ", res.Gateway.FloatingID)
+		}
+	} else {
+		log.Trace("No floatingIP to be deallocated/deleted")
+	}
+
 	// update the state of the gateway to WAIT_FOR
 	res.Status = WAIT_FOR_GATEWAY_CONFIG
 	res.Gateway = Gateway{}

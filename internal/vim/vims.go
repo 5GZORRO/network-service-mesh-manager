@@ -17,9 +17,13 @@ func (vims *VimDriverList) Exists(name string) bool {
 	return vims.VimList[name] != nil
 }
 
-func (vims *VimDriverList) GetVim(name string) *VimDriver {
-	vim := vims.VimList[name]
-	return &vim
+func (vims *VimDriverList) GetVim(name string) (*VimDriver, error) {
+	vim, ok := vims.VimList[name]
+	if ok {
+		return &vim, nil
+	} else {
+		return nil, ErrVimNotFound
+	}
 }
 
 func (vims *VimDriverList) addVim(name string, vim VimDriver) {
@@ -51,12 +55,12 @@ func InizializeVims(db *gorm.DB, vimConfigs []config.VimConfigurations) *VimDriv
 			// log.Info("Type: ", configVim.Type)
 			switch configVim.Type {
 			case string(Openstack):
-				openstackclient := osdriver.NewOpenStackDriver(configVim.IdentityEndpoint, configVim.Username, configVim.Password, configVim.TenantID, configVim.DomainID, configVim.FloatingNetwork)
+				openstackclient := osdriver.NewOpenStackDriver(configVim.IdentityEndpoint, configVim.Username, configVim.Password, configVim.TenantID, configVim.DomainID, configVim.FloatingNetworkID, configVim.FloatingNetworkName)
 				log.Trace("Loaded vim: ", openstackclient)
 				openstackclient.Authenticate()
 				vimList.addVim(configVim.Name, openstackclient)
 			case string(None):
-				client := stubdriver.NewStubDriver(configVim.Username, configVim.Password, configVim.FloatingNetwork)
+				client := stubdriver.NewStubDriver(configVim.Username, configVim.Password, configVim.FloatingNetworkID, configVim.FloatingNetworkName)
 				log.Info("Loaded a StubDriver for testing purpose")
 				vimList.addVim(configVim.Name, client)
 			case string(Kubernetes):

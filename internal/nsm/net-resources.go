@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
-	"nextworks/nsm/internal/vim"
+	vimdriver "nextworks/nsm/internal/vim"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -75,10 +75,12 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 		}
 	}
 
-	// Check if a Vim with this name exists
-	if !obj.Vims.Exists(jsonBody.VimName) {
+	// Check if a Vim with this name exists, and retrieve it
+	// retrieve VIM
+	vim, err := obj.Vims.GetVim(jsonBody.VimName)
+	if err != nil {
 		log.Error("Impossible to create network resources. Vim with name: ", jsonBody.VimName, " does not exist")
-		SetErrorResponse(c, http.StatusForbidden, vim.ErrVimNotFound)
+		SetErrorResponse(c, http.StatusForbidden, vimdriver.ErrVimNotFound)
 		return
 	}
 
@@ -111,9 +113,6 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 		return
 	}
 	log.Trace("PostNetResources saved resources set: ", *resset)
-
-	// retrieve VIM
-	vim := obj.Vims.GetVim(jsonBody.VimName)
 
 	// management of allocated networks
 	var netmng *Network_manager
@@ -175,6 +174,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 				RouterId:        routerID,
 				RouterName:      routerName,
 				RouterPortId:    portID,
+				FloatingNetID:   (*vim).RetrieveFloatingNetworkID(),
 				FloatingNetName: (*vim).RetrieveFloatingNetworkName(),
 			}
 			resset.Saps = append(resset.Saps, ap)
@@ -279,10 +279,10 @@ func (obj *ServerInterfaceImpl) deleteNetResources(c *gin.Context, netres *Resou
 	}
 
 	// Check/Retrieve VIM
-	vim := obj.Vims.GetVim(netres.VimName)
-	if *vim == nil {
-		log.Error("Network resources cannot be canceled: vim ", netres.VimName, " does not exist")
-		SetErrorResponse(c, http.StatusInternalServerError, ErrVimNotExists)
+	vim, err := obj.Vims.GetVim(netres.VimName)
+	if err != nil {
+		log.Error("Impossible to create network resources. Vim with name: ", netres.VimName, " does not exist")
+		SetErrorResponse(c, http.StatusForbidden, vimdriver.ErrVimNotFound)
 		return
 	}
 

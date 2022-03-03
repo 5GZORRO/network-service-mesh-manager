@@ -874,17 +874,12 @@
                 "title": "Root Type for Gateway",
                 "description": "Configuration of a gateway ",
                 "required": [
-                    "external-ip",
                     "mgmt-ip",
                     "subnet-to-expose",
                     "private-vpn-range"
                 ],
                 "type": "object",
                 "properties": {
-                    "external-ip": {
-                        "description": "External IP of the gateway",
-                        "type": "string"
-                    },
                     "subnet-to-expose": {
                         "description": "Subnet to expose",
                         "type": "array",

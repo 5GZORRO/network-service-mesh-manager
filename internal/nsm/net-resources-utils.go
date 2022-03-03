@@ -106,6 +106,20 @@ func LoadNetworkAssociationFromDB(database *gorm.DB, netres *ResourceSet) error 
 	return nil
 }
 
+// LoadSAPsFromDB load from DB associations of a resource set
+// only for SAP
+func LoadSAPsFromDB(database *gorm.DB, netres *ResourceSet) error {
+	var saps []Sap
+	b := database.Model(&netres).Association("Saps")
+	result := b.Find(&saps)
+	if result != nil {
+		return result
+	}
+
+	netres.Saps = saps
+	return nil
+}
+
 // RetrieveResourcesFromDB load from DB a ResourceSet by its ID and all the associations
 // networks and sap
 func RetrieveResourcesFromDB(database *gorm.DB, id int) (*ResourceSet, error) {

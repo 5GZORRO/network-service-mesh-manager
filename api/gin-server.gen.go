@@ -49,6 +49,12 @@ type ServerInterface interface {
 	// Retrieval of the information of a VPN connection
 	// (GET /net-resources/{id}/gateway/connections/{cid})
 	GetNetResourcesIdGatewayConnectionsCid(c *gin.Context, id int, cid int)
+	// Delete of Floating IP (external) of the GW
+	// (DELETE /net-resources/{id}/gateway/external-ip)
+	DeleteNetResourcesIdGatewayExternalIp(c *gin.Context, id int)
+	// Request to allocate and associate a Floating IP (external) for the GW
+	// (PUT /net-resources/{id}/gateway/external-ip)
+	PutNetResourcesIdGatewayExternalIp(c *gin.Context, id int)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -331,6 +337,48 @@ func (siw *ServerInterfaceWrapper) GetNetResourcesIdGatewayConnectionsCid(c *gin
 	siw.Handler.GetNetResourcesIdGatewayConnectionsCid(c, id, cid)
 }
 
+// DeleteNetResourcesIdGatewayExternalIp operation middleware
+func (siw *ServerInterfaceWrapper) DeleteNetResourcesIdGatewayExternalIp(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id int
+
+	err = runtime.BindStyledParameter("simple", false, "id", c.Param("id"), &id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf("Invalid format for parameter id: %s", err)})
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+	}
+
+	siw.Handler.DeleteNetResourcesIdGatewayExternalIp(c, id)
+}
+
+// PutNetResourcesIdGatewayExternalIp operation middleware
+func (siw *ServerInterfaceWrapper) PutNetResourcesIdGatewayExternalIp(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id int
+
+	err = runtime.BindStyledParameter("simple", false, "id", c.Param("id"), &id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf("Invalid format for parameter id: %s", err)})
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+	}
+
+	siw.Handler.PutNetResourcesIdGatewayExternalIp(c, id)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL     string
@@ -372,6 +420,10 @@ func RegisterHandlersWithOptions(router *gin.Engine, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/net-resources/:id/gateway/connections/:cid", wrapper.DeleteNetResourcesIdGatewayConnectionsCid)
 
 	router.GET(options.BaseURL+"/net-resources/:id/gateway/connections/:cid", wrapper.GetNetResourcesIdGatewayConnectionsCid)
+
+	router.DELETE(options.BaseURL+"/net-resources/:id/gateway/external-ip", wrapper.DeleteNetResourcesIdGatewayExternalIp)
+
+	router.PUT(options.BaseURL+"/net-resources/:id/gateway/external-ip", wrapper.PutNetResourcesIdGatewayExternalIp)
 
 	return router
 }

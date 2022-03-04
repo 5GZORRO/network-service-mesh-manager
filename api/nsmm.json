@@ -620,6 +620,45 @@
                     "required": true
                 }
             ]
+        },
+        "/net-resources/{id}/gateway/external-ip": {
+            "summary": "Endpoint to request the allocation of a floating external ip to the GW VM",
+            "put": {
+                "responses": {
+                    "201": {
+                        "description": "External (floating-ip) allocated"
+                    },
+                    "500": {
+                        "description": "Internal server error\n"
+                    }
+                },
+                "summary": "Request to allocate and associate a Floating IP (external) for the GW"
+            },
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Floating IP correctly deallocated"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "403": {
+                        "description": "Floating does not exists or not allowed"
+                    }
+                },
+                "summary": "Delete of Floating IP (external) of the GW"
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
         }
     },
     "components": {

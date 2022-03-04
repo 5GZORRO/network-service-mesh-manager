@@ -16,14 +16,22 @@ type ResourceSet struct {
 }
 
 type Gateway struct {
+	External ExternalIP `gorm:"embedded"`
+	Config   Config     `gorm:"embedded"`
+}
+
+type ExternalIP struct {
+	ExternalIp string
+	PortID     string
+	PortName   string
+	FloatingID string
+}
+
+type Config struct {
 	MgmtIp          string
 	MgmtPort        uint16 // NOTE: It is the Server and wireguard port!!
 	PrivateVpnRange string
-	ExternalIp      string
 	ExposedNets     string
-	PortID          string
-	PortName        string
-	FloatingID      string
 }
 
 type Network struct {

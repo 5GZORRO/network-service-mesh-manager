@@ -196,7 +196,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	}
 
 	log.Trace("ResourceSet with additional infos: ", *resset)
-	resset.Status = WAIT_FOR_GATEWAY_CONFIG
+	resset.Status = CREATED
 	result = obj.DB.Save(resset)
 	if result.Error != nil {
 		log.Error("Impossible to create network resources. Error saving in DB")
@@ -272,7 +272,7 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesId(c *gin.Context, id int) {
 
 func (obj *ServerInterfaceImpl) deleteNetResources(c *gin.Context, netres *ResourceSet) {
 	// check status
-	if netres.Status != WAIT_FOR_GATEWAY_CONFIG && netres.Status != CREATION_ERROR {
+	if netres.Status != CREATED && netres.Status != CREATION_ERROR {
 		log.Error("Impossible to delete network resources. The current state is ", netres.Status)
 		SetErrorResponse(c, http.StatusForbidden, ErrResourcesCantBeDeleted)
 		return

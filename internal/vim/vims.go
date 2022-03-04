@@ -38,7 +38,6 @@ func newVimDriverList() *VimDriverList {
 	return &VimDriverList{VimList: make(map[string]VimDriver)}
 }
 
-// TODO to be complete - also reading from DB
 // and save new vim in DB
 func InizializeVims(db *gorm.DB, vimConfigs []config.VimConfigurations) *VimDriverList {
 	log.Info("Initializing vims...")

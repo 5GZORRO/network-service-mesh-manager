@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
-	vimdriver "nextworks/nsm/internal/vim"
 	"strconv"
 	"strings"
 
@@ -29,9 +28,9 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGateway(c *gin.Context, id int)
 		}
 	}
 
-	// check if it is configured
-	if resource.Gateway.ExternalIp == "" {
-		log.Error("Impossible to retrieve gateway configuration. It does not exist")
+	// check if it has an external ip allocated
+	if resource.Gateway.External.ExternalIp == "" {
+		log.Error("Impossible to retrieve gateway configuration. It is not yet configured")
 		SetErrorResponse(c, http.StatusNotFound, ErrGatewayNotConfigured)
 		return
 	}
@@ -72,14 +71,6 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 		return
 	}
 
-	// retrieve VIM
-	vim, err := obj.Vims.GetVim(resource.VimName)
-	if err == vimdriver.ErrVimNotFound {
-		log.Error("Error: VIM of resource set with id ", resource.ID, " does not exist")
-		SetErrorResponse(c, http.StatusInternalServerError, err)
-		return
-	}
-
 	//  SET CONFIGURING STATE AND SAVE
 	resource.Status = CONFIGURING
 	log.Trace("Start association of a floating IPs - updating state to CONFIGURINF of resource set with ID: ", id)
@@ -89,72 +80,22 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
+	// Floating IP should be already created
 
-	// IF no FloatingIP is associated to the Gateway, continue allocating one
-	if resource.Gateway.ExternalIp == "" {
-		log.Debug("Gateway without an external-ip, allocating it... ")
-
-		// ASSOCIATE FLOATING-IP USING VIM
-		// For each SAP network, try to allocate a floating IP for each compute, found on that network
-		// retrieve all SAP networks of this resource set
-		err = LoadSAPsFromDB(obj.DB, resource)
-		if err != nil {
-			resource.Status = CONFIGURATION_ERROR
-			_ = obj.DB.Save(&resource)
-			log.Error("Error retrieving SAP associations of resource set with ID: ", resource.ID)
-			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
-			return
-		}
-		log.Trace("Loaded SAP: ", resource.Saps)
-		//for the SAP matching the NetworkPrefix search a VM and allocate a floating-ip
-		var selectedSap *Sap = nil
-		for _, sap := range resource.Saps {
-			log.Trace("Loaded SAP: ", sap.NetworkName)
-			if strings.HasPrefix(sap.NetworkName, obj.Netconfig.GatewayNetworkNamePrefix) {
-				log.Info("Selected SAP network with name ", sap.NetworkName)
-				selectedSap = &sap
-				break
-			}
-		}
-		if selectedSap == nil {
-			log.Error("Error no SAP network found with the specified prefix-name ", obj.Netconfig.GatewayNetworkNamePrefix, " for resource set with ID: ", resource.ID)
-			resource.Status = CONFIGURATION_ERROR
-			_ = obj.DB.Save(&resource)
-			SetErrorResponse(c, http.StatusInternalServerError, ErrGatewayNoNetworkFound)
-			return
-		} else {
-			portid, portname, fipid, fip, err := (*vim).AllocateFloatingIP(selectedSap.NetworkId)
-			if err != nil {
-				log.Error("Error allocating FloatingIP for gatewa of resource set with ID: ", resource.ID)
-				resource.Status = CONFIGURATION_ERROR
-				result := obj.DB.Save(&resource)
-				if result.Error != nil {
-					log.Error("Error updating resource with ID: ", resource.ID)
-				}
-				SetErrorResponse(c, http.StatusInternalServerError, err)
-				return
-			} else {
-				log.Trace(" PortID: ", portid, " PortName: ", portname, " FloatingID: ", fipid, " FloatingIP: ", fip)
-				resource.Gateway.ExternalIp = fip
-				resource.Gateway.PortID = portid
-				resource.Gateway.PortName = portname
-				resource.Gateway.FloatingID = fipid
-			}
-		}
-	} else {
-		// FloatingIP is already configured, we could be in CONFIGURATION_ERROR
-		log.Debug("Gateway has already an external-ip, skip the allocation phase ")
-	}
-
+	config := Config{}
 	// TODO this should be different, API not exposed on external IP
-	resource.Gateway.MgmtIp = resource.Gateway.ExternalIp
-	resource.Gateway.MgmtPort, _ = parsePort(strconv.Itoa(int(obj.VpnaasConfig.VpnaasPort)))
+	config.MgmtIp = resource.Gateway.External.ExternalIp
+	config.MgmtPort, _ = parsePort(strconv.Itoa(int(obj.VpnaasConfig.VpnaasPort)))
+	resource.Gateway.Config = config
 
 	// resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
-	err = LoadNetworkAssociationFromDB(obj.DB, resource)
+	err := LoadNetworkAssociationFromDB(obj.DB, resource)
 	if err != nil {
 		resource.Status = CONFIGURATION_ERROR
-		_ = obj.DB.Save(&resource)
+		result := obj.DB.Save(&resource)
+		if result.Error != nil {
+			log.Error("Error updating resource set status with ID: ", resource.ID, " and slice-id: ", resource.SliceId)
+		}
 		log.Error("Error retrieving network associations of resource set with ID: ", resource.ID)
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
@@ -169,12 +110,12 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 
 	}
 	log.Trace("ExposedNetworks selected: ", exposedNetworks)
-	resource.Gateway.ExposedNets = SubnetsToString(exposedNetworks)
-	log.Trace("ExposedNetworks stored: ", resource.Gateway.ExposedNets)
+	resource.Gateway.Config.ExposedNets = SubnetsToString(exposedNetworks)
+	log.Trace("ExposedNetworks stored: ", resource.Gateway.Config.ExposedNets)
 
 	// NO mode check in the PrivateVPNRange to pass to VPNaaS
-	resource.Gateway.PrivateVpnRange = obj.Netconfig.PrivateVpnRange
-	log.Info("Setting private VPN Range as ", resource.Gateway.PrivateVpnRange)
+	resource.Gateway.Config.PrivateVpnRange = obj.Netconfig.PrivateVpnRange
+	log.Info("Setting private VPN Range as ", resource.Gateway.Config.PrivateVpnRange)
 
 	// Updating other fields
 	log.Trace("Creating gateway configuration - updating network resource set with ID: ", id)
@@ -205,19 +146,11 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id i
 			return
 		}
 	}
+
 	// check status
-	// READY state could be excluded in this check
 	if resource.Status != READY && resource.Status != CONFIGURATION_ERROR {
 		log.Error("Impossibile to delete gateway configuration. The current state is ", resource.Status)
 		SetErrorResponse(c, http.StatusForbidden, ErrDeleteConfigurationGateway)
-		return
-	}
-
-	// retrieve VIM
-	vim, err := obj.Vims.GetVim(resource.VimName)
-	if err == vimdriver.ErrVimNotFound {
-		log.Error("Error: VIM of resource set with id ", resource.ID, " does not exist")
-		SetErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -229,8 +162,7 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id i
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	go resetGateway(obj.DB, vim, resource)
+	go resetGateway(obj.DB, resource)
 
-	// and the update the DB with nil param
 	c.Status(http.StatusNoContent)
 }

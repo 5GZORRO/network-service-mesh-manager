@@ -27,6 +27,7 @@ var (
 	ErrConfiguringGateway           = errors.New("gateway can't be configured")
 	ErrGatewayNoNetworkFound        = errors.New("error no SAP network found")
 	ErrDeleteConfigurationGateway   = errors.New("configuration of gateway can't be removed")
+	ErrDeleteExternalIP             = errors.New("external-IP of gateway can't be removed. Gateway should be reset first")
 	ErrUpdatingGatewayInDB          = errors.New("error updating gateway in DB")
 	ErrGatewayNotRunning            = errors.New("error gateway is not running")
 	// VIM Errors

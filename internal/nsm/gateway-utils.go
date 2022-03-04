@@ -19,10 +19,10 @@ func checkGatewayConfigurationParams(input nsmmapi.PostGateway) error {
 //
 func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
 	var gateway nsmmapi.Gateway
-	gateway.ExternalIp = res.Gateway.ExternalIp
-	gateway.MgmtIp = res.Gateway.MgmtIp
-	gateway.MgmtPort = parsePortToString(res.Gateway.MgmtPort)
-	gateway.ExposedSubnets = SubnetsToArray(res.Gateway.ExposedNets)
-	gateway.PrivateVpnRange = res.Gateway.PrivateVpnRange
+	gateway.ExternalIp = res.Gateway.External.ExternalIp
+	gateway.MgmtIp = res.Gateway.Config.MgmtIp
+	gateway.MgmtPort = parsePortToString(res.Gateway.Config.MgmtPort)
+	gateway.ExposedSubnets = SubnetsToArray(res.Gateway.Config.ExposedNets)
+	gateway.PrivateVpnRange = res.Gateway.Config.PrivateVpnRange
 	ctx.JSON(status, gateway)
 }

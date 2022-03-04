@@ -49,10 +49,10 @@ func configureGateway(database *gorm.DB, res *ResourceSet) {
 
 	log.Trace("Async routine to configure gateway stared")
 	// configure VM gateway, starting the VPN server
-	client := gatewayconfig.New(net.ParseIP(res.Gateway.MgmtIp), fmt.Sprint(res.Gateway.MgmtPort))
+	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort))
 
-	vpnIp := res.Gateway.PrivateVpnRange
-	output := client.Launch(vpnIp, res.Gateway.PortName, fmt.Sprint(res.Gateway.MgmtPort))
+	vpnIp := res.Gateway.Config.PrivateVpnRange
+	output := client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort))
 	log.Debug(output)
 	if output {
 		res.Status = READY
@@ -70,23 +70,12 @@ func configureGateway(database *gorm.DB, res *ResourceSet) {
 
 // resetGateway is a goroutine to reset the VM gateway, using an HTTP client
 // TODO it should reset also the VPNaaS, which does not have this functionality now
-func resetGateway(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceSet) {
+func resetGateway(database *gorm.DB, res *ResourceSet) {
 	log.Trace("Async routine to reset gateway stared")
-
-	// deallocate FIP, if it exists
-	if res.Gateway.FloatingID != "" {
-		log.Trace("Deallocating and deleting floatingIP ")
-		err := (*vim).DeallocateFloatingIP(res.Gateway.PortID, res.Gateway.FloatingID)
-		if err != nil {
-			log.Error("Error deallocating/deleting floating IP with ID: ", res.Gateway.FloatingID)
-		}
-	} else {
-		log.Trace("No floatingIP to be deallocated/deleted")
-	}
 
 	// update the state of the gateway to WAIT_FOR
 	res.Status = WAIT_FOR_GATEWAY_CONFIG
-	res.Gateway = Gateway{}
+	res.Gateway.Config = Config{}
 	result := database.Save(&res)
 	if result.Error != nil {
 		log.Error("Error updating resource set status with ID: ", res.ID, " and slice-id: ", res.SliceId)

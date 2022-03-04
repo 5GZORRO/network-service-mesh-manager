@@ -48,15 +48,11 @@ func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceS
 func configureGateway(database *gorm.DB, res *ResourceSet) {
 
 	log.Trace("Async routine to configure gateway stared")
-	// TODO change mgmt port to string?
 	// configure VM gateway, starting the VPN server
 	client := gatewayconfig.New(net.ParseIP(res.Gateway.MgmtIp), fmt.Sprint(res.Gateway.MgmtPort))
-	// Retrieve/build the VPN_IP_address + mask
-	_, privNet, _ := net.ParseCIDR(res.Gateway.PrivateVpnRange)
-	mask, _ := privNet.Mask.Size()
-	vpnIp := res.Gateway.PrivateVpnIp + "/" + fmt.Sprint(mask)
-	// TODO netinterface name? Should be better an IP, how can I know the interface name to be used?
-	output := client.Launch(vpnIp, "ens4", fmt.Sprint(res.Gateway.MgmtPort))
+
+	vpnIp := res.Gateway.PrivateVpnRange
+	output := client.Launch(vpnIp, res.Gateway.PortName, fmt.Sprint(res.Gateway.MgmtPort))
 	log.Debug(output)
 	if output {
 		res.Status = READY
@@ -72,8 +68,8 @@ func configureGateway(database *gorm.DB, res *ResourceSet) {
 	log.Trace("Async routine to configure gateway ended")
 }
 
-// TODO resetGateway is a goroutine to configure the VM gateway, using
-// an HTTP client
+// resetGateway is a goroutine to reset the VM gateway, using an HTTP client
+// TODO it should reset also the VPNaaS, which does not have this functionality now
 func resetGateway(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceSet) {
 	log.Trace("Async routine to reset gateway stared")
 

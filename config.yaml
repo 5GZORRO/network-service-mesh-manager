@@ -12,10 +12,15 @@ database:
   password: "root"
 
 networks:             
-  # First network subnet to be used when creating subnet of NSs, subnets are /28
+  # First network subnet to be used when creating subnet of NSs, subnets are /28, default 192.168.161.0/28
   start: "192.168.161.0/28"
   # Prefix of SAP network name to be used to select a network where search for the GW port to allocate a FIP, default: test
-  gatewayNetworkNamePrefix: "text"
+  gatewayNetworkNamePrefix: "<sap_prefix>"
+  # Prefix of (internal) networks to be exposed by the VPN connection, default exposed
+  exposedNetworksPrefix: "<network_prefix>"
+  # Private Vpn Range for this Domain, it should be different in each domain, default 192.168.1.1/24 - corresponds to the ip_range in VPNaaS Launch()
+  # so it should be first address of a subnet, followed by the mask
+  privateVpnRange: "<private_VPN_range>"
 
 vim:                  # Vims to be used, they can be type=openstack or type=none for testing
   - name: "<vim_name>"
@@ -32,4 +37,4 @@ vim:                  # Vims to be used, they can be type=openstack or type=none
 #   it is assumed that all the VPNaaS are executed on the same port
 #   and they use the same private vpn subnet ( if not defined default values are 8181, 10.0.0.0/24)
 vpnaas:
-  vpnaasPort: 8181
+  vpnaasPort: 8080

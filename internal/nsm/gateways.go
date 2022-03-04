@@ -2,14 +2,12 @@ package nsm
 
 import (
 	"errors"
-	"net"
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
 	vimdriver "nextworks/nsm/internal/vim"
 	"strconv"
 	"strings"
 
-	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -62,7 +60,6 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 		}
 	}
 	// check status
-	// TODO this could be also configuring, if a floating ip has been added previously
 	if resource.Status != WAIT_FOR_GATEWAY_CONFIG && resource.Status != CONFIGURATION_ERROR {
 		log.Error("Impossibile to create gateway configuration. The current state is ", resource.Status)
 		SetErrorResponse(c, http.StatusForbidden, ErrConfiguringGateway)
@@ -104,7 +101,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 		if err != nil {
 			resource.Status = CONFIGURATION_ERROR
 			_ = obj.DB.Save(&resource)
-			log.Error("Error retrieving associations of resource set with ID: ", resource.ID)
+			log.Error("Error retrieving SAP associations of resource set with ID: ", resource.ID)
 			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
@@ -120,7 +117,6 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 			}
 		}
 		if selectedSap == nil {
-			// TODO error
 			log.Error("Error no SAP network found with the specified prefix-name ", obj.Netconfig.GatewayNetworkNamePrefix, " for resource set with ID: ", resource.ID)
 			resource.Status = CONFIGURATION_ERROR
 			_ = obj.DB.Save(&resource)
@@ -150,23 +146,35 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 		log.Debug("Gateway has already an external-ip, skip the allocation phase ")
 	}
 
-	resource.Gateway.MgmtIp = jsonBody.MgmtIp
+	// TODO this should be different, API not exposed on external IP
+	resource.Gateway.MgmtIp = resource.Gateway.ExternalIp
 	resource.Gateway.MgmtPort, _ = parsePort(strconv.Itoa(int(obj.VpnaasConfig.VpnaasPort)))
-	resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
 
-	// ranges and private ips
-	_, privNet, _ := net.ParseCIDR(jsonBody.PrivateVpnRange)
-	resource.Gateway.PrivateVpnRange = privNet.String()
-	log.Info("Setting private VPN range as ", resource.Gateway.PrivateVpnRange)
-	// TODO to check
-	if jsonBody.PrivateVpnPeerIp != nil {
-		peerIp := net.ParseIP(*jsonBody.PrivateVpnPeerIp)
-		resource.Gateway.PrivateVpnIp = cidr.Inc(peerIp).String()
-		log.Info("Setting private VPN IP as ", resource.Gateway.PrivateVpnIp, " knowing the IP of the peer")
-	} else {
-		resource.Gateway.PrivateVpnIp = cidr.Inc(privNet.IP).String()
-		log.Info("Setting private VPN IP as ", resource.Gateway.PrivateVpnIp)
+	// resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
+	err = LoadNetworkAssociationFromDB(obj.DB, resource)
+	if err != nil {
+		resource.Status = CONFIGURATION_ERROR
+		_ = obj.DB.Save(&resource)
+		log.Error("Error retrieving network associations of resource set with ID: ", resource.ID)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+		return
 	}
+	var exposedNetworks []string
+	for _, network := range resource.Networks {
+		log.Trace("Network: with name: ", network.NetworkName)
+		if strings.HasPrefix(network.NetworkName, obj.Netconfig.ExposedNetworksNamePrefix) {
+			log.Info("Selected Network with name ", network.NetworkName)
+			exposedNetworks = append(exposedNetworks, network.SubnetCidr)
+		}
+
+	}
+	log.Trace("ExposedNetworks selected: ", exposedNetworks)
+	resource.Gateway.ExposedNets = SubnetsToString(exposedNetworks)
+	log.Trace("ExposedNetworks stored: ", resource.Gateway.ExposedNets)
+
+	// NO mode check in the PrivateVPNRange to pass to VPNaaS
+	resource.Gateway.PrivateVpnRange = obj.Netconfig.PrivateVpnRange
+	log.Info("Setting private VPN Range as ", resource.Gateway.PrivateVpnRange)
 
 	// Updating other fields
 	log.Trace("Creating gateway configuration - updating network resource set with ID: ", id)
@@ -221,7 +229,6 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id i
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	// TODO creates go routine with httpclient to reset VPN server?
 	go resetGateway(obj.DB, vim, resource)
 
 	// and the update the DB with nil param

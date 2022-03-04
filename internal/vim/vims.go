@@ -44,7 +44,6 @@ func InizializeVims(db *gorm.DB, vimConfigs []config.VimConfigurations) *VimDriv
 	log.Info("Initializing vims...")
 	vimList := newVimDriverList()
 
-	// TODO first read from DB
 	// then read config file
 	for _, configVim := range vimConfigs {
 		log.Debug("Vim config ", configVim)
@@ -65,7 +64,7 @@ func InizializeVims(db *gorm.DB, vimConfigs []config.VimConfigurations) *VimDriv
 				vimList.addVim(configVim.Name, client)
 			case string(Kubernetes):
 				log.Error("Kubernetes driver not yet implemented")
-				// TODO
+				// no K8S implementation
 			default:
 				log.Error(config.ErrWrongVimType.Error())
 			}

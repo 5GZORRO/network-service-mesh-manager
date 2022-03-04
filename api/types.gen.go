@@ -31,6 +31,9 @@ type ErrorResponse struct {
 
 // Actual gateway configuration of a VPN server gateway
 type Gateway struct {
+	// Subnet to expose
+	ExposedSubnets []string `json:"exposed-subnets"`
+
 	// External IP of the gateway
 	ExternalIp string `json:"external-ip"`
 
@@ -40,14 +43,8 @@ type Gateway struct {
 	// Gateway VM management port
 	MgmtPort string `json:"mgmt-port"`
 
-	// Private VPN IP of the server
-	PrivateVpnIp string `json:"private-vpn-ip"`
-
 	// Private VPN subnet
 	PrivateVpnRange string `json:"private-vpn-range"`
-
-	// Subnet to expose
-	SubnetToExpose []string `json:"subnet-to-expose"`
 }
 
 // Network defines model for Network.
@@ -81,16 +78,6 @@ type PostConnection struct {
 type PostGateway struct {
 	// Gateway VM management IP
 	MgmtIp string `json:"mgmt-ip"`
-
-	// Private VPN IP of the peer on the private VPN subnet.
-	// If not specified, the first IP of the private-vpn-range is selected as the private VPN IP
-	PrivateVpnPeerIp *string `json:"private-vpn-peer-ip,omitempty"`
-
-	// Private VPN subnet
-	PrivateVpnRange string `json:"private-vpn-range"`
-
-	// Subnet to expose
-	SubnetToExpose []string `json:"subnet-to-expose"`
 }
 
 // PostNetwork defines model for PostNetwork.

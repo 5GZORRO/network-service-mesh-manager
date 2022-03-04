@@ -19,7 +19,6 @@ type Gateway struct {
 	MgmtIp          string
 	MgmtPort        uint16 // NOTE: It is the Server and wireguard port!!
 	PrivateVpnRange string
-	PrivateVpnIp    string
 	ExternalIp      string
 	ExposedNets     string
 	PortID          string

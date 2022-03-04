@@ -98,7 +98,6 @@ func main() {
 
 	// STEP VIM
 	// initizialize a driver for each vim,
-	// TODO also reading from DB
 	drivers := vim.InizializeVims(db, configuration.Vim)
 	log.Trace(drivers)
 

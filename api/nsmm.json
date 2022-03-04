@@ -874,33 +874,13 @@
                 "title": "Root Type for Gateway",
                 "description": "Configuration of a gateway ",
                 "required": [
-                    "mgmt-ip",
-                    "subnet-to-expose",
-                    "private-vpn-range"
+                    "mgmt-ip"
                 ],
                 "type": "object",
                 "properties": {
-                    "subnet-to-expose": {
-                        "description": "Subnet to expose",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "example": "172.24.0.0/24"
-                    },
                     "mgmt-ip": {
                         "description": "Gateway VM management IP",
                         "type": "string"
-                    },
-                    "private-vpn-range": {
-                        "description": "Private VPN subnet",
-                        "type": "string",
-                        "example": "10.0.0.0/24"
-                    },
-                    "private-vpn-peer-ip": {
-                        "description": "Private VPN IP of the peer on the private VPN subnet. \nIf not specified, the first IP of the private-vpn-range is selected as the private VPN IP",
-                        "type": "string",
-                        "example": "10.0.0.2"
                     }
                 },
                 "example": {
@@ -918,11 +898,10 @@
                 "title": "Root Type for Gateway",
                 "description": "Actual gateway configuration of a VPN server gateway",
                 "required": [
-                    "subnet-to-expose",
+                    "exposed-subnets",
                     "external-ip",
                     "mgmt-ip",
                     "mgmt-port",
-                    "private-vpn-ip",
                     "private-vpn-range"
                 ],
                 "type": "object",
@@ -930,14 +909,6 @@
                     "external-ip": {
                         "description": "External IP of the gateway",
                         "type": "string"
-                    },
-                    "subnet-to-expose": {
-                        "description": "Subnet to expose",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "example": "172.24.0.0/24"
                     },
                     "mgmt-ip": {
                         "description": "Gateway VM management IP",
@@ -952,10 +923,13 @@
                         "type": "string",
                         "example": "10.0.0.0/24"
                     },
-                    "private-vpn-ip": {
-                        "description": "Private VPN IP of the server",
-                        "type": "string",
-                        "example": "10.0.0.1"
+                    "exposed-subnets": {
+                        "description": "Subnet to expose",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": "172.24.0.0/24"
                     }
                 },
                 "example": {

@@ -11,7 +11,7 @@ import (
 
 func checkExcludedSubnetsParams(subs *string) error {
 	if _, _, err := net.ParseCIDR(*subs); err != nil {
-		return ErrGatewayConfigSubnet
+		return ErrNetResourcesExcludeSubnetsWrongInfo
 	}
 	return nil
 }

@@ -3,6 +3,7 @@ package nsm
 import (
 	"errors"
 	"net/http"
+	nsmmapi "nextworks/nsm/api"
 	vimdriver "nextworks/nsm/internal/vim"
 	"strings"
 
@@ -10,6 +11,36 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
+
+func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayExternalIp(c *gin.Context, id int) {
+	log.Trace("GetNetResourcesIdGatewayExternalIp - retrieved External-IP for ResourceSet with ID: ", id)
+
+	// retrieve resource
+	resource, error := RetrieveResourcesFromDB(obj.DB, id)
+	if error != nil {
+		log.Error("Impossible to retrieve external-IP to gateway. Error reading from DB: ", error)
+		if errors.Is(error, gorm.ErrRecordNotFound) {
+			SetErrorResponse(c, http.StatusNotFound, ErrResourcesNotExists)
+			return
+		} else {
+			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
+			return
+		}
+	}
+
+	// if CREATED and it does not exists ErrNoExternalIP
+	if resource.Gateway.External.ExternalIp != "" {
+		ip := nsmmapi.GatewayIP{
+			ExternalIp: resource.Gateway.External.ExternalIp,
+		}
+		c.JSON(http.StatusOK, ip)
+	} else {
+		log.Error("Impossibile to retrieve external gateway IP: it does not exist yet")
+		SetErrorResponse(c, http.StatusNotFound, ErrExternalIPWrongState)
+		return
+	}
+
+}
 
 func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayExternalIp(c *gin.Context, id int) {
 	log.Trace("PutNetResourcesIdGatewayExternalIp - requested allocation of floating IP for ResourceSet with ID: ", id)
@@ -27,10 +58,16 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayExternalIp(c *gin.Contex
 		}
 	}
 
+	if resource.Gateway.External.ExternalIp != "" {
+		log.Error("Impossibile to associate an external gateway IP: it already exists")
+		SetErrorResponse(c, http.StatusNotFound, ErrExternalIPExists)
+		return
+	}
+
 	// check state - it should be CREATED
 	if resource.Status != CREATED {
-		log.Error("Impossibile to sallocate external gateway IP. The current state is ", resource.Status)
-		SetErrorResponse(c, http.StatusForbidden, ErrConfiguringGateway)
+		log.Error("Impossibile to allocate external gateway IP. The current state is ", resource.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrAssociatingExternalIP)
 		return
 	}
 
@@ -127,6 +164,7 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayExternalIp(c *gin.Con
 		err := (*vim).DeallocateFloatingIP(resource.Gateway.External.PortID, resource.Gateway.External.FloatingID)
 		if err != nil {
 			log.Error("Error deallocating/deleting floating IP with ID: ", resource.Gateway.External.FloatingID)
+			SetErrorResponse(c, http.StatusForbidden, ErrDeletingExternalIP)
 		}
 	} else {
 		log.Info("No floatingIP to be deallocated/deleted")

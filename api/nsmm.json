@@ -259,160 +259,6 @@
                 }
             ]
         },
-        "/net-resources/{id}/gateway": {
-            "description": "Endpoint to \n- retrieve the actual configuration of the gateway of a slice\n- configure the gateway of a slice, in order to provide secure connectivity between slices\n- reset the gateway of a slice",
-            "get": {
-                "tags": [
-                    "network-resources"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Gateway"
-                                }
-                            }
-                        },
-                        "description": "It returns the current configuration of the gateway of the network resources set with id passed in the path parameter"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
-                    }
-                },
-                "summary": "Retrieval of the current configuration of the gateway",
-                "description": "It returns the current active configuration of the gateway associated with the set of network resources with id passed in the path parameters"
-            },
-            "put": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PostGateway"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "network-resources"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Gateway"
-                                }
-                            }
-                        },
-                        "description": "It configure the gateway of the slice"
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Gateway cannot be configured yet or it is already configured"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Error during the request of gateway configuration"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "The request body is not correctly formatted or information are not correct"
-                    }
-                },
-                "summary": "Configuration of the gateway",
-                "description": "It requests the configuration of the gateway of a set of resources identified by the ID in the path parameter. The configuration is an async process, so the endpooint returns immediately a response."
-            },
-            "delete": {
-                "tags": [
-                    "network-resources"
-                ],
-                "responses": {
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Gateway is in used so it cannot be reset, or it is not yet configured"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Error during the initialization of the reset process"
-                    },
-                    "204": {
-                        "description": "Gateway configuration correctly deleted"
-                    }
-                },
-                "summary": "Delete of the gateway configuration",
-                "description": "It requests the removal of the current gateway configuration. The step is async, so the endpoint returns immediately."
-            },
-            "parameters": [
-                {
-                    "name": "id",
-                    "description": "Unique identifier of the network-resource set request for a slice",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "path",
-                    "required": true
-                }
-            ]
-        },
         "/net-resources/{id}/gateway/connections": {
             "description": "Endpoint to \n- retrieve all the active VPN connections of a gateway\n- request the creation of a new VPN connection with a remote peer",
             "get": {
@@ -623,7 +469,35 @@
         },
         "/net-resources/{id}/gateway/external-ip": {
             "summary": "Endpoint to request the allocation of a floating external ip to the GW VM",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GatewayIP"
+                                }
+                            }
+                        },
+                        "description": "It returns the external IP of the gateway (Floating IP assigned) if it is exist"
+                    },
+                    "404": {
+                        "description": "- The requested resource set does not exist\n- The resource set of the gateway is correctly created but it does not have an external IP assigned yet"
+                    },
+                    "403": {
+                        "description": "External-ip does not exist and resource set is in a wrong state to be associated with an external ip"
+                    }
+                },
+                "summary": "Retrival of Gateway external IP",
+                "description": "It requests the actual external-IP used by the gateway of the slice identified by the ID"
+            },
             "put": {
+                "tags": [
+                    "network-resources"
+                ],
                 "responses": {
                     "201": {
                         "description": "External (floating-ip) allocated"
@@ -632,9 +506,13 @@
                         "description": "Internal server error\n"
                     }
                 },
-                "summary": "Request to allocate and associate a Floating IP (external) for the GW"
+                "summary": "Request to allocate and associate a external IP (floating) for the GW",
+                "description": "It requests the allocation and association of an external ip to the gateway identified by the slice with ID. "
             },
             "delete": {
+                "tags": [
+                    "network-resources"
+                ],
                 "responses": {
                     "200": {
                         "description": "Floating IP correctly deallocated"
@@ -643,10 +521,168 @@
                         "description": "Internal server error"
                     },
                     "403": {
+                        "description": "Floating cannot be removed, not allowed"
+                    },
+                    "404": {
                         "description": "Floating does not exists or not allowed"
                     }
                 },
-                "summary": "Delete of Floating IP (external) of the GW"
+                "summary": "Delete of external IP (floating) of the GW",
+                "description": "It requests the deletion and de-association of the external IP of the gateway"
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "Unique identifier of the network-resource set request for a slice",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/net-resources/{id}/gateway/config": {
+            "description": "Endpoint to \n- retrieve the actual configuration of the gateway of a slice\n- configure the gateway of a slice, in order to provide secure connectivity between slices\n- reset the gateway of a slice",
+            "get": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Gateway"
+                                }
+                            }
+                        },
+                        "description": "It returns the current configuration of the gateway of the network resources set with id passed in the path parameter"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    }
+                },
+                "summary": "Retrieval of the current configuration of the gateway",
+                "description": "It returns the current active configuration of the gateway associated with the set of network resources with id passed in the path parameters"
+            },
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostGateway"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Gateway"
+                                }
+                            }
+                        },
+                        "description": "It configure the gateway of the slice"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Gateway cannot be configured yet or it is already configured"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Error during the request of gateway configuration"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "The request body is not correctly formatted or information are not correct"
+                    }
+                },
+                "summary": "Configuration of the gateway",
+                "description": "It requests the configuration of the gateway of a set of resources identified by the ID in the path parameter. The configuration is an async process, so the endpooint returns immediately a response."
+            },
+            "delete": {
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Gateway is in used so it cannot be reset, or it is not yet configured"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Error during the initialization of the reset process"
+                    },
+                    "204": {
+                        "description": "Gateway configuration correctly deleted"
+                    }
+                },
+                "summary": "Delete of the gateway configuration",
+                "description": "It requests the removal of the current gateway configuration. The step is async, so the endpoint returns immediately."
             },
             "parameters": [
                 {
@@ -923,14 +959,7 @@
                     }
                 },
                 "example": {
-                    "external-ip": "some text",
-                    "subnet-to-expose": [
-                        "some text",
-                        "some text"
-                    ],
-                    "mgmt-ip": "some text",
-                    "private-vpn-range": "some text",
-                    "private-vpn-peer-ip": "some text"
+                    "mgmt-ip": "some text"
                 }
             },
             "Gateway": {
@@ -938,24 +967,20 @@
                 "description": "Actual gateway configuration of a VPN server gateway",
                 "required": [
                     "exposed-subnets",
-                    "external-ip",
                     "mgmt-ip",
                     "mgmt-port",
                     "private-vpn-range"
                 ],
                 "type": "object",
                 "properties": {
-                    "external-ip": {
-                        "description": "External IP of the gateway",
-                        "type": "string"
-                    },
                     "mgmt-ip": {
                         "description": "Gateway VM management IP",
                         "type": "string"
                     },
                     "mgmt-port": {
                         "description": "Gateway VM management port",
-                        "type": "string"
+                        "type": "string",
+                        "example": "8080\n"
                     },
                     "private-vpn-range": {
                         "description": "Private VPN subnet",
@@ -972,15 +997,13 @@
                     }
                 },
                 "example": {
-                    "external-ip": "some text",
-                    "subnet-to-expose": [
-                        "some text",
-                        "some text"
-                    ],
                     "mgmt-ip": "some text",
                     "mgmt-port": "some text",
                     "private-vpn-range": "some text",
-                    "private-vpn-ip": "some text"
+                    "exposed-subnets": [
+                        "some text",
+                        "some text"
+                    ]
                 }
             },
             "PostSap": {
@@ -1066,6 +1089,23 @@
                     "floating-network-name": "some text",
                     "network-name": "some text",
                     "subnet-cidr": "some text"
+                }
+            },
+            "GatewayIP": {
+                "description": "",
+                "required": [
+                    "external-ip"
+                ],
+                "type": "object",
+                "properties": {
+                    "external-ip": {
+                        "description": "External-IP associated to the gateway",
+                        "type": "string",
+                        "example": "10.30.6.31"
+                    }
+                },
+                "example": {
+                    "external-ip": "some text"
                 }
             }
         }

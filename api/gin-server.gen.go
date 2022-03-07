@@ -29,14 +29,14 @@ type ServerInterface interface {
 	// (GET /net-resources/{id})
 	GetNetResourcesId(c *gin.Context, id int)
 	// Delete of the gateway configuration
-	// (DELETE /net-resources/{id}/gateway)
-	DeleteNetResourcesIdGateway(c *gin.Context, id int)
+	// (DELETE /net-resources/{id}/gateway/config)
+	DeleteNetResourcesIdGatewayConfig(c *gin.Context, id int)
 	// Retrieval of the current configuration of the gateway
-	// (GET /net-resources/{id}/gateway)
-	GetNetResourcesIdGateway(c *gin.Context, id int)
+	// (GET /net-resources/{id}/gateway/config)
+	GetNetResourcesIdGatewayConfig(c *gin.Context, id int)
 	// Configuration of the gateway
-	// (PUT /net-resources/{id}/gateway)
-	PutNetResourcesIdGateway(c *gin.Context, id int)
+	// (PUT /net-resources/{id}/gateway/config)
+	PutNetResourcesIdGatewayConfig(c *gin.Context, id int)
 	// Retrieve all the active VPN connection of the gateway
 	// (GET /net-resources/{id}/gateway/connections)
 	GetNetResourcesIdGatewayConnections(c *gin.Context, id int)
@@ -49,10 +49,13 @@ type ServerInterface interface {
 	// Retrieval of the information of a VPN connection
 	// (GET /net-resources/{id}/gateway/connections/{cid})
 	GetNetResourcesIdGatewayConnectionsCid(c *gin.Context, id int, cid int)
-	// Delete of Floating IP (external) of the GW
+	// Delete of external IP (floating) of the GW
 	// (DELETE /net-resources/{id}/gateway/external-ip)
 	DeleteNetResourcesIdGatewayExternalIp(c *gin.Context, id int)
-	// Request to allocate and associate a Floating IP (external) for the GW
+	// Retrival of Gateway external IP
+	// (GET /net-resources/{id}/gateway/external-ip)
+	GetNetResourcesIdGatewayExternalIp(c *gin.Context, id int)
+	// Request to allocate and associate a external IP (floating) for the GW
 	// (PUT /net-resources/{id}/gateway/external-ip)
 	PutNetResourcesIdGatewayExternalIp(c *gin.Context, id int)
 }
@@ -172,8 +175,8 @@ func (siw *ServerInterfaceWrapper) GetNetResourcesId(c *gin.Context) {
 	siw.Handler.GetNetResourcesId(c, id)
 }
 
-// DeleteNetResourcesIdGateway operation middleware
-func (siw *ServerInterfaceWrapper) DeleteNetResourcesIdGateway(c *gin.Context) {
+// DeleteNetResourcesIdGatewayConfig operation middleware
+func (siw *ServerInterfaceWrapper) DeleteNetResourcesIdGatewayConfig(c *gin.Context) {
 
 	var err error
 
@@ -190,11 +193,11 @@ func (siw *ServerInterfaceWrapper) DeleteNetResourcesIdGateway(c *gin.Context) {
 		middleware(c)
 	}
 
-	siw.Handler.DeleteNetResourcesIdGateway(c, id)
+	siw.Handler.DeleteNetResourcesIdGatewayConfig(c, id)
 }
 
-// GetNetResourcesIdGateway operation middleware
-func (siw *ServerInterfaceWrapper) GetNetResourcesIdGateway(c *gin.Context) {
+// GetNetResourcesIdGatewayConfig operation middleware
+func (siw *ServerInterfaceWrapper) GetNetResourcesIdGatewayConfig(c *gin.Context) {
 
 	var err error
 
@@ -211,11 +214,11 @@ func (siw *ServerInterfaceWrapper) GetNetResourcesIdGateway(c *gin.Context) {
 		middleware(c)
 	}
 
-	siw.Handler.GetNetResourcesIdGateway(c, id)
+	siw.Handler.GetNetResourcesIdGatewayConfig(c, id)
 }
 
-// PutNetResourcesIdGateway operation middleware
-func (siw *ServerInterfaceWrapper) PutNetResourcesIdGateway(c *gin.Context) {
+// PutNetResourcesIdGatewayConfig operation middleware
+func (siw *ServerInterfaceWrapper) PutNetResourcesIdGatewayConfig(c *gin.Context) {
 
 	var err error
 
@@ -232,7 +235,7 @@ func (siw *ServerInterfaceWrapper) PutNetResourcesIdGateway(c *gin.Context) {
 		middleware(c)
 	}
 
-	siw.Handler.PutNetResourcesIdGateway(c, id)
+	siw.Handler.PutNetResourcesIdGatewayConfig(c, id)
 }
 
 // GetNetResourcesIdGatewayConnections operation middleware
@@ -358,6 +361,27 @@ func (siw *ServerInterfaceWrapper) DeleteNetResourcesIdGatewayExternalIp(c *gin.
 	siw.Handler.DeleteNetResourcesIdGatewayExternalIp(c, id)
 }
 
+// GetNetResourcesIdGatewayExternalIp operation middleware
+func (siw *ServerInterfaceWrapper) GetNetResourcesIdGatewayExternalIp(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id int
+
+	err = runtime.BindStyledParameter("simple", false, "id", c.Param("id"), &id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf("Invalid format for parameter id: %s", err)})
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+	}
+
+	siw.Handler.GetNetResourcesIdGatewayExternalIp(c, id)
+}
+
 // PutNetResourcesIdGatewayExternalIp operation middleware
 func (siw *ServerInterfaceWrapper) PutNetResourcesIdGatewayExternalIp(c *gin.Context) {
 
@@ -407,11 +431,11 @@ func RegisterHandlersWithOptions(router *gin.Engine, si ServerInterface, options
 
 	router.GET(options.BaseURL+"/net-resources/:id", wrapper.GetNetResourcesId)
 
-	router.DELETE(options.BaseURL+"/net-resources/:id/gateway", wrapper.DeleteNetResourcesIdGateway)
+	router.DELETE(options.BaseURL+"/net-resources/:id/gateway/config", wrapper.DeleteNetResourcesIdGatewayConfig)
 
-	router.GET(options.BaseURL+"/net-resources/:id/gateway", wrapper.GetNetResourcesIdGateway)
+	router.GET(options.BaseURL+"/net-resources/:id/gateway/config", wrapper.GetNetResourcesIdGatewayConfig)
 
-	router.PUT(options.BaseURL+"/net-resources/:id/gateway", wrapper.PutNetResourcesIdGateway)
+	router.PUT(options.BaseURL+"/net-resources/:id/gateway/config", wrapper.PutNetResourcesIdGatewayConfig)
 
 	router.GET(options.BaseURL+"/net-resources/:id/gateway/connections", wrapper.GetNetResourcesIdGatewayConnections)
 
@@ -422,6 +446,8 @@ func RegisterHandlersWithOptions(router *gin.Engine, si ServerInterface, options
 	router.GET(options.BaseURL+"/net-resources/:id/gateway/connections/:cid", wrapper.GetNetResourcesIdGatewayConnectionsCid)
 
 	router.DELETE(options.BaseURL+"/net-resources/:id/gateway/external-ip", wrapper.DeleteNetResourcesIdGatewayExternalIp)
+
+	router.GET(options.BaseURL+"/net-resources/:id/gateway/external-ip", wrapper.GetNetResourcesIdGatewayExternalIp)
 
 	router.PUT(options.BaseURL+"/net-resources/:id/gateway/external-ip", wrapper.PutNetResourcesIdGatewayExternalIp)
 

@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (obj *ServerInterfaceImpl) GetNetResourcesIdGateway(c *gin.Context, id int) {
+func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConfig(c *gin.Context, id int) {
 	// Retrive the Resource Set state and check it, if the gateway can be configured
 
 	log.Trace("GetNetResourcesIdGateway - requested retrieve of gateway configuration for resource set with ID: ", id)
@@ -28,16 +28,16 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGateway(c *gin.Context, id int)
 		}
 	}
 
-	// check if it has an external ip allocated
-	if resource.Gateway.External.ExternalIp == "" {
-		log.Error("Impossible to retrieve gateway configuration. It is not yet configured")
+	// check status
+	if resource.Gateway.Config.MgmtIp == "" {
+		log.Error("Impossibile to retrieve gateway configuration. It is not yet configured, the current state is ", resource.Status)
 		SetErrorResponse(c, http.StatusNotFound, ErrGatewayNotConfigured)
 		return
 	}
 	SetGatewayResponse(c, http.StatusOK, *resource)
 }
 
-func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int) {
+func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, id int) {
 	var jsonBody nsmmapi.PostGateway
 
 	if err := c.ShouldBindJSON(&jsonBody); err != nil {
@@ -133,7 +133,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGateway(c *gin.Context, id int)
 }
 
 // Delete gateway configuration
-func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id int) {
+func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayConfig(c *gin.Context, id int) {
 	log.Trace("DeleteNetResourcesIdGateway - requested removal of gateway configuration for resource set with ID: ", id)
 	resource, error := RetrieveResourcesFromDB(obj.DB, id)
 	if error != nil {
@@ -145,6 +145,12 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGateway(c *gin.Context, id i
 			SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 			return
 		}
+	}
+
+	if resource.Gateway.Config.MgmtIp == "" {
+		log.Error("Impossibile to delete gateway configuration. It does not exists")
+		SetErrorResponse(c, http.StatusNotFound, ErrGatewayNotConfigured)
+		return
 	}
 
 	// check status

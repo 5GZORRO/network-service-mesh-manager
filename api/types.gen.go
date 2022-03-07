@@ -34,9 +34,6 @@ type Gateway struct {
 	// Subnet to expose
 	ExposedSubnets []string `json:"exposed-subnets"`
 
-	// External IP of the gateway
-	ExternalIp string `json:"external-ip"`
-
 	// Gateway VM management IP
 	MgmtIp string `json:"mgmt-ip"`
 
@@ -45,6 +42,12 @@ type Gateway struct {
 
 	// Private VPN subnet
 	PrivateVpnRange string `json:"private-vpn-range"`
+}
+
+// GatewayIP defines model for GatewayIP.
+type GatewayIP struct {
+	// External-IP associated to the gateway
+	ExternalIp string `json:"external-ip"`
 }
 
 // Network defines model for Network.
@@ -158,8 +161,8 @@ type GetNetResourcesParams struct {
 // PostNetResourcesJSONBody defines parameters for PostNetResources.
 type PostNetResourcesJSONBody PostSliceResources
 
-// PutNetResourcesIdGatewayJSONBody defines parameters for PutNetResourcesIdGateway.
-type PutNetResourcesIdGatewayJSONBody PostGateway
+// PutNetResourcesIdGatewayConfigJSONBody defines parameters for PutNetResourcesIdGatewayConfig.
+type PutNetResourcesIdGatewayConfigJSONBody PostGateway
 
 // PostNetResourcesIdGatewayConnectionsJSONBody defines parameters for PostNetResourcesIdGatewayConnections.
 type PostNetResourcesIdGatewayConnectionsJSONBody PostConnection
@@ -167,8 +170,8 @@ type PostNetResourcesIdGatewayConnectionsJSONBody PostConnection
 // PostNetResourcesJSONRequestBody defines body for PostNetResources for application/json ContentType.
 type PostNetResourcesJSONRequestBody PostNetResourcesJSONBody
 
-// PutNetResourcesIdGatewayJSONRequestBody defines body for PutNetResourcesIdGateway for application/json ContentType.
-type PutNetResourcesIdGatewayJSONRequestBody PutNetResourcesIdGatewayJSONBody
+// PutNetResourcesIdGatewayConfigJSONRequestBody defines body for PutNetResourcesIdGatewayConfig for application/json ContentType.
+type PutNetResourcesIdGatewayConfigJSONRequestBody PutNetResourcesIdGatewayConfigJSONBody
 
 // PostNetResourcesIdGatewayConnectionsJSONRequestBody defines body for PostNetResourcesIdGatewayConnections for application/json ContentType.
 type PostNetResourcesIdGatewayConnectionsJSONRequestBody PostNetResourcesIdGatewayConnectionsJSONBody

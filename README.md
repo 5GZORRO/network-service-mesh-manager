@@ -117,11 +117,12 @@ docker build -t nsmm:1.0.0 .
 # docker-compose deployment
 The `docker-compose.yaml` in the `deployment/docker` directory, contains a complete environment. Check the variables defined in the `.env` before starting containers.
 
-1. Start docker-compose 
+1. Check values in `deployment/docker/config.yaml`, which is mapped as volume in the nsmm container, so used at startup
+2. Start docker-compose 
 ```
 docker-compose up -d
 ```
-2. Terminate with
+3. Terminate with
 ```
 docker-compose down
 ```

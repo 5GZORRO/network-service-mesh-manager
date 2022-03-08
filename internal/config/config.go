@@ -102,7 +102,7 @@ func ReadConfigFile(configFileName string) *Configurations {
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("networks.start", "192.168.161.0/28")
 	viper.SetDefault("networks.gatewayNetworkNamePrefix", "test")
-	viper.SetDefault("networks.exposedNetworksPrefix", "exposed")
+	viper.SetDefault("networks.exposedNetworksNamePrefix", "exposed")
 	viper.SetDefault("networks.privateVpnRange", "192.168.1.1/24")
 	viper.SetDefault("vpnaas.port", 8181)
 	viper.SetDefault("vpnaas.environment", "local")

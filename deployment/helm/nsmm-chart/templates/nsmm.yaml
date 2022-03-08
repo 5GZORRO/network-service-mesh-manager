@@ -72,6 +72,9 @@ data:
 
     networks:
       start: "192.168.161.0/28"
+      gatewayNetworkNamePrefix: "{{ .Values.nsmm.networks.gatewayNetworkNamePrefix }}"
+      exposedNetworksNamePrefix: "{{ .Values.nsmm.networks.exposedNetworksNamePrefix }}"
+      privateVpnRange: "{{ .Values.nsmm.networks.privateVpnRange }}"
 
     vim:
       {{- range .Values.nsmm.vim }}
@@ -82,7 +85,13 @@ data:
         password: {{ .password | quote }}
         tenantID: {{ .tenantID | quote }}
         domainID: {{ .domainID | quote }}
+        floatingNetworkName: {{ .floatingNetworkName | quote }}
+        floatingNetworkID: {{ .floatingNetworkID | quote }}
       {{- end }} 
+    
+    vpnaas:
+      vpnaasPort: {{ .Values.nsmm.vpnaas.port }}
+      environment: "{{ .Values.nsmm.vpnaas.environment }}"
 kind: ConfigMap
 metadata:
   name: nsmm-configmap

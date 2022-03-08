@@ -78,7 +78,13 @@ func main() {
 	} else {
 		log.SetLevel(level)
 	}
-	log.Info(configuration)
+	log.Info("Loaded configuration:")
+	log.Info(" Log: ", configuration.Log)
+	log.Info(" Server: ", configuration.Server)
+	log.Info(" Database: ", configuration.Database)
+	log.Info(" Networks: ", configuration.Networks)
+	log.Info(" VIMs: ", configuration.Vim)
+	log.Info(" VPNaaS: ", configuration.Vpnaas)
 
 	// STEP DB
 	// Connect to the DB

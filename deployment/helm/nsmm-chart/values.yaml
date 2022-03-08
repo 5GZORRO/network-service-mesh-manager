@@ -37,6 +37,10 @@ nsmm:
   service:
     port: 8080            # Port exposed internally, to other services in the cluster
     exposedport: 30001    # Port exposed to the outside world, with the NodePort
+  networks:
+    gatewayNetworkNamePrefix: "<>"
+    exposedNetworksNamePrefix: "<>"
+    privateVpnRange: "192.168.1.1/24"
   vim:                    # Vim type can be none, or openstack - none for testing
   - name: "vim1"
     type: "<vim_type>"
@@ -45,6 +49,8 @@ nsmm:
     password: "<password>"
     tenantID: "<tenant_id>"
     domainID: "<domain_id>"
+    floatingNetworkName: "<floating_net_name>"
+    floatingNetworkID: "<floating_net_id>"
   - name: "vim2"
     type: "<vim_type>"
     identityEndpoint: "<identity_endpoint>"
@@ -52,4 +58,8 @@ nsmm:
     password: "<password>"
     tenantID: "<tenant_id>"
     domainID: "<domain_id>"
-
+    floatingNetworkName: "<floating_net_name>"
+    floatingNetworkID: "<floating_net_id>"
+  vpnaas:
+    port: 8080
+    environment: local

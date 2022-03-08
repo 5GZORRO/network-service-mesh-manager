@@ -36,6 +36,8 @@ services:
       driver: "json-file"
       options:
           max-size: "50m"
+    volumes:
+      - ./config.yaml:/config.yaml
 
 networks:
   nsmm_network:

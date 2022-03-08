@@ -16,14 +16,16 @@ var timout = 30 // Timout for HTTP client, before returning: context deadline ex
 // VPNaaSClient contains the VPNaaS Server information such as its IP and port
 // its methods are the API offered by the server (Launch(), Connect_to_VPN(), Disconnect_to_VPN())
 type VPNaaSClient struct {
-	ip   net.IP
-	port string
+	ip          net.IP
+	port        string
+	environment string
 }
 
-func New(addr net.IP, port string) *VPNaaSClient {
+func New(addr net.IP, port string, env string) *VPNaaSClient {
 	return &VPNaaSClient{
-		ip:   addr,
-		port: port,
+		ip:          addr,
+		port:        port,
+		environment: env,
 	}
 }
 
@@ -35,7 +37,7 @@ func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port str
 		IpRange:      ipRange,
 		NetInterface: netInterface,
 		Port:         port,
-		Environment:  "local",
+		Environment:  client.environment,
 	}
 	jsonBody, _ := json.Marshal(bodyrequest)
 	log.Trace("VPNaaS {", client.ip.String(), " ", client.port, "} -- Starting with body ", bodyrequest)
@@ -89,7 +91,7 @@ func (client *VPNaaSClient) Connect(peerIp string, peerPort string, remoteIPs st
 		PortServer:      peerPort,
 		RemoteSubnet:    remoteIPs,
 		LocalSubnet:     localIPs,
-		Environment:     "local",
+		Environment:     client.environment,
 	}
 	jsonBody2, _ := json.Marshal(requestConnect)
 	log.Trace("VPNaaS {", client.ip.String(), " ", client.port, "} -- Requesting connection to peer... with body ", requestConnect)

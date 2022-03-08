@@ -94,9 +94,8 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 	}
 
 	out := net.ParseIP(jsonBody.RemotePeerIp)
-	port := checkPort(jsonBody.RemotePeerPort)
 	remoteSubnets, err := ParseExposedSubnets(jsonBody.PeerExposedSubnets)
-	if out == nil || err != nil || !port {
+	if out == nil || err != nil {
 		SetErrorResponse(c, http.StatusBadRequest, ErrConnectionParameters)
 		return
 	}
@@ -111,10 +110,11 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 	}
 
 	// build the VPNaaS service
-	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort))
+	var client gatewayconfig.VPNHttpClient
+	client = gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), obj.VpnaasConfig.Environment)
 
 	// call the Connect_to_VPN
-	output := client.Connect(jsonBody.RemotePeerIp, jsonBody.RemotePeerPort, remoteSubnets, res.Gateway.Config.ExposedNets)
+	output := client.Connect(jsonBody.RemotePeerIp, fmt.Sprint(obj.VpnaasConfig.VpnaasPort), remoteSubnets, res.Gateway.Config.ExposedNets)
 	log.Debug("VPNaaS connect output: ", output)
 	if output {
 		log.Trace("Creating a VPN connection object in DB")
@@ -124,7 +124,7 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 			PrivateKey:    privateKey,
 			PublicKey:     publicKey,
 			PeerIp:        jsonBody.RemotePeerIp,
-			PeerPort:      jsonBody.RemotePeerPort,
+			PeerPort:      fmt.Sprint(obj.VpnaasConfig.VpnaasPort),
 			PeerNets:      SubnetsToString(jsonBody.PeerExposedSubnets),
 		}
 
@@ -194,7 +194,8 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayConnectionsCid(c *gin
 	log.Trace("Requested connection: ", conn)
 
 	// Create umu client to shutdown the connection
-	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort))
+	var client gatewayconfig.VPNHttpClient
+	client = gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), obj.VpnaasConfig.Environment)
 
 	// call the Connect_to_VPN
 	output := client.Disconnect(conn.PeerIp, conn.PeerPort)

@@ -31,13 +31,6 @@ func parsePortToString(port uint16) string {
 	return strconv.Itoa(int(port))
 }
 
-func checkPort(port string) bool {
-	if _, err := parsePort(port); err != nil {
-		return false
-	}
-	return true
-}
-
 func SubnetsToString(subnets []string) string {
 	stringSubs := ""
 	for i, sub := range subnets {

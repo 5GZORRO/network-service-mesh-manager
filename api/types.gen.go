@@ -72,9 +72,6 @@ type PostConnection struct {
 
 	// Public IP of the remote peer VPN
 	RemotePeerIp string `json:"remote-peer-ip"`
-
-	// Remote peer VPN port
-	RemotePeerPort string `json:"remote-peer-port"`
 }
 
 // Configuration of a gateway

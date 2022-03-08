@@ -109,7 +109,7 @@
 					"response": []
 				},
 				{
-					"name": "/net-resources with query param Copy",
+					"name": "/net-resources with query param",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -176,15 +176,15 @@
 			]
 		},
 		{
-			"name": "gateway config",
+			"name": "gateway external-ip",
 			"item": [
 				{
-					"name": "/gateway config",
+					"name": "/gateway external-IP",
 					"request": {
-						"method": "GET",
+						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{id}}/gateway",
+							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{id}}/gateway/external-ip",
 							"protocol": "http",
 							"host": [
 								"{{HOST}}"
@@ -193,20 +193,92 @@
 							"path": [
 								"net-resources",
 								"{{id}}",
-								"gateway"
+								"gateway",
+								"external-ip"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "/gateway config peer1",
+					"name": "/gateway external-IP",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{id}}/gateway/external-ip",
+							"protocol": "http",
+							"host": [
+								"{{HOST}}"
+							],
+							"port": "{{PORT}}",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"external-ip"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway external-IP",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{id}}/gateway/external-ip",
+							"protocol": "http",
+							"host": [
+								"{{HOST}}"
+							],
+							"port": "{{PORT}}",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"external-ip"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "gateway config",
+			"item": [
+				{
+					"name": "/gateway config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{id}}/gateway/config",
+							"protocol": "http",
+							"host": [
+								"{{HOST}}"
+							],
+							"port": "{{PORT}}",
+							"path": [
+								"net-resources",
+								"{{id}}",
+								"gateway",
+								"config"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway config",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"external-ip\": \"138.15.0.2\",\n    \"subnet-to-expose\": [\n        \"172.23.0.0/24\"\n    ],\n    \"mgmt-ip\": \"172.18.8.13\",\n    \"private-vpn-range\": \"10.0.0.0/24\"\n}",
+							"raw": "{\n    \"mgmt-ip\": \"172.18.8.13\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -214,7 +286,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{peer1}}/gateway",
+							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{id}}/gateway/config",
 							"protocol": "http",
 							"host": [
 								"{{HOST}}"
@@ -222,50 +294,21 @@
 							"port": "{{PORT}}",
 							"path": [
 								"net-resources",
-								"{{peer1}}",
-								"gateway"
+								"{{id}}",
+								"gateway",
+								"config"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "/gateway config peer2",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"external-ip\": \"138.15.0.2\",\n    \"subnet-to-expose\": [\n        \"172.24.0.0/24\"\n    ],\n    \"mgmt-ip\": \"172.22.0.2\",\n    \"private-vpn-range\": \"10.0.0.0/24\",\n    \"private-vpn-peer-ip\": \"10.0.0.1\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{peer2}}/gateway",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"net-resources",
-								"{{peer2}}",
-								"gateway"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/gateway config peer1",
+					"name": "/gateway config",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{peer1}}/gateway",
+							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{id}}/gateway/config",
 							"protocol": "http",
 							"host": [
 								"{{HOST}}"
@@ -273,29 +316,9 @@
 							"port": "{{PORT}}",
 							"path": [
 								"net-resources",
-								"{{peer1}}",
-								"gateway"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/gateway config peer2",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/net-resources/{{peer2}}/gateway",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"net-resources",
-								"{{peer2}}",
-								"gateway"
+								"{{id}}",
+								"gateway",
+								"config"
 							]
 						}
 					},
@@ -338,7 +361,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"public-key\": \"aaaaaaaaaaaaaaaa\",\n  \"private-key\": \"bbbbbbbbbbbbbbbb\",\n  \"remote-peer-ip\": \"10.30.6.23\",\n  \"remote-peer-port\": \"8080\",\n  \"peer-exposed-subnets\": [\n      \"192.168.2.1/32\",\n      \"192.168.161.32/28\"\n  ]\n}",
+							"raw": "{\n  \"public-key\": \"aaaaaaaaaaaaaaaa\",\n  \"private-key\": \"bbbbbbbbbbbbbbbb\",\n  \"remote-peer-ip\": \"10.30.6.23\",\n  \"peer-exposed-subnets\": [\n      \"192.168.2.1/32\",\n      \"192.168.161.32/28\"\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -458,16 +481,6 @@
 		{
 			"key": "cid",
 			"value": "1"
-		},
-		{
-			"key": "peer1",
-			"value": "3",
-			"type": "string"
-		},
-		{
-			"key": "peer2",
-			"value": "4",
-			"type": "string"
 		}
 	]
 }

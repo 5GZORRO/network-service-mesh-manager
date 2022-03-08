@@ -46,6 +46,9 @@
                             }
                         },
                         "description": "Resource set with slice-id does not exist"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
                     }
                 },
                 "summary": "Retrieval of all the set of network resources",
@@ -210,9 +213,6 @@
                     "network-resources"
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Correctly removal of all the network resources associated with the specified ID"
-                    },
                     "403": {
                         "content": {
                             "application/json": {
@@ -242,6 +242,9 @@
                             }
                         },
                         "description": "Error during the removal of some resource"
+                    },
+                    "200": {
+                        "description": "Correctly removal of all the network resources associated with the specified ID"
                     }
                 },
                 "summary": "Removal of a set of network resources using the ID",
@@ -409,9 +412,6 @@
                     "vpn-connections"
                 ],
                 "responses": {
-                    "204": {
-                        "description": "VPN connection correctly deleted"
-                    },
                     "404": {
                         "content": {
                             "application/json": {
@@ -441,6 +441,9 @@
                             }
                         },
                         "description": "Internal server error"
+                    },
+                    "200": {
+                        "description": "VPN connection correctly deleted"
                     }
                 },
                 "summary": "Removal of a VPN connection",
@@ -487,8 +490,8 @@
                     "404": {
                         "description": "- The requested resource set does not exist\n- The resource set of the gateway is correctly created but it does not have an external IP assigned yet"
                     },
-                    "403": {
-                        "description": "External-ip does not exist and resource set is in a wrong state to be associated with an external ip"
+                    "500": {
+                        "description": "Internal Server Error\n"
                     }
                 },
                 "summary": "Retrival of Gateway external IP",
@@ -500,10 +503,23 @@
                 ],
                 "responses": {
                     "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GatewayIP"
+                                }
+                            }
+                        },
                         "description": "External (floating-ip) allocated"
                     },
                     "500": {
                         "description": "Internal server error\n"
+                    },
+                    "403": {
+                        "description": "External-ip already exists or resource set is in a wrong state to be associated with an external ip"
+                    },
+                    "404": {
+                        "description": "- The requested resource set does not exist"
                     }
                 },
                 "summary": "Request to allocate and associate a external IP (floating) for the GW",
@@ -521,10 +537,10 @@
                         "description": "Internal server error"
                     },
                     "403": {
-                        "description": "Floating cannot be removed, not allowed"
+                        "description": "Floating cannot be removed, wrong state"
                     },
                     "404": {
-                        "description": "Floating does not exists or not allowed"
+                        "description": "- The requested resource set does not exist\n- Floating does not exists"
                     }
                 },
                 "summary": "Delete of external IP (floating) of the GW",
@@ -568,6 +584,9 @@
                             }
                         },
                         "description": "- the set of network resources with {id} does not exist\n- the gateway identified by the set with {id} is not yet configured"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
                     }
                 },
                 "summary": "Retrieval of the current configuration of the gateway",
@@ -677,7 +696,7 @@
                         },
                         "description": "Error during the initialization of the reset process"
                     },
-                    "204": {
+                    "200": {
                         "description": "Gateway configuration correctly deleted"
                     }
                 },
@@ -704,17 +723,12 @@
                 "description": "Body of the POST to create a new VPN connection for a gateway. It contains the information of the remote peer (pub-key, ip, port) and the networks to expose",
                 "required": [
                     "remote-peer-ip",
-                    "remote-peer-port",
                     "peer-exposed-subnets"
                 ],
                 "type": "object",
                 "properties": {
                     "remote-peer-ip": {
                         "description": "Public IP of the remote peer VPN ",
-                        "type": "string"
-                    },
-                    "remote-peer-port": {
-                        "description": "Remote peer VPN port",
                         "type": "string"
                     },
                     "peer-exposed-subnets": {
@@ -735,7 +749,6 @@
                 },
                 "example": {
                     "remote-peer-ip": "some text",
-                    "remote-peer-port": "some text",
                     "peer-exposed-subnets": [
                         "some text",
                         "some text"

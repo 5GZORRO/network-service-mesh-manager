@@ -56,7 +56,8 @@ type VimConfigurations struct {
 
 // VpnaasConfigurations exported
 type VpnaasConfigurations struct {
-	VpnaasPort int
+	VpnaasPort  int
+	Environment string
 }
 
 func LogLevel(c *Configurations) (log.Level, error) {
@@ -104,6 +105,7 @@ func ReadConfigFile(configFileName string) *Configurations {
 	viper.SetDefault("networks.exposedNetworksPrefix", "exposed")
 	viper.SetDefault("networks.privateVpnRange", "192.168.1.1/24")
 	viper.SetDefault("vpnaas.port", 8181)
+	viper.SetDefault("vpnaas.environment", "local")
 
 	// Read and initialize
 	if err := viper.ReadInConfig(); err != nil {

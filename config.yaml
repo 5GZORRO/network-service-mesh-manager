@@ -38,3 +38,6 @@ vim:                  # Vims to be used, they can be type=openstack or type=none
 #   and they use the same private vpn subnet ( if not defined default values are 8181, 10.0.0.0/24)
 vpnaas:
   vpnaasPort: 8080
+  # Extra parameter to test the VPNaaS module, it can be "testbed" (production) or "local" (for testing),
+  # if not specified default is: local
+  environment: local

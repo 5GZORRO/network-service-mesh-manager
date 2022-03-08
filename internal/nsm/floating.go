@@ -122,8 +122,10 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayExternalIp(c *gin.Contex
 			if result.Error != nil {
 				log.Error("Error updating resource set status with ID: ", resource.ID, " and slice-id: ", resource.SliceId)
 			}
-			// TODO return the gateway IP
-			c.Status(http.StatusCreated)
+			ip := nsmmapi.GatewayIP{
+				ExternalIp: fip,
+			}
+			c.JSON(http.StatusOK, ip)
 		}
 	}
 

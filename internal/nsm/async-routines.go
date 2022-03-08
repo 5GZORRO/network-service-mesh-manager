@@ -49,8 +49,8 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string) {
 
 	log.Trace("Async routine to configure gateway stared")
 	// configure VM gateway, starting the VPN server
-	var client gatewayconfig.VPNHttpClient
-	client = gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
+	// var client gatewayconfig.VPNHttpClient
+	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
 
 	vpnIp := res.Gateway.Config.PrivateVpnRange
 	output := client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort))

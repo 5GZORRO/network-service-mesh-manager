@@ -110,8 +110,8 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 	}
 
 	// build the VPNaaS service
-	var client gatewayconfig.VPNHttpClient
-	client = gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), obj.VpnaasConfig.Environment)
+	// var client gatewayconfig.VPNHttpClient
+	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), obj.VpnaasConfig.Environment)
 
 	// call the Connect_to_VPN
 	output := client.Connect(jsonBody.RemotePeerIp, fmt.Sprint(obj.VpnaasConfig.VpnaasPort), remoteSubnets, res.Gateway.Config.ExposedNets)
@@ -194,8 +194,8 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayConnectionsCid(c *gin
 	log.Trace("Requested connection: ", conn)
 
 	// Create umu client to shutdown the connection
-	var client gatewayconfig.VPNHttpClient
-	client = gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), obj.VpnaasConfig.Environment)
+	// var client gatewayconfig.VPNHttpClient
+	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), obj.VpnaasConfig.Environment)
 
 	// call the Connect_to_VPN
 	output := client.Disconnect(conn.PeerIp, conn.PeerPort)

@@ -204,7 +204,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 		return
 	}
 	log.Trace("PostNetResources updated ", *resset)
-	SetNetResourcesResponse(c, http.StatusOK, *resset)
+	SetNetResourcesResponse(c, http.StatusCreated, *resset)
 }
 
 // DeleteNetResources start the removal of all the network resources associated to a slice-id created on the VIM

@@ -22,7 +22,7 @@ var (
 	ErrExternalIPExists      = errors.New("an external-IP is already associated to the gateway")
 	ErrDeletingExternalIP    = errors.New("error deleting external-IP of gateway")
 	ErrGatewayNoNetworkFound = errors.New("no SAP network found")
-	ErrNoExternalIP          = errors.New("external-IP of gateway does not exists yet")
+	ErrNoExternalIP          = errors.New("external-IP of gateway does not exists")
 	ErrExternalIPWrongState  = errors.New("external-IP of gateway does not exists. Wrong state")
 	// CONFIGURATION ERRORS
 	ErrGatewayNotConfigured        = errors.New("gateway is not yet configured")

@@ -60,7 +60,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayExternalIp(c *gin.Contex
 
 	if resource.Gateway.External.ExternalIp != "" {
 		log.Error("Impossibile to associate an external gateway IP: it already exists")
-		SetErrorResponse(c, http.StatusNotFound, ErrExternalIPExists)
+		SetErrorResponse(c, http.StatusForbidden, ErrExternalIPExists)
 		return
 	}
 
@@ -122,6 +122,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayExternalIp(c *gin.Contex
 			if result.Error != nil {
 				log.Error("Error updating resource set status with ID: ", resource.ID, " and slice-id: ", resource.SliceId)
 			}
+			// TODO return the gateway IP
 			c.Status(http.StatusCreated)
 		}
 	}
@@ -168,6 +169,7 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayExternalIp(c *gin.Con
 		}
 	} else {
 		log.Info("No floatingIP to be deallocated/deleted")
+		SetErrorResponse(c, http.StatusNotFound, ErrNoExternalIP)
 	}
 
 	// update the state of the gateway to CREATED, and reset all fields of Gateway

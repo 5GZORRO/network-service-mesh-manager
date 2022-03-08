@@ -170,5 +170,5 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayConfig(c *gin.Context
 	}
 	go resetGateway(obj.DB, resource)
 
-	c.Status(http.StatusNoContent)
+	c.Status(http.StatusOK)
 }

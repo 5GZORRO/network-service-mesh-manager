@@ -18,7 +18,7 @@ func checkExcludedSubnetsParams(subs *string) error {
 
 // SetNetResourcesListResponse
 func SetNetResourcesListResponse(ctx *gin.Context, status int, resources []ResourceSet) {
-	var output []nsmmapi.SliceResources
+	output := []nsmmapi.SliceResources{} // initialization to return with marshal []
 
 	for _, resource := range resources {
 		var netlist []nsmmapi.Network

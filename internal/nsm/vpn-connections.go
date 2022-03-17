@@ -50,8 +50,6 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnections(c *gin.Conte
 		for _, conn := range res.Connections {
 			apicon := nsmmapi.Connection{
 				Id:                 conn.ID,
-				PrivateKey:         &conn.PrivateKey,
-				PublicKey:          &conn.PublicKey,
 				RemotePeerIp:       conn.PeerIp,
 				RemotePeerPort:     conn.PeerPort,
 				PeerExposedSubnets: SubnetsToArray(conn.PeerNets),
@@ -103,11 +101,6 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 	// TODO decide how to handle and manage pub/priv keys of the connection
 	publicKey := ""
 	privateKey := ""
-	if jsonBody.PrivateKey != nil && jsonBody.PublicKey != nil {
-		log.Debug("Private and Public keys passed as parameters")
-		privateKey = *jsonBody.PrivateKey
-		publicKey = *jsonBody.PublicKey
-	}
 
 	// build the VPNaaS service
 	// var client gatewayconfig.VPNHttpClient
@@ -148,8 +141,6 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 		}
 		output := nsmmapi.Connection{
 			Id:                 conn.ID,
-			PrivateKey:         &privateKey,
-			PublicKey:          &publicKey,
 			RemotePeerIp:       conn.PeerIp,
 			RemotePeerPort:     conn.PeerPort,
 			PeerExposedSubnets: SubnetsToArray(conn.PeerNets),
@@ -267,8 +258,6 @@ func (obj *ServerInterfaceImpl) GetNetResourcesIdGatewayConnectionsCid(c *gin.Co
 
 	output := nsmmapi.Connection{
 		Id:                 conn.ID,
-		PrivateKey:         &conn.PrivateKey,
-		PublicKey:          &conn.PublicKey,
 		RemotePeerIp:       conn.PeerIp,
 		RemotePeerPort:     conn.PeerPort,
 		PeerExposedSubnets: SubnetsToArray(conn.PeerNets),

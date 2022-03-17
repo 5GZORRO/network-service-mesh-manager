@@ -15,9 +15,10 @@ func main() {
 	log.SetFormatter(customFormatter)
 	log.SetLevel(log.TraceLevel)
 
-	ip := "172.28.3.153"
+	// "172.28.3.153" 6600
+	ip := "127.0.0.1"
 	// port1 := "6800"
-	port2 := "6600"
+	port2 := "8083"
 	// client1 := identityclient.New(net.ParseIP(ip), port1, "5gzorroidportalnsmm")
 
 	// res, _ := client1.CreateKeyPair()

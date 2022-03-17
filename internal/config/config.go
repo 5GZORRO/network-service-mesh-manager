@@ -58,6 +58,14 @@ type VimConfigurations struct {
 type VpnaasConfigurations struct {
 	VpnaasPort  int
 	Environment string
+	Idep        IdepConfigurations
+}
+
+// VpnaasConfigurations exported
+type IdepConfigurations struct {
+	Port   int
+	Host   string
+	Secret string
 }
 
 func LogLevel(c *Configurations) (log.Level, error) {

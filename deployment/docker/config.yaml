@@ -41,3 +41,7 @@ vpnaas:
   # Extra parameter to test the VPNaaS module, it can be "testbed" (production) or "local" (for testing),
   # if not specified default is: local
   environment: local
+  idep:                       # ID&P parameters: IP, port and secret
+    host: "127.0.0.1"
+    port: 8083
+    secret : "5gzorroidportalnsmm"

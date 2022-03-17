@@ -32,6 +32,14 @@ type Config struct {
 	MgmtPort        uint16 // NOTE: It is the Server and wireguard port!!
 	PrivateVpnRange string
 	ExposedNets     string
+	Keys            KeyPair `gorm:"embedded;embeddedPrefix:key_"`
+}
+
+type KeyPair struct {
+	Did       string
+	PubK      string
+	PrivK     string
+	Timestamp string
 }
 
 type Network struct {
@@ -62,7 +70,7 @@ type Sap struct {
 type Connection struct {
 	ID            int `gorm:"autoIncrement"`
 	ResourceSetId int
-	PublicKey     string
+	PublicKey     string // TODO to be removed
 	PrivateKey    string
 	PeerIp        string
 	PeerPort      string

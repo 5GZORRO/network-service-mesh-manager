@@ -73,7 +73,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 
 	//  SET CONFIGURING STATE AND SAVE
 	resource.Status = CONFIGURING
-	log.Trace("Start association of a floating IPs - updating state to CONFIGURINF of resource set with ID: ", id)
+	log.Trace("Start association of a floating IPs - updating state to CONFIGURING of resource set with ID: ", id)
 	output := obj.DB.Save(&resource)
 	if output.Error != nil {
 		log.Error("Impossible to update resource set - error saving in DB ", output.Error)
@@ -127,7 +127,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 	}
 	// go routine with httpclient to configure the VPN server
 	// and the update the state to -> READY
-	go configureGateway(obj.DB, resource, obj.VpnaasConfig.Environment)
+	go configureGateway(obj.DB, resource, obj.VpnaasConfig.Environment, &obj.VpnaasConfig.Idep)
 
 	SetGatewayResponse(c, http.StatusCreated, *resource)
 }

@@ -32,3 +32,8 @@ type ClientAccepted struct {
 	VpnPort         int32  `json:"vpn_port,omitempty"`
 	ServerPublicKey string `json:"server_public_key,omitempty"`
 }
+
+const (
+	Prod string = "testbed"
+	Test string = "local"
+)

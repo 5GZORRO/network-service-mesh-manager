@@ -3,7 +3,9 @@ package nsm
 import (
 	"fmt"
 	"net"
+	config "nextworks/nsm/internal/config"
 	gatewayconfig "nextworks/nsm/internal/gateway-config"
+	identityclient "nextworks/nsm/internal/identity"
 	vimdriver "nextworks/nsm/internal/vim"
 
 	log "github.com/sirupsen/logrus"
@@ -44,12 +46,41 @@ func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceS
 }
 
 // configureGateway is a goroutine to configure and start the VPN server in the gateway,
-// using an HTTP client
-func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string) {
+// First if it is in Production mode - it requests the key pair then it invokes the VPNaaS Client to Launch the Server
+//
+func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, idep *config.IdepConfigurations) {
 
-	log.Trace("Async routine to configure gateway stared")
+	log.Trace("Async routine to configure gateway stared.")
+	log.Info("Configuration is in ", vpnaasenv, " mode.")
+
+	if vpnaasenv == gatewayconfig.Prod {
+		log.Trace("Configuration is in PROD mode.")
+		idepClient := identityclient.New(net.ParseIP(idep.Host), fmt.Sprint(idep.Port), idep.Secret)
+		keyPair, err := idepClient.CreateKeyPair()
+		if err != nil {
+			log.Error("Error obtaining key pair from ID&P")
+			res.Status = CONFIGURATION_ERROR
+			result := database.Save(&res)
+			if result.Error != nil {
+				log.Error("Error updating resource after gateway configuration in DB, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
+			}
+			log.Trace("Async routine to configure gateway ended")
+		}
+		log.Trace("KeyPair received: ", keyPair)
+		// handle keyPair
+		res.Gateway.Config.Keys.Did = keyPair.Did
+		res.Gateway.Config.Keys.PrivK = keyPair.PrivKey
+		res.Gateway.Config.Keys.PubK = keyPair.PubKey
+		res.Gateway.Config.Keys.Timestamp = keyPair.Timestamp
+	} else {
+		log.Trace("Configuration is in TEST mode. Key pair is not configured")
+		// No additional configuration needed
+
+	}
+
 	// configure VM gateway, starting the VPN server
 	// var client gatewayconfig.VPNHttpClient
+	// TODO VPNaaS client should be updated with keypair passed as param if PROD, otherwise no additional config
 	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
 
 	vpnIp := res.Gateway.Config.PrivateVpnRange

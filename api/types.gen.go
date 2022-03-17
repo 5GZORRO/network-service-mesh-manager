@@ -11,12 +11,6 @@ type Connection struct {
 	// Subnets exposed by the peer
 	PeerExposedSubnets []string `json:"peer-exposed-subnets"`
 
-	// Local private Key of the peer
-	PrivateKey *string `json:"private-key,omitempty"`
-
-	// Local Public Key of the peer
-	PublicKey *string `json:"public-key,omitempty"`
-
 	// Public IP of the remote peer VPN
 	RemotePeerIp string `json:"remote-peer-ip"`
 
@@ -34,6 +28,9 @@ type Gateway struct {
 	// Subnet to expose
 	ExposedSubnets []string `json:"exposed-subnets"`
 
+	// Key Pair information received from the ID&P
+	KeyPair KeyPair `json:"keyPair"`
+
 	// Gateway VM management IP
 	MgmtIp string `json:"mgmt-ip"`
 
@@ -50,6 +47,17 @@ type GatewayIP struct {
 	ExternalIp string `json:"external-ip"`
 }
 
+// Key Pair information received from the ID&P
+type KeyPair struct {
+	// DID
+	Did        string `json:"Did"`
+	PrivateKey string `json:"private-key"`
+	PublicKey  string `json:"public-key"`
+
+	// Timestamp
+	Timestamp string `json:"timestamp"`
+}
+
 // Network defines model for Network.
 type Network struct {
 	// Network name specified in the NSD
@@ -63,12 +71,6 @@ type Network struct {
 type PostConnection struct {
 	// Subnets exposed by VPN server
 	PeerExposedSubnets []string `json:"peer-exposed-subnets"`
-
-	// Private key of the local peer
-	PrivateKey *string `json:"private-key,omitempty"`
-
-	// Public key of the local peer
-	PublicKey *string `json:"public-key,omitempty"`
 
 	// Public IP of the remote peer VPN
 	RemotePeerIp string `json:"remote-peer-ip"`

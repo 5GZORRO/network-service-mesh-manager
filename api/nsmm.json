@@ -737,14 +737,6 @@
                         "items": {
                             "type": "string"
                         }
-                    },
-                    "private-key": {
-                        "description": "Private key of the local peer",
-                        "type": "string"
-                    },
-                    "public-key": {
-                        "description": "Public key of the local peer",
-                        "type": "string"
                     }
                 },
                 "example": {
@@ -752,9 +744,7 @@
                     "peer-exposed-subnets": [
                         "some text",
                         "some text"
-                    ],
-                    "private-key": "some text",
-                    "public-key": "some text"
+                    ]
                 }
             },
             "Connection": {
@@ -786,26 +776,16 @@
                         "items": {
                             "type": "string"
                         }
-                    },
-                    "public-key": {
-                        "description": "Local Public Key of the peer",
-                        "type": "string"
-                    },
-                    "private-key": {
-                        "description": "Local private Key of the peer",
-                        "type": "string"
                     }
                 },
                 "example": {
-                    "id": 24,
+                    "id": 8,
                     "remote-peer-ip": "some text",
                     "remote-peer-port": "some text",
                     "peer-exposed-subnets": [
                         "some text",
                         "some text"
-                    ],
-                    "public-key": "some text",
-                    "private-key": "some text"
+                    ]
                 }
             },
             "PostSliceResources": {
@@ -856,11 +836,9 @@
                     ],
                     "service-access-points": [
                         {
-                            "floating-network-name": "some text",
                             "network-name": "some text"
                         },
                         {
-                            "floating-network-name": "some text",
                             "network-name": "some text"
                         }
                     ],
@@ -914,7 +892,7 @@
                     }
                 },
                 "example": {
-                    "id": 34,
+                    "id": 95,
                     "networks": [
                         {
                             "network-name": "some text",
@@ -982,7 +960,8 @@
                     "exposed-subnets",
                     "mgmt-ip",
                     "mgmt-port",
-                    "private-vpn-range"
+                    "private-vpn-range",
+                    "keyPair"
                 ],
                 "type": "object",
                 "properties": {
@@ -1007,6 +986,10 @@
                             "type": "string"
                         },
                         "example": "172.24.0.0/24"
+                    },
+                    "keyPair": {
+                        "$ref": "#/components/schemas/KeyPair",
+                        "description": "Key pair information received from ID&P"
                     }
                 },
                 "example": {
@@ -1016,7 +999,13 @@
                     "exposed-subnets": [
                         "some text",
                         "some text"
-                    ]
+                    ],
+                    "keyPair": {
+                        "Did": "some text",
+                        "timestamp": "some text",
+                        "public-key": "some text",
+                        "private-key": "some text"
+                    }
                 }
             },
             "PostSap": {
@@ -1119,6 +1108,39 @@
                 },
                 "example": {
                     "external-ip": "some text"
+                }
+            },
+            "KeyPair": {
+                "title": "Root Type for KeyPair",
+                "description": "Key Pair information received from the ID&P",
+                "required": [
+                    "Did",
+                    "private-key",
+                    "public-key",
+                    "timestamp"
+                ],
+                "type": "object",
+                "properties": {
+                    "Did": {
+                        "description": "DID ",
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "description": "Timestamp",
+                        "type": "string"
+                    },
+                    "public-key": {
+                        "type": "string"
+                    },
+                    "private-key": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "Did": "some text",
+                    "timestamp": "some text",
+                    "public-key": "some text",
+                    "private-key": "some text"
                 }
             }
         }

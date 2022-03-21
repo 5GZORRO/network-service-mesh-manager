@@ -92,6 +92,10 @@ data:
     vpnaas:
       vpnaasPort: {{ .Values.nsmm.vpnaas.port }}
       environment: "{{ .Values.nsmm.vpnaas.environment }}"
+      idep:                       # ID&P parameters: IP, port and secret
+        host: "{{ .Values.nsmm.vpnaas.idep.host }}"
+        port: {{ .Values.nsmm.vpnaas.idep.port }}
+        secret : "{{ .Values.nsmm.vpnaas.idep.secret }}"
 kind: ConfigMap
 metadata:
   name: nsmm-configmap

@@ -63,3 +63,7 @@ nsmm:
   vpnaas:
     port: 8080
     environment: local
+    idep:                       # ID&P parameters: IP, port and secret
+      host: "<ID&P_IP>"
+      port: 8083
+      secret : "5gzorroidportalnsmm"

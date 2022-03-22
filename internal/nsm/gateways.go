@@ -84,6 +84,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 
 	config := Config{}
 	// TODO this should be different, API not exposed on external IP
+	// TODO to be fixed, using the one received from API
 	config.MgmtIp = resource.Gateway.External.ExternalIp
 	config.MgmtPort, _ = parsePort(strconv.Itoa(int(obj.VpnaasConfig.VpnaasPort)))
 	resource.Gateway.Config = config

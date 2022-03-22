@@ -53,6 +53,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 	log.Trace("Async routine to configure gateway stared.")
 	log.Info("Configuration is in ", vpnaasenv, " mode.")
 
+	// TODO TO BE MODIFIED
 	if vpnaasenv == gatewayconfig.Prod {
 		log.Trace("Configuration is in PROD mode.")
 		idepClient := identityclient.New(net.ParseIP(idep.Host), fmt.Sprint(idep.Port), idep.Secret)
@@ -72,25 +73,41 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 		res.Gateway.Config.Keys.PrivK = keyPair.PrivKey
 		res.Gateway.Config.Keys.PubK = keyPair.PubKey
 		res.Gateway.Config.Keys.Timestamp = keyPair.Timestamp
+
+		// configure VM gateway, starting the VPN server
+		// var client gatewayconfig.VPNHttpClient
+		// TODO VPNaaS client should be updated with keypair passed as param if PROD, otherwise no additional config
+		client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
+
+		vpnIp := res.Gateway.Config.PrivateVpnRange
+		log.Trace(keyPair)
+		output := client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), keyPair)
+		log.Debug(output)
+		if output {
+			res.Status = READY
+		} else {
+			res.Status = CONFIGURATION_ERROR
+		}
 	} else {
 		log.Trace("Configuration is in TEST mode. Key pair is not configured")
 		// No additional configuration needed
 
-	}
+		// configure VM gateway, starting the VPN server
+		// var client gatewayconfig.VPNHttpClient
+		// TODO VPNaaS client should be updated with keypair passed as param if PROD, otherwise no additional config
+		client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
 
-	// configure VM gateway, starting the VPN server
-	// var client gatewayconfig.VPNHttpClient
-	// TODO VPNaaS client should be updated with keypair passed as param if PROD, otherwise no additional config
-	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
-
-	vpnIp := res.Gateway.Config.PrivateVpnRange
-	output := client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort))
-	log.Debug(output)
-	if output {
-		res.Status = READY
-	} else {
-		res.Status = CONFIGURATION_ERROR
+		vpnIp := res.Gateway.Config.PrivateVpnRange
+		output := client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), nil)
+		log.Debug(output)
+		if output {
+			res.Status = READY
+		} else {
+			res.Status = CONFIGURATION_ERROR
+		}
 	}
+	// Parte del codice sopra e' replicato sopra, clean up
+
 	log.Trace("Update gateway and resource set state in DB")
 	// update the state
 	result := database.Save(&res)

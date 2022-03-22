@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	identityclient "nextworks/nsm/internal/identity"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,14 +32,27 @@ func New(addr net.IP, port string, env string) *VPNaaSClient {
 }
 
 // Start the VPN service calling the /launch() endpoint
-func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port string) bool {
+func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port string, keyPair *identityclient.KeyPair) bool {
 	c := http.Client{Timeout: time.Duration(timout) * time.Second}
-
-	bodyrequest := PostLaunch{
-		IpRange:      ipRange,
-		NetInterface: netInterface,
-		Port:         port,
-		Environment:  client.environment,
+	var bodyrequest PostLaunch
+	if client.environment == Prod {
+		bodyrequest = PostLaunch{
+			IpRange:      ipRange,
+			NetInterface: netInterface,
+			Port:         port,
+			Environment:  client.environment,
+			Did:          keyPair.Did,
+			PubKey:       keyPair.PubKey,
+			PrivKey:      keyPair.PrivKey,
+			Timestamp:    keyPair.Timestamp,
+		}
+	} else {
+		bodyrequest = PostLaunch{
+			IpRange:      ipRange,
+			NetInterface: netInterface,
+			Port:         port,
+			Environment:  client.environment,
+		}
 	}
 	jsonBody, _ := json.Marshal(bodyrequest)
 	log.Trace("VPNaaS {", client.ip.String(), " ", client.port, "} -- Starting with body ", bodyrequest)

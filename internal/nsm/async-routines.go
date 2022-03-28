@@ -53,9 +53,10 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 	log.Trace("Async routine to configure gateway stared.")
 	log.Info("Configuration is in ", vpnaasenv, " mode.")
 
-	// TODO TO BE MODIFIED
+	var output bool
 	if vpnaasenv == gatewayconfig.Prod {
-		log.Trace("Configuration is in PROD mode.")
+		log.Debug("Configuration is in PROD (testbed) mode.")
+		log.Trace("Asking to ID&P a new Key Pair...")
 		idepClient := identityclient.New(net.ParseIP(idep.Host), fmt.Sprint(idep.Port), idep.Secret)
 		keyPair, err := idepClient.CreateKeyPair()
 		if err != nil {
@@ -67,7 +68,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 			}
 			log.Trace("Async routine to configure gateway ended")
 		}
-		log.Trace("KeyPair received: ", keyPair)
+		log.Trace("KeyPair received from ID&P: ", keyPair)
 		// handle keyPair
 		res.Gateway.Config.Keys.Did = keyPair.Did
 		res.Gateway.Config.Keys.PrivK = keyPair.PrivKey
@@ -76,37 +77,25 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 
 		// configure VM gateway, starting the VPN server
 		// var client gatewayconfig.VPNHttpClient
-		// TODO VPNaaS client should be updated with keypair passed as param if PROD, otherwise no additional config
 		client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
 
 		vpnIp := res.Gateway.Config.PrivateVpnRange
 		log.Trace(keyPair)
-		output := client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), keyPair)
-		log.Debug(output)
-		if output {
-			res.Status = READY
-		} else {
-			res.Status = CONFIGURATION_ERROR
-		}
+		idm_enpoint := "http://" + idep.Host + ":" + fmt.Sprint(idep.Port) + "/authentication/operator_key_pair/verify" // TODO
+		output = client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), keyPair, idm_enpoint)
 	} else {
-		log.Trace("Configuration is in TEST mode. Key pair is not configured")
-		// No additional configuration needed
-
-		// configure VM gateway, starting the VPN server
-		// var client gatewayconfig.VPNHttpClient
-		// TODO VPNaaS client should be updated with keypair passed as param if PROD, otherwise no additional config
+		log.Trace("Configuration is in TEST (local) mode. Key pair is not configured")
+		// No additional configuration needed, no key pair to be passed to VPNaaS. VPNaaS launch with the TestLaunch methos
 		client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
-
 		vpnIp := res.Gateway.Config.PrivateVpnRange
-		output := client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), nil)
-		log.Debug(output)
-		if output {
-			res.Status = READY
-		} else {
-			res.Status = CONFIGURATION_ERROR
-		}
+		output = client.LaunchTest(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort))
 	}
-	// Parte del codice sopra e' replicato sopra, clean up
+	log.Debug(output)
+	if output {
+		res.Status = READY
+	} else {
+		res.Status = CONFIGURATION_ERROR
+	}
 
 	log.Trace("Update gateway and resource set state in DB")
 	// update the state

@@ -16,7 +16,6 @@ func checkGatewayConfigurationParams(input nsmmapi.PostGateway) error {
 }
 
 // SetNetResourcesResponse creates the return type for api
-// TODO add KeyPair info
 func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
 	var gateway nsmmapi.Gateway
 	gateway.MgmtIp = res.Gateway.Config.MgmtIp

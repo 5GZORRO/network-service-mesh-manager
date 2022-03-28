@@ -39,7 +39,7 @@ func (client *IdentityClient) CreateKeyPair() (*KeyPair, error) {
 		log.Error(err)
 		return nil, err
 	}
-	// TODO add header with secret
+
 	req.Header.Add("Accept", `application/json`)
 	req.Header.Add("shared-secret", client.secret)
 	resp, err := c.Do(req)

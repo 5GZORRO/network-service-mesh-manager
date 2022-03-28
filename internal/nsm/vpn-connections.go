@@ -98,10 +98,6 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 		return
 	}
 
-	// TODO decide how to handle and manage pub/priv keys of the connection
-	publicKey := ""
-	privateKey := ""
-
 	// build the VPNaaS service
 	// var client gatewayconfig.VPNHttpClient
 	client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), obj.VpnaasConfig.Environment)
@@ -114,8 +110,6 @@ func (obj *ServerInterfaceImpl) PostNetResourcesIdGatewayConnections(c *gin.Cont
 		// create the state for the new VPN connection and save in BD
 		conn := Connection{
 			ResourceSetId: res.ID,
-			PrivateKey:    privateKey,
-			PublicKey:     publicKey,
 			PeerIp:        jsonBody.RemotePeerIp,
 			PeerPort:      fmt.Sprint(obj.VpnaasConfig.VpnaasPort),
 			PeerNets:      SubnetsToString(jsonBody.PeerExposedSubnets),

@@ -31,29 +31,55 @@ func New(addr net.IP, port string, env string) *VPNaaSClient {
 	}
 }
 
-// Start the VPN service calling the /launch() endpoint
-func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port string, keyPair *identityclient.KeyPair) bool {
+// Function to Launch the VPNaaS in Test mode (local)
+// In case of test environment (local), keys to be used are local to the VM, not passed in the launch
+func (client *VPNaaSClient) LaunchTest(ipRange string, netInterface string, port string) bool {
 	c := http.Client{Timeout: time.Duration(timout) * time.Second}
-	var bodyrequest PostLaunch
-	if client.environment == Prod {
-		bodyrequest = PostLaunch{
-			IpRange:      ipRange,
-			NetInterface: netInterface,
-			Port:         port,
-			Environment:  client.environment,
-			Did:          keyPair.Did,
-			PubKey:       keyPair.PubKey,
-			PrivKey:      keyPair.PrivKey,
-			Timestamp:    keyPair.Timestamp,
-		}
-	} else {
-		bodyrequest = PostLaunch{
-			IpRange:      ipRange,
-			NetInterface: netInterface,
-			Port:         port,
-			Environment:  client.environment,
-		}
+	bodyrequest := PostLaunch{
+		IpRange:      ipRange,
+		NetInterface: netInterface,
+		Port:         port,
+		Environment:  client.environment,
 	}
+
+	jsonBody, _ := json.Marshal(bodyrequest)
+	log.Trace("VPNaaS {", client.ip.String(), " ", client.port, "} -- Starting with body (local-test) ", bodyrequest)
+	req, err := http.NewRequest("POST", "http://"+client.ip.String()+":"+client.port+"/launch", bytes.NewReader(jsonBody))
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	req.Header.Add("Accept", `application/json`)
+	// send request
+	resp, err := c.Do(req)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+	log.Debug("VPNaaS {", client.ip.String(), " ", client.port, "} -- Response status: ", resp.Status)
+	if resp.StatusCode == 200 {
+		return true
+	} else {
+		return false
+	}
+}
+
+// Start the VPN service calling the /launch() endpoint
+func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port string, keyPair *identityclient.KeyPair, idependpoint string) bool {
+	c := http.Client{Timeout: time.Duration(timout) * time.Second}
+	// In case of Prod environment (Zorro testbed), keys to be used are the one retrieved from the ID&P
+	bodyrequest := PostLaunch{
+		IpRange:      ipRange,
+		NetInterface: netInterface,
+		Port:         port,
+		Environment:  client.environment,
+		IDMEndpoint:  idependpoint,
+		Did:          keyPair.Did,
+		PubKey:       keyPair.PubKey,
+		PrivKey:      keyPair.PrivKey,
+		Timestamp:    keyPair.Timestamp,
+	}
+
 	jsonBody, _ := json.Marshal(bodyrequest)
 	log.Trace("VPNaaS {", client.ip.String(), " ", client.port, "} -- Starting with body ", bodyrequest)
 	req, err := http.NewRequest("POST", "http://"+client.ip.String()+":"+client.port+"/launch", bytes.NewReader(jsonBody))

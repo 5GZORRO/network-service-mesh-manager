@@ -12,6 +12,7 @@ type PostLaunch struct {
 	NetInterface string `json:"net_interface"`
 	Port         string `json:"port"`
 	Environment  string `json:"environment"`
+	IDMEndpoint  string `json:"endpoint_IdM"`
 	Did          string `json:"DID"`
 	PubKey       string `json:"public_key"`
 	PrivKey      string `json:"private_key"`

@@ -717,6 +717,50 @@
                     "required": true
                 }
             ]
+        },
+        "/net-resources/static-sap": {
+            "summary": "Endpoint for network services with static GW, such as a PNF.",
+            "description": "This endpoint is invoked by the the slicer before the actual network service instantiation, to create all the necessary network resources on the vim. \nIn details, it creates only networks, the SAP is assumed already created and used by a PNF and the PNF as a FIP\n\n",
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostSliceResourcesFixedSap"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "network-resources"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SliceResources"
+                                }
+                            }
+                        },
+                        "description": "Networks correctly created\n"
+                    },
+                    "404": {
+                        "description": "Vim associated to the request does not exist"
+                    },
+                    "403": {
+                        "description": "Network resources for slice-id already exists"
+                    },
+                    "500": {
+                        "description": "Internal server error\n"
+                    },
+                    "400": {
+                        "description": "Error in the request body"
+                    }
+                },
+                "summary": "Creation of networks for a network service with a static GW"
+            }
         }
     },
     "components": {
@@ -859,7 +903,8 @@
                     "status",
                     "id",
                     "networks",
-                    "service-access-points"
+                    "service-access-points",
+                    "static-sap"
                 ],
                 "type": "object",
                 "properties": {
@@ -892,10 +937,14 @@
                     "status": {
                         "description": "Status of the resources",
                         "type": "string"
+                    },
+                    "static-sap": {
+                        "description": "Boolean indicating it the SAP of the resource set is fixed or created dinamically",
+                        "type": "boolean"
                     }
                 },
                 "example": {
-                    "id": 95,
+                    "id": 39,
                     "networks": [
                         {
                             "network-name": "some text",
@@ -920,7 +969,8 @@
                     ],
                     "slice-id": "some text",
                     "vim-name": "some text",
-                    "status": "some text"
+                    "status": "some text",
+                    "static-sap": true
                 }
             },
             "ErrorResponse": {
@@ -1149,6 +1199,128 @@
                     "timestamp": "some text",
                     "public-key": "some text",
                     "private-key": "some text"
+                }
+            },
+            "PostSliceResourcesFixedSap": {
+                "description": "POST to create all the network resources of a slice on a vim",
+                "required": [
+                    "networks",
+                    "service-access-points",
+                    "slice-id",
+                    "vim-name",
+                    "gw-port-name",
+                    "gw-external-ip"
+                ],
+                "type": "object",
+                "properties": {
+                    "networks": {
+                        "description": "Name of the networks specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostNetwork"
+                        }
+                    },
+                    "service-access-points": {
+                        "description": "SAP specified in the NSD",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostFixedSap"
+                        }
+                    },
+                    "slice-id": {
+                        "description": "Id of the network slice owning the network resources, assigned by the Slicer",
+                        "type": "string"
+                    },
+                    "vim-name": {
+                        "description": "Name of the VIM where to create the requested resources",
+                        "type": "string"
+                    },
+                    "exclude-subnet": {
+                        "description": "Last subnet used by the peer",
+                        "type": "string"
+                    },
+                    "gw-port-name": {
+                        "description": "GW Interface name of VPNaaS",
+                        "type": "string"
+                    },
+                    "gw-external-ip": {
+                        "description": "FIP assigned to the GW",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "networks": [
+                        {
+                            "network-name": "some text"
+                        },
+                        {
+                            "network-name": "some text"
+                        }
+                    ],
+                    "service-access-points": [
+                        {
+                            "network-name": "some text",
+                            "network-id": "some text",
+                            "subnet-id": "some text",
+                            "subnet-name": "some text",
+                            "subnet-cidr": "some text"
+                        },
+                        {
+                            "network-name": "some text",
+                            "network-id": "some text",
+                            "subnet-id": "some text",
+                            "subnet-name": "some text",
+                            "subnet-cidr": "some text"
+                        }
+                    ],
+                    "slice-id": "some text",
+                    "vim-name": "some text",
+                    "exclude-subnet": "some text",
+                    "gw-port-name": "some text",
+                    "gw-external-ip": "some text"
+                }
+            },
+            "PostFixedSap": {
+                "title": "Root Type for Sap",
+                "description": "",
+                "required": [
+                    "network-name",
+                    "network-id",
+                    "subnet-id",
+                    "subnet-name",
+                    "subnet-cidr"
+                ],
+                "type": "object",
+                "properties": {
+                    "network-name": {
+                        "description": "Network name specified in the NSD",
+                        "type": "string"
+                    },
+                    "network-id": {
+                        "description": "ID of the SAP network",
+                        "type": "string"
+                    },
+                    "subnet-id": {
+                        "description": "subnet associated to the SAP network",
+                        "type": "string"
+                    },
+                    "subnet-name": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "subnet-cidr": {
+                        "description": "",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "network-name": "some text",
+                    "network-id": "some text",
+                    "subnet-id": "some text",
+                    "gw-port-name": "some text",
+                    "gw-external-ip": "some text",
+                    "subnet-name": "some text",
+                    "subnet-cidr": "some text"
                 }
             }
         }

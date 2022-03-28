@@ -31,9 +31,11 @@ func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceS
 		log.Error("No SAPs to be deleted found")
 	}
 	for _, sap := range res.Saps {
-		err := (*vim).DeleteSAP(sap.NetworkId, sap.SubnetId, sap.RouterId, sap.RouterPortId)
-		if err != nil {
-			log.Error("Error deleting SAP with network name ", sap.NetworkName)
+		if !res.StaticSap {
+			err := (*vim).DeleteSAP(sap.NetworkId, sap.SubnetId, sap.RouterId, sap.RouterPortId)
+			if err != nil {
+				log.Error("Error deleting SAP with network name ", sap.NetworkName)
+			}
 		}
 	}
 

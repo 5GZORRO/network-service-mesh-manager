@@ -9,6 +9,7 @@ type ResourceSet struct {
 	VimName     string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	StaticSap   bool         `gorm:"default:false"` // indicates if the SAP GW is a PNF
 	Gateway     Gateway      `gorm:"embedded;embeddedPrefix:gw_"`
 	Networks    []Network    `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE"`
 	Saps        []Sap        `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE;"`

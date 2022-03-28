@@ -123,8 +123,6 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	}
 	// log.Info(netmng.next_subnet)
 
-	// createResources()
-
 	// create networks:
 	for _, net := range jsonBody.Networks {
 		ipnet := netmng.NextSubnet()
@@ -272,7 +270,13 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesId(c *gin.Context, id int) {
 
 func (obj *ServerInterfaceImpl) deleteNetResources(c *gin.Context, netres *ResourceSet) {
 	// check status
-	if netres.Status != CREATED && netres.Status != CREATION_ERROR {
+	// Delete is permitted when resources are created and not used, when there is an error during the creation
+	// or the GW has a floating ip assigned but it is static
+	// TODO tbt
+	if netres.Status == CREATED || netres.Status == CREATION_ERROR ||
+		(netres.Status == WAIT_FOR_GATEWAY_CONFIG && netres.StaticSap) {
+		log.Trace("Deleting... ", netres.Status)
+	} else {
 		log.Error("Impossible to delete network resources. The current state is ", netres.Status)
 		SetErrorResponse(c, http.StatusForbidden, ErrResourcesCantBeDeleted)
 		return

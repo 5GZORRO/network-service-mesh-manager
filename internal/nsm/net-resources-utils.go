@@ -78,6 +78,7 @@ func SetNetResourcesResponse(ctx *gin.Context, status int, res ResourceSet) {
 		VimName:             res.VimName,
 		Networks:            netlist,
 		ServiceAccessPoints: saplist,
+		StaticSap:           res.StaticSap,
 	}
 	ctx.JSON(status, output)
 }

@@ -73,22 +73,23 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 
 	//  SET CONFIGURING STATE AND SAVE
 	resource.Status = CONFIGURING
-	log.Trace("Start association of a floating IPs - updating state to CONFIGURING of resource set with ID: ", id)
+	log.Trace("Started configuration of Gateway - updating state to CONFIGURING of resource set with ID: ", id)
 	output := obj.DB.Save(&resource)
 	if output.Error != nil {
 		log.Error("Impossible to update resource set - error saving in DB ", output.Error)
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	// Floating IP should be already created
 
 	config := Config{}
-	// GW Management IP/port config
+	// set GW Management IP/port config
 	config.MgmtIp = jsonBody.MgmtIp
 	config.MgmtPort, _ = parsePort(strconv.Itoa(int(obj.VpnaasConfig.VpnaasPort)))
 	resource.Gateway.Config = config
+	resource.Gateway.Config.PrivateVpnRange = obj.Netconfig.PrivateVpnRange
+	log.Trace("Gateway - Private VPN Range as: ", resource.Gateway.Config.PrivateVpnRange)
 
-	// resource.Gateway.ExposedNets = SubnetsToString(jsonBody.SubnetToExpose)
+	// set exposed_networks, which are the networks to be exposed through the VPN connection
 	err := LoadNetworkAssociationFromDB(obj.DB, resource)
 	if err != nil {
 		resource.Status = CONFIGURATION_ERROR
@@ -100,6 +101,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
+	// networks to be exposed are the ones starting with a prefix, configured by config file
 	var exposedNetworks []string
 	for _, network := range resource.Networks {
 		log.Trace("Network: with name: ", network.NetworkName)
@@ -111,11 +113,6 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 	}
 	log.Trace("ExposedNetworks selected: ", exposedNetworks)
 	resource.Gateway.Config.ExposedNets = SubnetsToString(exposedNetworks)
-	log.Trace("ExposedNetworks stored: ", resource.Gateway.Config.ExposedNets)
-
-	// NO mode check in the PrivateVPNRange to pass to VPNaaS
-	resource.Gateway.Config.PrivateVpnRange = obj.Netconfig.PrivateVpnRange
-	log.Info("Setting private VPN Range as ", resource.Gateway.Config.PrivateVpnRange)
 
 	// Updating other fields
 	log.Trace("Creating gateway configuration - updating network resource set with ID: ", id)
@@ -126,7 +123,7 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 		return
 	}
 	// go routine with httpclient to configure the VPN server
-	// and the update the state to -> READY
+	// and the update the state to READY
 	go configureGateway(obj.DB, resource, obj.VpnaasConfig.Environment, &obj.VpnaasConfig.Idep)
 
 	SetGatewayResponse(c, http.StatusCreated, *resource)

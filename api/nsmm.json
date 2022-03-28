@@ -143,7 +143,7 @@
                                 }
                             }
                         },
-                        "description": "Resources for slice with slice-id passed as query param. not found"
+                        "description": "- Resources for slice with slice-id passed as query param. not found\n- vim not found"
                     },
                     "403": {
                         "content": {
@@ -234,7 +234,7 @@
                                 }
                             }
                         },
-                        "description": "Network resources associated to the ID do not exist"
+                        "description": "- Network resources associated to the ID do not exist\n- vim not found"
                     },
                     "500": {
                         "content": {
@@ -964,7 +964,8 @@
                     "mgmt-ip",
                     "mgmt-port",
                     "private-vpn-range",
-                    "keyPair"
+                    "keyPair",
+                    "external-ip"
                 ],
                 "type": "object",
                 "properties": {
@@ -993,6 +994,10 @@
                     "keyPair": {
                         "$ref": "#/components/schemas/KeyPair",
                         "description": "Key pair information received from ID&P"
+                    },
+                    "external-ip": {
+                        "description": "Exposed IP, which is the Floating IP",
+                        "type": "string"
                     }
                 },
                 "example": {

@@ -28,6 +28,9 @@ type Gateway struct {
 	// Subnet to expose
 	ExposedSubnets []string `json:"exposed-subnets"`
 
+	// Exposed IP, which is the Floating IP
+	ExternalIp string `json:"external-ip"`
+
 	// Key Pair information received from the ID&P
 	KeyPair KeyPair `json:"keyPair"`
 

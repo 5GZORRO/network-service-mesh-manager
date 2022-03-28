@@ -18,6 +18,7 @@ func checkGatewayConfigurationParams(input nsmmapi.PostGateway) error {
 // SetNetResourcesResponse creates the return type for api
 func SetGatewayResponse(ctx *gin.Context, status int, res ResourceSet) {
 	var gateway nsmmapi.Gateway
+	gateway.ExternalIp = res.Gateway.External.ExternalIp
 	gateway.MgmtIp = res.Gateway.Config.MgmtIp
 	gateway.MgmtPort = parsePortToString(res.Gateway.Config.MgmtPort)
 	gateway.ExposedSubnets = SubnetsToArray(res.Gateway.Config.ExposedNets)

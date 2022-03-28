@@ -21,17 +21,17 @@ type Gateway struct {
 }
 
 type ExternalIP struct {
-	ExternalIp string
-	PortID     string
-	PortName   string
-	FloatingID string
+	ExternalIp string // Floating IP associated to the GW VM
+	PortID     string // Interface ID in OpenStack of the interface associated with the floating IP
+	PortName   string // Interface name in the VM of the interface associated with the floating IP, ex. ens3, ens4
+	FloatingID string // Floating IP ID in OpenStack
 }
 
 type Config struct {
-	MgmtIp          string
+	MgmtIp          string // Management IP of the GW
 	MgmtPort        uint16 // NOTE: It is the Server and wireguard port!!
 	PrivateVpnRange string
-	ExposedNets     string
+	ExposedNets     string  // Subnets to be exposed through the VPN connection
 	Keys            KeyPair `gorm:"embedded;embeddedPrefix:key_"`
 }
 

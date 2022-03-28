@@ -65,9 +65,9 @@ func main() {
 
 	umuclient1 := gatewayconfig.New(net.ParseIP(gw1ip), gw1port, "local")
 	umuclient2 := gatewayconfig.New(net.ParseIP(gw2ip), gw2port, "local")
-	res1 := umuclient1.Launch("192.168.1.1/24", "ens4", gw1port)
+	res1 := umuclient1.LaunchTest("192.168.1.1/24", "ens4", gw1port)
 	log.Debug(res1)
-	res2 := umuclient2.Launch("192.168.2.1/24", "ens4", gw2port)
+	res2 := umuclient2.LaunchTest("192.168.2.1/24", "ens4", gw2port)
 	log.Debug(res2)
 
 	// res2 := umuclient.GetCurrentConfiguration()

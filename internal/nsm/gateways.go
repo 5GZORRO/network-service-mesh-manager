@@ -83,9 +83,8 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 	// Floating IP should be already created
 
 	config := Config{}
-	// TODO this should be different, API not exposed on external IP
-	// TODO to be fixed, using the one received from API
-	config.MgmtIp = resource.Gateway.External.ExternalIp
+	// GW Management IP/port config
+	config.MgmtIp = jsonBody.MgmtIp
 	config.MgmtPort, _ = parsePort(strconv.Itoa(int(obj.VpnaasConfig.VpnaasPort)))
 	resource.Gateway.Config = config
 

@@ -32,7 +32,7 @@ vim:                  # Vims to be used, they can be type=openstack or type=none
     domainID: "<domain_id>"
     floatingNetworkName: "<floating_net_name>"           # Floating network name on the vim to be used as the main floating-net when creating the SAPs
     floatingNetworkID: "<floating_net_ID>"
-    availabilityZone: "nova"
+    availabilityZone: "<availability_zone_name>"
 
 # Static setting for all VPNaaS managed by this NSMM:
 #   it is assumed that all the VPNaaS are executed on the same port

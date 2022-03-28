@@ -51,6 +51,7 @@ nsmm:
     domainID: "<domain_id>"
     floatingNetworkName: "<floating_net_name>"
     floatingNetworkID: "<floating_net_id>"
+    availabilityZone: "<availability_zone_name>"
   - name: "vim2"
     type: "<vim_type>"
     identityEndpoint: "<identity_endpoint>"
@@ -60,10 +61,12 @@ nsmm:
     domainID: "<domain_id>"
     floatingNetworkName: "<floating_net_name>"
     floatingNetworkID: "<floating_net_id>"
+    availabilityZone: "<availability_zone_name>"
   vpnaas:
     port: 8080
     environment: local
     idep:                       # ID&P parameters: IP, port and secret
       host: "<ID&P_IP>"
       port: 8083
+      verifyEndpoint: "/authentication/operator_key_pair/verify"
       secret : "5gzorroidportalnsmm"

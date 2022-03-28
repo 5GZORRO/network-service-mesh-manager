@@ -87,6 +87,7 @@ data:
         domainID: {{ .domainID | quote }}
         floatingNetworkName: {{ .floatingNetworkName | quote }}
         floatingNetworkID: {{ .floatingNetworkID | quote }}
+        availabilityZone: {{ .availabilityZone | quote }}
       {{- end }} 
     
     vpnaas:
@@ -95,6 +96,7 @@ data:
       idep:                       # ID&P parameters: IP, port and secret
         host: "{{ .Values.nsmm.vpnaas.idep.host }}"
         port: {{ .Values.nsmm.vpnaas.idep.port }}
+        verifyEndpoint: {{ .Values.nsmm.vpnaas.idep.verifyEndpoint }}
         secret : "{{ .Values.nsmm.vpnaas.idep.secret }}"
 kind: ConfigMap
 metadata:

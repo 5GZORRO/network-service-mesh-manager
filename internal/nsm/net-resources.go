@@ -80,7 +80,7 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	vim, err := obj.Vims.GetVim(jsonBody.VimName)
 	if err != nil {
 		log.Error("Impossible to create network resources. Vim with name: ", jsonBody.VimName, " does not exist")
-		SetErrorResponse(c, http.StatusForbidden, vimdriver.ErrVimNotFound)
+		SetErrorResponse(c, http.StatusNotFound, vimdriver.ErrVimNotFound)
 		return
 	}
 
@@ -282,7 +282,7 @@ func (obj *ServerInterfaceImpl) deleteNetResources(c *gin.Context, netres *Resou
 	vim, err := obj.Vims.GetVim(netres.VimName)
 	if err != nil {
 		log.Error("Impossible to create network resources. Vim with name: ", netres.VimName, " does not exist")
-		SetErrorResponse(c, http.StatusForbidden, vimdriver.ErrVimNotFound)
+		SetErrorResponse(c, http.StatusNotFound, vimdriver.ErrVimNotFound)
 		return
 	}
 

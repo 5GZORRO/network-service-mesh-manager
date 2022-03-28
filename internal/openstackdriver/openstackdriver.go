@@ -17,6 +17,8 @@ type OpenStackDriver struct {
 	DomainID            string
 	FloatingNetworkName string
 	FloatingNetworkID   string
+	// other config params
+	AvailabilityZone string
 	// openstack
 	provider       *gophercloud.ProviderClient
 	identityClient *gophercloud.ServiceClient
@@ -25,7 +27,7 @@ type OpenStackDriver struct {
 }
 
 func NewOpenStackDriver(identityEndpoint string, username string, password string, tenantID string, domainID string,
-	floatinNetID string, floatNetName string) *OpenStackDriver {
+	floatinNetID string, floatNetName string, availZone string) *OpenStackDriver {
 	return &OpenStackDriver{
 		IdentityEndpoint:    identityEndpoint,
 		Username:            username,
@@ -34,6 +36,7 @@ func NewOpenStackDriver(identityEndpoint string, username string, password strin
 		DomainID:            domainID,
 		FloatingNetworkID:   floatinNetID,
 		FloatingNetworkName: floatNetName,
+		AvailabilityZone:    availZone,
 	}
 }
 

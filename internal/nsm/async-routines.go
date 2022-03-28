@@ -81,7 +81,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 
 		vpnIp := res.Gateway.Config.PrivateVpnRange
 		log.Trace(keyPair)
-		idm_enpoint := "http://" + idep.Host + ":" + fmt.Sprint(idep.Port) + "/authentication/operator_key_pair/verify" // TODO
+		idm_enpoint := "http://" + idep.Host + ":" + fmt.Sprint(idep.Port) + idep.VerifyEndpoint
 		output = client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), keyPair, idm_enpoint)
 	} else {
 		log.Trace("Configuration is in TEST (local) mode. Key pair is not configured")

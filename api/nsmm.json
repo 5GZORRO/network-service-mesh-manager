@@ -108,6 +108,9 @@
                             }
                         },
                         "description": "Network resources for slice-id already exists"
+                    },
+                    "404": {
+                        "description": "Vim associated to the request does not exist"
                     }
                 },
                 "summary": "Creation of network-resources for a new slice",

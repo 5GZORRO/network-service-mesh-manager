@@ -18,7 +18,7 @@ func (client *OpenStackDriver) CreateNetwork(name string, cidr string, gateway b
 	log.Info("Creating Network with name ", name)
 	// network global params
 	var sharedNetworks bool = false
-	var availabilityZoneHints = []string{"nova"} // TODO put it in config file
+	var availabilityZoneHints = []string{client.AvailabilityZone}
 	var adminStateUp = true
 
 	createOpts := networks.CreateOpts{

@@ -53,7 +53,7 @@ func InizializeVims(db *gorm.DB, vimConfigs []config.VimConfigurations) *VimDriv
 			// log.Info("Type: ", configVim.Type)
 			switch configVim.Type {
 			case string(Openstack):
-				openstackclient := osdriver.NewOpenStackDriver(configVim.IdentityEndpoint, configVim.Username, configVim.Password, configVim.TenantID, configVim.DomainID, configVim.FloatingNetworkID, configVim.FloatingNetworkName)
+				openstackclient := osdriver.NewOpenStackDriver(configVim.IdentityEndpoint, configVim.Username, configVim.Password, configVim.TenantID, configVim.DomainID, configVim.FloatingNetworkID, configVim.FloatingNetworkName, configVim.AvailabilityZone)
 				log.Trace("Loaded vim: ", openstackclient)
 				openstackclient.Authenticate()
 				vimList.addVim(configVim.Name, openstackclient)

@@ -52,6 +52,7 @@ type VimConfigurations struct {
 	DomainID            string
 	FloatingNetworkID   string
 	FloatingNetworkName string
+	AvailabilityZone    string
 }
 
 // VpnaasConfigurations exported
@@ -63,9 +64,10 @@ type VpnaasConfigurations struct {
 
 // VpnaasConfigurations exported
 type IdepConfigurations struct {
-	Port   int
-	Host   string
-	Secret string
+	Port           int
+	Host           string
+	VerifyEndpoint string
+	Secret         string
 }
 
 func LogLevel(c *Configurations) (log.Level, error) {

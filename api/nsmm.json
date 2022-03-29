@@ -1260,16 +1260,10 @@
                     "service-access-points": [
                         {
                             "network-name": "some text",
-                            "network-id": "some text",
-                            "subnet-id": "some text",
-                            "subnet-name": "some text",
                             "subnet-cidr": "some text"
                         },
                         {
                             "network-name": "some text",
-                            "network-id": "some text",
-                            "subnet-id": "some text",
-                            "subnet-name": "some text",
                             "subnet-cidr": "some text"
                         }
                     ],
@@ -1285,9 +1279,6 @@
                 "description": "",
                 "required": [
                     "network-name",
-                    "network-id",
-                    "subnet-id",
-                    "subnet-name",
                     "subnet-cidr"
                 ],
                 "type": "object",
@@ -1296,30 +1287,13 @@
                         "description": "Network name specified in the NSD",
                         "type": "string"
                     },
-                    "network-id": {
-                        "description": "ID of the SAP network",
-                        "type": "string"
-                    },
-                    "subnet-id": {
-                        "description": "subnet associated to the SAP network",
-                        "type": "string"
-                    },
-                    "subnet-name": {
-                        "description": "",
-                        "type": "string"
-                    },
                     "subnet-cidr": {
-                        "description": "",
+                        "description": "Subnet dedicated to the SAP network",
                         "type": "string"
                     }
                 },
                 "example": {
                     "network-name": "some text",
-                    "network-id": "some text",
-                    "subnet-id": "some text",
-                    "gw-port-name": "some text",
-                    "gw-external-ip": "some text",
-                    "subnet-name": "some text",
                     "subnet-cidr": "some text"
                 }
             }

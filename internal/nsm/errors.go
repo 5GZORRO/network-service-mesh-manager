@@ -40,6 +40,7 @@ var (
 	ErrConnectionParameters    = errors.New("connection parameters in body request are wrong")
 	ErrNoConnection            = errors.New("no connection found")
 	ErrCreatingConnection      = errors.New("error creating VPN connection")
+	ErrClosingConnection       = errors.New("error closing a VPN connection")
 	ErrSavingConnectionDB      = errors.New("error saving connection in DB")
 	ErrConnectionCanBeCanceled = errors.New("error deleting a VPN connection, gateway is not running")
 )

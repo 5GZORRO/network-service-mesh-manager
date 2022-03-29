@@ -81,16 +81,11 @@ type PostConnection struct {
 
 // PostFixedSap defines model for PostFixedSap.
 type PostFixedSap struct {
-	// ID of the SAP network
-	NetworkId string `json:"network-id"`
-
 	// Network name specified in the NSD
 	NetworkName string `json:"network-name"`
-	SubnetCidr  string `json:"subnet-cidr"`
 
-	// subnet associated to the SAP network
-	SubnetId   string `json:"subnet-id"`
-	SubnetName string `json:"subnet-name"`
+	// Subnet dedicated to the SAP network
+	SubnetCidr string `json:"subnet-cidr"`
 }
 
 // Configuration of a gateway

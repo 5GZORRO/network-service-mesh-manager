@@ -119,10 +119,10 @@ func (obj *ServerInterfaceImpl) PostNetResourcesStaticSap(c *gin.Context) {
 	for _, sap := range jsonBody.ServiceAccessPoints {
 		ap := Sap{
 			ResourceSetId:   resset.ID,
-			NetworkId:       sap.NetworkId,
+			NetworkId:       "",
 			NetworkName:     sap.NetworkName,
-			SubnetId:        sap.SubnetId,
-			SubnetName:      sap.SubnetName,
+			SubnetId:        "",
+			SubnetName:      "",
 			SubnetCidr:      sap.SubnetCidr,
 			RouterId:        "",
 			RouterName:      "",
@@ -136,8 +136,8 @@ func (obj *ServerInterfaceImpl) PostNetResourcesStaticSap(c *gin.Context) {
 
 	ext := ExternalIP{}
 	ext.ExternalIp = jsonBody.GwExternalIp
-	ext.PortID = jsonBody.GwPortName
-	ext.PortName = ""
+	ext.PortID = ""
+	ext.PortName = jsonBody.GwPortName
 	ext.FloatingID = ""
 	resset.Gateway.External = ext
 	resset.Status = WAIT_FOR_GATEWAY_CONFIG

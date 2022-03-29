@@ -187,7 +187,7 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesIdGatewayConnectionsCid(c *gin
 	log.Debug("VPNaaS disconnect output: ", output)
 	if !output {
 		log.Error("Error removing VPN connection with peer: ", conn.PeerIp)
-		SetErrorResponse(c, http.StatusInternalServerError, ErrCreatingConnection)
+		SetErrorResponse(c, http.StatusInternalServerError, ErrClosingConnection)
 		return
 	}
 	log.Trace("Closed VPN connection with peer: ", conn.PeerIp, " removing it from DB...")

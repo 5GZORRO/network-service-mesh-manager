@@ -1205,11 +1205,8 @@
                 "description": "POST to create all the network resources of a slice on a vim",
                 "required": [
                     "networks",
-                    "service-access-points",
                     "slice-id",
-                    "vim-name",
-                    "gw-port-name",
-                    "gw-external-ip"
+                    "vim-name"
                 ],
                 "type": "object",
                 "properties": {
@@ -1218,13 +1215,6 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/PostNetwork"
-                        }
-                    },
-                    "service-access-points": {
-                        "description": "SAP specified in the NSD",
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/PostFixedSap"
                         }
                     },
                     "slice-id": {
@@ -1237,14 +1227,6 @@
                     },
                     "exclude-subnet": {
                         "description": "Last subnet used by the peer",
-                        "type": "string"
-                    },
-                    "gw-port-name": {
-                        "description": "GW Interface name of VPNaaS",
-                        "type": "string"
-                    },
-                    "gw-external-ip": {
-                        "description": "FIP assigned to the GW",
                         "type": "string"
                     }
                 },
@@ -1272,29 +1254,6 @@
                     "exclude-subnet": "some text",
                     "gw-port-name": "some text",
                     "gw-external-ip": "some text"
-                }
-            },
-            "PostFixedSap": {
-                "title": "Root Type for Sap",
-                "description": "",
-                "required": [
-                    "network-name",
-                    "subnet-cidr"
-                ],
-                "type": "object",
-                "properties": {
-                    "network-name": {
-                        "description": "Network name specified in the NSD",
-                        "type": "string"
-                    },
-                    "subnet-cidr": {
-                        "description": "Subnet dedicated to the SAP network",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "network-name": "some text",
-                    "subnet-cidr": "some text"
                 }
             }
         }

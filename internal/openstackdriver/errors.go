@@ -15,5 +15,6 @@ var (
 	ErrRouterRemoval  = errors.New("error deleting router")
 	ErrNetworkRemoval = errors.New("error deleting network")
 	// Gateway configuration
-	ErrGWPortNotFound = errors.New("error Gateway VM external port not found")
+	ErrGWPortNotFound        = errors.New("error Gateway VM external port not found")
+	ErrStaticGatewayNotFound = errors.New("static gateway for selected VIM does not exist")
 )

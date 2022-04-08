@@ -83,7 +83,10 @@ func main() {
 	log.Info(" Server: ", configuration.Server)
 	log.Info(" Database: ", configuration.Database)
 	log.Info(" Networks: ", configuration.Networks)
-	log.Info(" VIMs: ", configuration.Vim)
+	log.Info(" VIMs: ")
+	for _, vimc := range configuration.Vim {
+		log.Info("  - VIM ", vimc.Name, " ", vimc)
+	}
 	log.Info(" VPNaaS: ", configuration.Vpnaas)
 
 	// STEP DB

@@ -1,4 +1,4 @@
-package vim
+package stubdriver
 
 import (
 	"errors"

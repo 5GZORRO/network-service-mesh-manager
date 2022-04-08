@@ -1,6 +1,8 @@
 package openstackdriver
 
 import (
+	"nextworks/nsm/internal/config"
+
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
@@ -17,6 +19,8 @@ type OpenStackDriver struct {
 	DomainID            string
 	FloatingNetworkName string
 	FloatingNetworkID   string
+	// Fixed static Gateway for this VIM
+	StaticGateway *config.StaticGateway
 	// other config params
 	AvailabilityZone string
 	// openstack
@@ -27,7 +31,7 @@ type OpenStackDriver struct {
 }
 
 func NewOpenStackDriver(identityEndpoint string, username string, password string, tenantID string, domainID string,
-	floatinNetID string, floatNetName string, availZone string) *OpenStackDriver {
+	floatinNetID string, floatNetName string, availZone string, staticgw *config.StaticGateway) *OpenStackDriver {
 	return &OpenStackDriver{
 		IdentityEndpoint:    identityEndpoint,
 		Username:            username,
@@ -37,7 +41,20 @@ func NewOpenStackDriver(identityEndpoint string, username string, password strin
 		FloatingNetworkID:   floatinNetID,
 		FloatingNetworkName: floatNetName,
 		AvailabilityZone:    availZone,
+		StaticGateway:       staticgw,
 	}
+}
+
+// Retrive Static GW info from this object, using the interface
+func (client *OpenStackDriver) GetStaticGatewayInfo() (string, string, string, string, string, error) {
+	log.Info("Retrieving Static Gateway Info from OpenStack...")
+	if client.StaticGateway == nil {
+		log.Error("No Static Gateway specified for VIM OpenStack...")
+		return "", "", "", "", "", ErrStaticGatewayNotFound
+	} else {
+		return client.StaticGateway.NetworkName, client.StaticGateway.SubnetCidr, client.StaticGateway.ExternalInterfaceName, client.StaticGateway.FloatingIP, client.StaticGateway.InstanceID, nil
+	}
+
 }
 
 // RetrieveFloatingNetworkID function

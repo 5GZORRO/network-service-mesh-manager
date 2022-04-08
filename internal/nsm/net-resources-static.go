@@ -5,6 +5,7 @@ import (
 	"net/http"
 	nsmmapi "nextworks/nsm/api"
 	vimdriver "nextworks/nsm/internal/vim"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -41,6 +42,13 @@ func (obj *ServerInterfaceImpl) PostNetResourcesStaticSap(c *gin.Context) {
 		SetErrorResponse(c, http.StatusNotFound, vimdriver.ErrVimNotFound)
 		return
 	}
+	// Being a Static GW resource creation, check if the VIM has a static GW associated
+	gwNetworkName, gwSubnetCidr, gwExternalInterfaceName, gwFloatingIP, gwInstanceID, err := (*vim).GetStaticGatewayInfo()
+	if err != nil {
+		log.Error("Impossible to create network resources with static GW. Static GW not specified for VIM: ", jsonBody.VimName)
+		SetErrorResponse(c, http.StatusNotFound, vimdriver.ErrStaticGatewayNotFound)
+		return
+	}
 
 	// Check if resources for slice-id already exists
 	var netres ResourceSet
@@ -59,10 +67,13 @@ func (obj *ServerInterfaceImpl) PostNetResourcesStaticSap(c *gin.Context) {
 	}
 	// scan resources and create them on the VIM
 	resset := &ResourceSet{
-		Status:    CREATING,
-		VimName:   jsonBody.VimName,
-		SliceId:   jsonBody.SliceId,
-		StaticSap: true,
+		Status:  CREATING,
+		VimName: jsonBody.VimName,
+		SliceId: jsonBody.SliceId,
+		StaticGW: StaticGatewayAdditionalInfo{
+			Enabled:    true,
+			InstanceID: gwInstanceID,
+		},
 	}
 
 	result = obj.DB.Save(resset)
@@ -116,41 +127,62 @@ func (obj *ServerInterfaceImpl) PostNetResourcesStaticSap(c *gin.Context) {
 	}
 
 	// the sap is static, so no operation on the vim is invoked, only store information coming from API
-	for _, sap := range jsonBody.ServiceAccessPoints {
-		ap := Sap{
-			ResourceSetId:   resset.ID,
-			NetworkId:       "",
-			NetworkName:     sap.NetworkName,
-			SubnetId:        "",
-			SubnetName:      "",
-			SubnetCidr:      sap.SubnetCidr,
-			RouterId:        "",
-			RouterName:      "",
-			RouterPortId:    "",
-			FloatingNetID:   (*vim).RetrieveFloatingNetworkID(),
-			FloatingNetName: (*vim).RetrieveFloatingNetworkName(),
+	ap := Sap{
+		ResourceSetId:   resset.ID,
+		NetworkId:       "",
+		NetworkName:     gwNetworkName,
+		SubnetId:        "",
+		SubnetName:      "",
+		SubnetCidr:      gwSubnetCidr,
+		RouterId:        "",
+		RouterName:      "",
+		RouterPortId:    "",
+		FloatingNetID:   (*vim).RetrieveFloatingNetworkID(),
+		FloatingNetName: (*vim).RetrieveFloatingNetworkName(),
+	}
+	resset.Saps = append(resset.Saps, ap)
+	log.Trace("PostNetResourcesFixedSap - stored SAP ", ap.NetworkName, " with cidr: "+ap.SubnetCidr)
+
+	// Add the additional interface on the GW-VM on the exposed network, in order to connect the GW-VM
+	// with the network to be exposed on the VPN
+	// NOTE Select first exposed net
+	var exposedNetID string = ""
+	for _, network := range resset.Networks {
+		log.Trace("Network: with name: ", network.NetworkName)
+		if strings.HasPrefix(network.NetworkName, obj.Netconfig.ExposedNetworksNamePrefix) {
+			log.Info("Selected Network with name ", network.NetworkName)
+			exposedNetID = network.NetworkId
+			break
 		}
-		resset.Saps = append(resset.Saps, ap)
-		log.Trace("PostNetResourcesFixedSap - stored SAP ", sap.NetworkName, " with cidr: "+sap.SubnetCidr)
+
+	}
+	if exposedNetID == "" {
+		log.Error("No network has name matching the ExposedNetworkNamePrefix, so GW-VM will not be connected to the exposed network, continue without port")
+		resset.StaticGW.PortID = ""
+	} else {
+		portId, err := (*vim).CreateInterfacePort(gwInstanceID, exposedNetID)
+		if err != nil {
+			log.Error("Error adding the interface to GW-VM on the exposed network, continue without port...")
+			resset.StaticGW.PortID = ""
+		}
+		resset.StaticGW.PortID = portId
 	}
 
 	ext := ExternalIP{}
-	ext.ExternalIp = jsonBody.GwExternalIp
+	ext.ExternalIp = gwFloatingIP
 	ext.PortID = ""
-	ext.PortName = jsonBody.GwPortName
+	ext.PortName = gwExternalInterfaceName
 	ext.FloatingID = ""
 	resset.Gateway.External = ext
 	resset.Status = WAIT_FOR_GATEWAY_CONFIG
 
-	log.Trace("ResourceSet with relations infos: ", *resset)
-	resset.Status = WAIT_FOR_GATEWAY_CONFIG
 	result = obj.DB.Save(resset)
 	if result.Error != nil {
 		log.Error("Impossible to create network resources. Error saving in DB")
 		SetErrorResponse(c, http.StatusInternalServerError, ErrGeneral)
 		return
 	}
-	log.Trace("PostNetResourcesFixedSap updated ", *resset)
+	log.Trace("PostNetResourcesFixedSap updated and saved ", *resset)
 
 	SetNetResourcesResponse(c, http.StatusCreated, *resset)
 

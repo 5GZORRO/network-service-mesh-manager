@@ -38,15 +38,7 @@ type Config struct {
 	MgmtIp          string // Management IP of the GW
 	MgmtPort        uint16 // NOTE: It is the Server and wireguard port!!
 	PrivateVpnRange string
-	ExposedNets     string  // Subnets to be exposed through the VPN connection
-	Keys            KeyPair `gorm:"embedded;embeddedPrefix:key_"`
-}
-
-type KeyPair struct {
-	Did       string
-	PubK      string
-	PrivK     string
-	Timestamp string
+	ExposedNets     string // Subnets to be exposed through the VPN connection
 }
 
 type Network struct {

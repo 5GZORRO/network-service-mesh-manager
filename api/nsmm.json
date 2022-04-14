@@ -998,7 +998,7 @@
                 "type": "object",
                 "properties": {
                     "mgmt-ip": {
-                        "description": "Gateway VM management IP",
+                        "description": "Gateway VM management IP, ore the IP address where VPNaaS is exposed",
                         "type": "string"
                     }
                 },
@@ -1014,7 +1014,6 @@
                     "mgmt-ip",
                     "mgmt-port",
                     "private-vpn-range",
-                    "keyPair",
                     "external-ip"
                 ],
                 "type": "object",
@@ -1041,10 +1040,6 @@
                         },
                         "example": "172.24.0.0/24"
                     },
-                    "keyPair": {
-                        "$ref": "#/components/schemas/KeyPair",
-                        "description": "Key pair information received from ID&P"
-                    },
                     "external-ip": {
                         "description": "Exposed IP, which is the Floating IP",
                         "type": "string"
@@ -1058,12 +1053,7 @@
                         "some text",
                         "some text"
                     ],
-                    "keyPair": {
-                        "Did": "some text",
-                        "timestamp": "some text",
-                        "public-key": "some text",
-                        "private-key": "some text"
-                    }
+                    "external-ip": "some text"
                 }
             },
             "PostSap": {
@@ -1166,39 +1156,6 @@
                 },
                 "example": {
                     "external-ip": "some text"
-                }
-            },
-            "KeyPair": {
-                "title": "Root Type for KeyPair",
-                "description": "Key Pair information received from the ID&P",
-                "required": [
-                    "Did",
-                    "private-key",
-                    "public-key",
-                    "timestamp"
-                ],
-                "type": "object",
-                "properties": {
-                    "Did": {
-                        "description": "DID ",
-                        "type": "string"
-                    },
-                    "timestamp": {
-                        "description": "Timestamp",
-                        "type": "string"
-                    },
-                    "public-key": {
-                        "type": "string"
-                    },
-                    "private-key": {
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "Did": "some text",
-                    "timestamp": "some text",
-                    "public-key": "some text",
-                    "private-key": "some text"
                 }
             },
             "PostSliceResourcesFixedSap": {

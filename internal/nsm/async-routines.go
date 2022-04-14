@@ -51,7 +51,7 @@ func deleteStaticResources(database *gorm.DB, vim *vimdriver.VimDriver, res *Res
 	// time.Sleep(time.Second * 5)
 	log.Trace("Async routine to delete STATIC SAP resources stared")
 
-	// TODO 1. First step is to remove the GW Interface Port on the exposed_net, select it by name
+	// 1. First step is to remove the GW Interface Port on the exposed_net, select it by name
 	if res.StaticGW.PortID != "" { // In case of error it could be empty
 		log.Trace("Deleting InterfacePort of the GW-VM on the exposed net")
 		(*vim).DeleteInterfacePort(res.StaticGW.InstanceID, res.StaticGW.PortID)
@@ -100,12 +100,9 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 			}
 			log.Trace("Async routine to configure gateway ended")
 		}
-		log.Trace("KeyPair received from ID&P: ", keyPair)
-		// handle keyPair
-		res.Gateway.Config.Keys.Did = keyPair.Did
-		res.Gateway.Config.Keys.PrivK = keyPair.PrivKey
-		res.Gateway.Config.Keys.PubK = keyPair.PubKey
-		res.Gateway.Config.Keys.Timestamp = keyPair.Timestamp
+		log.Trace("KeyPair Encrypted received from ID&P: ", keyPair)
+		// handle keyPair REMOVED, it is now a simple encrypted string
+		// TODO should it be saved in DB anyway?
 
 		// configure VM gateway, starting the VPN server
 		// var client gatewayconfig.VPNHttpClient

@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	identityclient "nextworks/nsm/internal/identity"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -65,7 +63,7 @@ func (client *VPNaaSClient) LaunchTest(ipRange string, netInterface string, port
 }
 
 // Start the VPN service calling the /launch() endpoint
-func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port string, keyPair *identityclient.KeyPair, idependpoint string) bool {
+func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port string, encrKeyPair string, idependpoint string) bool {
 	c := http.Client{Timeout: time.Duration(timout) * time.Second}
 	// In case of Prod environment (Zorro testbed), keys to be used are the one retrieved from the ID&P
 	bodyrequest := PostLaunch{
@@ -74,10 +72,7 @@ func (client *VPNaaSClient) Launch(ipRange string, netInterface string, port str
 		Port:         port,
 		Environment:  client.environment,
 		IDMEndpoint:  idependpoint,
-		Did:          keyPair.Did,
-		PubKey:       keyPair.PubKey,
-		PrivKey:      keyPair.PrivKey,
-		Timestamp:    keyPair.Timestamp,
+		IDMPayload:   encrKeyPair,
 	}
 
 	jsonBody, _ := json.Marshal(bodyrequest)

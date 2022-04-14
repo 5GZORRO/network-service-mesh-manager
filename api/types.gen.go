@@ -31,9 +31,6 @@ type Gateway struct {
 	// Exposed IP, which is the Floating IP
 	ExternalIp string `json:"external-ip"`
 
-	// Key Pair information received from the ID&P
-	KeyPair KeyPair `json:"keyPair"`
-
 	// Gateway VM management IP
 	MgmtIp string `json:"mgmt-ip"`
 
@@ -48,17 +45,6 @@ type Gateway struct {
 type GatewayIP struct {
 	// External-IP associated to the gateway
 	ExternalIp string `json:"external-ip"`
-}
-
-// Key Pair information received from the ID&P
-type KeyPair struct {
-	// DID
-	Did        string `json:"Did"`
-	PrivateKey string `json:"private-key"`
-	PublicKey  string `json:"public-key"`
-
-	// Timestamp
-	Timestamp string `json:"timestamp"`
 }
 
 // Network defines model for Network.
@@ -81,7 +67,7 @@ type PostConnection struct {
 
 // Configuration of a gateway
 type PostGateway struct {
-	// Gateway VM management IP
+	// Gateway VM management IP, ore the IP address where VPNaaS is exposed
 	MgmtIp string `json:"mgmt-ip"`
 }
 

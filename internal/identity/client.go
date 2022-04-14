@@ -30,37 +30,38 @@ func New(addr net.IP, port string, secret string) *IdentityClient {
 }
 
 // Start the VPN service calling the /launch() endpoint
-func (client *IdentityClient) CreateKeyPair() (*KeyPair, error) {
+func (client *IdentityClient) CreateKeyPair() (string, error) {
 	c := http.Client{Timeout: time.Duration(timout) * time.Second}
 
 	log.Trace("IdentityClient {", client.ip.String(), " ", client.port, "} -- Requesting a key pair ")
 	req, err := http.NewRequest("GET", "http://"+client.ip.String()+":"+client.port+"/authentication/operator_key_pair", nil)
 	if err != nil {
 		log.Error(err)
-		return nil, err
+		return "", err
 	}
 
-	req.Header.Add("Accept", `application/json`)
+	// req.Header.Add("Accept", `application/json`)
 	req.Header.Add("shared-secret", client.secret)
 	resp, err := c.Do(req)
 	// send request
 	if err != nil {
 		log.Error(err)
-		return nil, err
+		return "", err
 	}
 	log.Debug("IdentityClient {", client.ip.String(), " ", client.port, "} -- Response status: ", resp.Status)
 	if resp.StatusCode == 200 {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Error(err)
-			return nil, err
+			return "", err
 		}
-		var info KeyPair
-		json.Unmarshal(body, &info)
-		log.Trace("IdentityClient {", client.ip.String(), " ", client.port, "} -- Response Body ", info)
-		return &info, nil
+		// var info KeyPair
+		// json.Unmarshal(body, &info)
+		bodyString := string(body)
+		log.Trace("IdentityClient {", client.ip.String(), " ", client.port, "} -- Response Body ", bodyString)
+		return bodyString, nil
 	} else {
-		return nil, err
+		return "", err
 	}
 }
 

@@ -13,10 +13,7 @@ type PostLaunch struct {
 	Port         string `json:"port"`
 	Environment  string `json:"environment"`
 	IDMEndpoint  string `json:"endpoint_IdM"`
-	Did          string `json:"DID"`
-	PubKey       string `json:"public_key"`
-	PrivKey      string `json:"private_key"`
-	Timestamp    string `json:"timestamp"`
+	IDMPayload   string `json:"IdM_payload"`
 }
 
 type PostDisconnect struct {

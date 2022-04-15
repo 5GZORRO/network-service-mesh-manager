@@ -81,35 +81,6 @@
 					"response": []
 				},
 				{
-					"name": "/net-resources (static)",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_static1\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_static_sap1\",\n            \"network-id\": \"aaaaa\",\n            \"subnet-id\": \"bbbbbb\",\n            \"subnet-name\": \"test_static_subnet1\",\n            \"subnet-cidr\": \"192.168.161.16/28\"\n        }\n    ],\n    \"slice-id\": \"example-stub4\",\n    \"vim-name\": \"vim-stub\",\n    \"gw-port-name\": \"ens5\",\n    \"gw-external-ip\": \"10.30.6.60\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/net-resources/static-sap",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"net-resources",
-								"static-sap"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "/net-resources (excluded)",
 					"request": {
 						"method": "POST",
@@ -132,35 +103,6 @@
 							"port": "{{PORT}}",
 							"path": [
 								"net-resources"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/net-resources (static, excluded)",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_static_sap\",\n            \"network-id\": \"aaaaa\",\n            \"subnet-id\": \"bbbbbb\",\n            \"subnet-name\": \"test_static_subnet\",\n            \"subnet-cidr\": \"192.168.161.48/28\"\n        }\n    ],\n    \"slice-id\": \"example-stub3\",\n    \"vim-name\": \"vim-stub\",\n    \"gw-port-name\": \"ens5\",\n    \"gw-external-ip\": \"10.30.6.22\",\n    \"exclude-subnet\": \"192.168.161.16/28\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/net-resources/static-sap",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"net-resources",
-								"static-sap"
 							]
 						}
 					},

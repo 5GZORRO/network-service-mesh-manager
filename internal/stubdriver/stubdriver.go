@@ -1,8 +1,6 @@
 package stubdriver
 
 import (
-	"nextworks/nsm/internal/config"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -10,30 +8,17 @@ import (
 type StubDriver struct {
 	Username            string
 	Password            string
-	StaticGateway       *config.StaticGateway // Fixed static Gateway for this VIM
 	FloatingNetworkName string
 	FloatingNetworkID   string
 }
 
-func NewStubDriver(username string, password string, floatingID string, floatingnet string, staticgw *config.StaticGateway) *StubDriver {
+func NewStubDriver(username string, password string, floatingID string, floatingnet string) *StubDriver {
 	return &StubDriver{
 		Username:            username,
 		Password:            password,
 		FloatingNetworkID:   floatingID,
 		FloatingNetworkName: floatingnet,
-		StaticGateway:       staticgw,
 	}
-}
-
-func (client *StubDriver) GetStaticGatewayInfo() (string, string, string, string, string, error) {
-	log.Info("Retrieving Static Gateway Info from Stub...")
-	if client.StaticGateway == nil {
-		log.Error("No Static Gateway specified for VIM Stub...")
-		return "", "", "", "", "", ErrStaticGatewayNotFound
-	} else {
-		return client.StaticGateway.NetworkName, client.StaticGateway.SubnetCidr, client.StaticGateway.ExternalInterfaceName, client.StaticGateway.FloatingIP, client.StaticGateway.InstanceID, nil
-	}
-
 }
 
 // Authenticate function
@@ -101,15 +86,4 @@ func (obj *StubDriver) DeleteSAP(networkID string, subnetID string, routerID str
 
 func (client *StubDriver) RetrieveNetwork(id string) {
 	log.Info("Retrieving Network on Stub...")
-}
-
-// Functions used in case of StaticGws
-func (client *StubDriver) CreateInterfacePort(serverId string, networkId string) (string, error) {
-	log.Info("Creating interface Port from ServerId on Stub...")
-	return "portID", nil
-}
-
-func (client *StubDriver) DeleteInterfacePort(serverId string, portId string) error {
-	log.Info("Deleting interface Port from ServerId on Stub...")
-	return nil
 }

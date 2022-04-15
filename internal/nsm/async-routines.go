@@ -7,7 +7,6 @@ import (
 	gatewayconfig "nextworks/nsm/internal/gateway-config"
 	identityclient "nextworks/nsm/internal/identity"
 	vimdriver "nextworks/nsm/internal/vim"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -37,37 +36,6 @@ func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceS
 			log.Error("Error deleting SAP with network name ", sap.NetworkName)
 		}
 	}
-
-	// if removal from VIM is OK then delete it from DB
-	result := database.Delete(&res)
-	if result.Error != nil {
-		log.Error("Error deleting network resource set with ID: ", res.ID, " and slice-id: ", res.SliceId, " from DB")
-	}
-	log.Trace("Async routine to delete resources ended")
-}
-
-// deleteResources is a goroutine to delete in an async way all the network resources
-func deleteStaticResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceSet) {
-	// time.Sleep(time.Second * 5)
-	log.Trace("Async routine to delete STATIC SAP resources stared")
-
-	// 1. First step is to remove the GW Interface Port on the exposed_net, select it by name
-	if res.StaticGW.PortID != "" { // In case of error it could be empty
-		log.Trace("Deleting InterfacePort of the GW-VM on the exposed net")
-		(*vim).DeleteInterfacePort(res.StaticGW.InstanceID, res.StaticGW.PortID)
-	}
-	time.Sleep(time.Second * 2)
-	if len(res.Networks) == 0 {
-		log.Error("No networks to be deleted found")
-	}
-	// try to delete all resources
-	for _, net := range res.Networks {
-		err := (*vim).DeleteNetwork(net.NetworkId, net.SubnetId)
-		if err != nil {
-			log.Error("Error deleting network name ", net.NetworkName)
-		}
-	}
-	// No SAP to be deleted on VIM
 
 	// if removal from VIM is OK then delete it from DB
 	result := database.Delete(&res)

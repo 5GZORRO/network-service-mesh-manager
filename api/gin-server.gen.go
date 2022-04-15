@@ -22,9 +22,6 @@ type ServerInterface interface {
 	// Creation of network-resources for a new slice
 	// (POST /net-resources)
 	PostNetResources(c *gin.Context)
-	// Creation of networks for a network service with a static GW
-	// (POST /net-resources/static-sap)
-	PostNetResourcesStaticSap(c *gin.Context)
 	// Removal of a set of network resources using the ID
 	// (DELETE /net-resources/{id})
 	DeleteNetResourcesId(c *gin.Context, id int)
@@ -134,16 +131,6 @@ func (siw *ServerInterfaceWrapper) PostNetResources(c *gin.Context) {
 	}
 
 	siw.Handler.PostNetResources(c)
-}
-
-// PostNetResourcesStaticSap operation middleware
-func (siw *ServerInterfaceWrapper) PostNetResourcesStaticSap(c *gin.Context) {
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-	}
-
-	siw.Handler.PostNetResourcesStaticSap(c)
 }
 
 // DeleteNetResourcesId operation middleware
@@ -439,8 +426,6 @@ func RegisterHandlersWithOptions(router *gin.Engine, si ServerInterface, options
 	router.GET(options.BaseURL+"/net-resources", wrapper.GetNetResources)
 
 	router.POST(options.BaseURL+"/net-resources", wrapper.PostNetResources)
-
-	router.POST(options.BaseURL+"/net-resources/static-sap", wrapper.PostNetResourcesStaticSap)
 
 	router.DELETE(options.BaseURL+"/net-resources/:id", wrapper.DeleteNetResourcesId)
 

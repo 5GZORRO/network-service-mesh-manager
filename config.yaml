@@ -30,13 +30,6 @@ vim:                  # Vims to be used, they can be type=openstack or type=none
     password: "<password>"
     tenantID: "<tenant_id>"
     domainID: "<domain_id>"
-    # Static Gateway Information 
-    staticGateway: # Indicates the information of the StaticGateway associated to this VIM, specify here the network_name and subnet_cidr of the network connected through a router with the floating_net to allow FIP assignment,  interface name in the VM GW of the port connected on the network_name specified, the FloatingIP associated to this interface, and the ID of the VM-GW
-      networkName: "<>"
-      subnetCidr: "<>"
-      externalInterfaceName: "ens6"
-      floatingIP: "<>"
-      instanceId: "<>"
     floatingNetworkName: "<floating_net_name>"           # Floating network name on the vim to be used as the main floating-net when creating the SAPs
     floatingNetworkID: "<floating_net_ID>"
     availabilityZone: "<availability_zone_name>"

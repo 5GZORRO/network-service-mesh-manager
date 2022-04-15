@@ -101,21 +101,6 @@ type PostSliceResources struct {
 	VimName string `json:"vim-name"`
 }
 
-// POST to create all the network resources of a slice on a vim
-type PostSliceResourcesFixedSap struct {
-	// Last subnet used by the peer
-	ExcludeSubnet *string `json:"exclude-subnet,omitempty"`
-
-	// Name of the networks specified in the NSD
-	Networks []PostNetwork `json:"networks"`
-
-	// Id of the network slice owning the network resources, assigned by the Slicer
-	SliceId string `json:"slice-id"`
-
-	// Name of the VIM where to create the requested resources
-	VimName string `json:"vim-name"`
-}
-
 // Sap defines model for Sap.
 type Sap struct {
 	// Network name of the floating network, specified in the SAP information of the NSD
@@ -142,9 +127,6 @@ type SliceResources struct {
 	// Unique identifier assigned the Slicer
 	SliceId string `json:"slice-id"`
 
-	// Boolean indicating it the SAP of the resource set is fixed or created dinamically
-	StaticSap bool `json:"static-sap"`
-
 	// Status of the resources
 	Status string `json:"status"`
 
@@ -167,9 +149,6 @@ type GetNetResourcesParams struct {
 // PostNetResourcesJSONBody defines parameters for PostNetResources.
 type PostNetResourcesJSONBody PostSliceResources
 
-// PostNetResourcesStaticSapJSONBody defines parameters for PostNetResourcesStaticSap.
-type PostNetResourcesStaticSapJSONBody PostSliceResourcesFixedSap
-
 // PutNetResourcesIdGatewayConfigJSONBody defines parameters for PutNetResourcesIdGatewayConfig.
 type PutNetResourcesIdGatewayConfigJSONBody PostGateway
 
@@ -178,9 +157,6 @@ type PostNetResourcesIdGatewayConnectionsJSONBody PostConnection
 
 // PostNetResourcesJSONRequestBody defines body for PostNetResources for application/json ContentType.
 type PostNetResourcesJSONRequestBody PostNetResourcesJSONBody
-
-// PostNetResourcesStaticSapJSONRequestBody defines body for PostNetResourcesStaticSap for application/json ContentType.
-type PostNetResourcesStaticSapJSONRequestBody PostNetResourcesStaticSapJSONBody
 
 // PutNetResourcesIdGatewayConfigJSONRequestBody defines body for PutNetResourcesIdGatewayConfig for application/json ContentType.
 type PutNetResourcesIdGatewayConfigJSONRequestBody PutNetResourcesIdGatewayConfigJSONBody

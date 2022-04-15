@@ -271,25 +271,13 @@ func (obj *ServerInterfaceImpl) DeleteNetResourcesId(c *gin.Context, id int) {
 func (obj *ServerInterfaceImpl) deleteNetResources(c *gin.Context, netres *ResourceSet) {
 	// check status
 	// Delete is permitted when resources are created and not used, when there is an error during the creation
-	// or the GW has a floating ip assigned but it is static
-	// TODO tbt
-	if !netres.StaticGW.Enabled {
-		if netres.Status == CREATED || netres.Status == CREATION_ERROR {
-			log.Trace("Deleting... ", netres.Status)
-		} else {
-			log.Error("Impossible to delete network resources. The current state is ", netres.Status)
-			SetErrorResponse(c, http.StatusForbidden, ErrResourcesCantBeDeleted)
-			return
-		}
+
+	if netres.Status == CREATED || netres.Status == CREATION_ERROR {
+		log.Trace("Deleting... ", netres.Status)
 	} else {
-		// If static
-		if netres.Status == WAIT_FOR_GATEWAY_CONFIG {
-			log.Trace("Deleting staic resources... ", netres.Status)
-		} else {
-			log.Error("Impossible to delete network resources. The current state is ", netres.Status)
-			SetErrorResponse(c, http.StatusForbidden, ErrResourcesCantBeDeleted)
-			return
-		}
+		log.Error("Impossible to delete network resources. The current state is ", netres.Status)
+		SetErrorResponse(c, http.StatusForbidden, ErrResourcesCantBeDeleted)
+		return
 	}
 
 	// Check/Retrieve VIM
@@ -313,10 +301,8 @@ func (obj *ServerInterfaceImpl) deleteNetResources(c *gin.Context, netres *Resou
 		return
 	}
 	log.Trace("Removing network resources - staring asynch job to delete network resource set with ID: ", netres.ID)
-	if !netres.StaticGW.Enabled {
-		go deleteResources(obj.DB, vim, netres)
-	} else {
-		go deleteStaticResources(obj.DB, vim, netres)
-	}
+
+	go deleteResources(obj.DB, vim, netres)
+
 	c.Status(http.StatusOK)
 }

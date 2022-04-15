@@ -9,17 +9,10 @@ type ResourceSet struct {
 	VimName     string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	StaticGW    StaticGatewayAdditionalInfo `gorm:"embedded;embeddedPrefix:staticgw_"`
-	Gateway     Gateway                     `gorm:"embedded;embeddedPrefix:gw_"`
-	Networks    []Network                   `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE"`
-	Saps        []Sap                       `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE;"`
-	Connections []Connection                `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE;"`
-}
-
-type StaticGatewayAdditionalInfo struct {
-	Enabled    bool   `gorm:"default:false"`
-	InstanceID string // indicates the instanceID of the GW VM, added for static GW (UC1)
-	PortID     string // indicates the additional interface port crated to connect the GW-VM on the exposed network - used for static GW (UC1)
+	Gateway     Gateway      `gorm:"embedded;embeddedPrefix:gw_"`
+	Networks    []Network    `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE"`
+	Saps        []Sap        `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE;"`
+	Connections []Connection `gorm:"foreignKey:ResourceSetId;constraint:OnDelete:CASCADE;"`
 }
 
 type Gateway struct {

@@ -10,8 +10,6 @@ const (
 )
 
 type VimDriver interface {
-	// GetStaticGatewayInfo to retrieve from the actual implementation object the information of the static gw for this VIM
-	GetStaticGatewayInfo() (string, string, string, string, string, error)
 	Authenticate()
 	// AllocateFloatingIP allocates a floatingIp identified to a (compute) port found on the SAP network, selected using the prefix network
 	// it returns the portID, the interface name associated, the floatingID, the floating ip-address
@@ -32,8 +30,5 @@ type VimDriver interface {
 	// Function to return the FloatingNetworkName, set at init in the VimDriver object
 	RetrieveFloatingNetworkName() string
 	RetrieveFloatingNetworkID() string
-	// Attach a VM to a Network (used for now in case of static GW to attach to the VM to the exposed network)
-	CreateInterfacePort(string, string) (string, error)
-	DeleteInterfacePort(string, string) error
 	Revoke()
 }

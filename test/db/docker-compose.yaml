@@ -29,7 +29,7 @@ services:
 
   idep:
     container_name: idep
-    image: idep:1.0.0
+    image: idep:latest
     networks:
       - nsmm_network
     ports:

@@ -23,15 +23,7 @@ func main() {
 	client1 := identityclient.New(net.ParseIP(ip), port1, "5gzorroidportalnsmm")
 
 	res, _ := client1.CreateKeyPair()
+	// Now the createKeyPair returns a string, which should be passes as it is to the VPNaaS
 	log.Debug(res)
 
-	// client2 := identityclient.New(net.ParseIP(ip), port2, "5gzorroidportalnsmm")
-	// input := identityclient.VerifyKeyPairBody{
-	// 	Did:       "VdjbRWzuTwSj84twf92q5S",
-	// 	PubKey:    "72KkcAZHocXxMUyAnBJ0i5C0VM/phNuoCU7KF8s3brw=",
-	// 	Timestamp: "1646923005",
-	// }
-
-	// output := client2.VerifyKeyPair(&input)
-	// log.Debug(output)
 }

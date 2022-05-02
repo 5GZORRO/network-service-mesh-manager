@@ -67,6 +67,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 				log.Error("Error updating resource after gateway configuration in DB, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
 			}
 			log.Trace("Async routine to configure gateway ended")
+			return
 		}
 		log.Trace("KeyPair Encrypted received from ID&P: ", keyPair)
 		// handle keyPair REMOVED, it is now a simple encrypted string

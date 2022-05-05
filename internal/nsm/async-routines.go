@@ -7,10 +7,13 @@ import (
 	gatewayconfig "nextworks/nsm/internal/gateway-config"
 	identityclient "nextworks/nsm/internal/identity"
 	vimdriver "nextworks/nsm/internal/vim"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
+
+var requestTentatives = 2
 
 // deleteResources is a goroutine to delete in an async way all the network resources
 func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceSet) {
@@ -53,7 +56,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 	log.Trace("Async routine to configure gateway stared.")
 	log.Info("Configuration is in ", vpnaasenv, " mode.")
 
-	var output bool
+	var output = false
 	if vpnaasenv == gatewayconfig.Prod {
 		log.Debug("Configuration is in PROD (testbed) mode.")
 		log.Trace("Asking to ID&P a new Key Pair...")
@@ -80,13 +83,33 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 		vpnIp := res.Gateway.Config.PrivateVpnRange
 		log.Trace(keyPair)
 		idm_enpoint := "http://" + idep.Host + ":" + fmt.Sprint(idep.Port) + idep.VerifyEndpoint
-		output = client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), keyPair, idm_enpoint)
+
+		// try to send request X times, waiting for REST server to start up
+		i := 0
+		for i < requestTentatives && output == false {
+			i++
+			log.Trace("Connection to VPNaaS for ", i, " tentative...")
+			output = client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), keyPair, idm_enpoint)
+			if output == false {
+				time.Sleep(time.Second * 5)
+			}
+		}
 	} else {
-		log.Trace("Configuration is in TEST (local) mode. Key pair is not configured")
+		log.Trace("Configuration of VPNaaS is in TEST (local) mode. Key pair is not configured")
 		// No additional configuration needed, no key pair to be passed to VPNaaS. VPNaaS launch with the TestLaunch methos
 		client := gatewayconfig.New(net.ParseIP(res.Gateway.Config.MgmtIp), fmt.Sprint(res.Gateway.Config.MgmtPort), vpnaasenv)
 		vpnIp := res.Gateway.Config.PrivateVpnRange
-		output = client.LaunchTest(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort))
+
+		// try to send request X times, waiting for REST server to start up
+		i := 0
+		for i < requestTentatives && output == false {
+			i++
+			log.Trace("Connection to VPNaaS for ", i, " tentative...")
+			output = client.LaunchTest(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort))
+			if output == false {
+				time.Sleep(time.Second * 5)
+			}
+		}
 	}
 	log.Debug(output)
 	if output {

@@ -98,10 +98,10 @@ func (client *OpenStackDriver) createSubnet(name string, networkID string, cidr 
 
 // RetrieveNetwork retrieves a Network by its name
 func (client *OpenStackDriver) RetrieveFloatingNetworkByName(name string) (string, error) {
-	sharedNetworks := true
+	// sharedNetworks := false
 	listOpts := networks.ListOpts{
-		Name:   name,
-		Shared: &sharedNetworks,
+		Name: name,
+		// Shared: &sharedNetworks,
 	}
 
 	allPages, err := networks.List(client.networkClient, listOpts).AllPages()

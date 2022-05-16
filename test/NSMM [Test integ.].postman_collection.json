@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "eeffd1d3-65fc-471c-8ce4-1f47b1bc84a6",
+		"_postman_id": "2241be75-5b43-4266-aab7-f730507863d4",
 		"name": "NSMM [Test integ.]",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -119,7 +119,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.30.8.84:8080//get_configuration",
+							"raw": "http://10.30.8.84:8080/get_configuration",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -129,7 +129,6 @@
 							],
 							"port": "8080",
 							"path": [
-								"",
 								"get_configuration"
 							]
 						}
@@ -154,7 +153,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.30.8.84:8080//get_configuration",
+							"raw": "http://10.30.8.84:8080/get_configuration",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -164,7 +163,6 @@
 							],
 							"port": "8080",
 							"path": [
-								"",
 								"get_configuration"
 							]
 						}
@@ -205,17 +203,450 @@
 			]
 		},
 		{
+			"name": "Integration Barcelona",
+			"item": [
+				{
+					"name": "/net-resources NS 1 [A]",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"vpn_net\"\n        },\n        {\n            \"network-name\": \"app_net\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"gw_ext_net\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"barcelona\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_A_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_A_PORT}}",
+							"path": [
+								"net-resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources NS2 [B]",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"vpn_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"gw_ext_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"barcelona\",\n    \"exclude-subnet\": \"192.168.161.32/28\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources [A]",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_A_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_A_PORT}}",
+							"path": [
+								"net-resources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway external-IP NS1 [A]",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_A_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_A_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw1}}",
+								"gateway",
+								"external-ip"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/gateway external-IP NS1 [A]",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/18/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"18",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 11 May 2022 12:34:15 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "325"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Expected HTTP response code [201 202] when accessing [POST https://snacloud-vim.i2cat.net:9696/v2.0/floatingips], but got 409 instead\\n{\\\"NeutronError\\\": {\\\"type\\\": \\\"IpAddressGenerationFailure\\\", \\\"message\\\": \\\"No more IP addresses available on network 732e270c-4792-4e5f-94cc-72715f648502.\\\", \\\"detail\\\": \\\"\\\"}}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/gateway config NS1 [A]",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mgmt-ip\": \"84.88.32.136\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_A_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_A_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw1}}",
+								"gateway",
+								"config"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway external-IP NS2 [B]",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw2}}",
+								"gateway",
+								"external-ip"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway config NS2 [B]",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mgmt-ip\": \"84.88.32.139\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw2}}",
+								"gateway",
+								"config"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/connections [B] x demo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"remote-peer-ip\": \"84.88.32.136\",\n  \"peer-exposed-subnets\": [\n      \"192.168.161.0/28\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/connections",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw2}}",
+								"gateway",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/connections/{{id}} [B]",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/connections/2",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw2}}",
+								"gateway",
+								"connections",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway config NS1 [A]",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_A_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_A_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw1}}",
+								"gateway",
+								"config"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway config NS2 [B]",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw2}}",
+								"gateway",
+								"config"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway external-IP NS1 [A]",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_A_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_A_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw1}}",
+								"gateway",
+								"external-ip"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/gateway external-IP NS2 [B]",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw2}}",
+								"gateway",
+								"external-ip"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources/ NS1 [A]",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_A_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_A_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/net-resources/ NS2 [B]",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}",
+							"protocol": "http",
+							"host": [
+								"{{NSMM_DOMAIN_B_IP}}"
+							],
+							"port": "{{NSMM_DOMAIN_B_PORT}}",
+							"path": [
+								"net-resources",
+								"{{gw2}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "tests",
 			"item": [
 				{
-					"name": "test with osm",
+					"name": "Integration",
 					"item": [
 						{
-							"name": "no-static",
-							"item": [
+							"name": "/net-resources NS 1 [A]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"vpn_net\"\n        },\n        {\n            \"network-name\": \"application_net\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"gw_ext_net\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"ea9e8a25-e14a-49fa-b58c-9a5ba8199549\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": [
 								{
 									"name": "/net-resources NS 1 [A]",
-									"request": {
+									"originalRequest": {
 										"method": "POST",
 										"header": [],
 										"body": {
@@ -239,63 +670,63 @@
 											]
 										}
 									},
-									"response": [
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
 										{
-											"name": "/net-resources NS 1 [A]",
-											"originalRequest": {
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\"\n        },\n        {\n            \"network-name\": \"application_net\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim1\"\n}",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
-													"protocol": "http",
-													"host": [
-														"{{NSMM_DOMAIN_A_IP}}"
-													],
-													"port": "{{NSMM_DOMAIN_A_PORT}}",
-													"path": [
-														"net-resources"
-													]
-												}
-											},
-											"status": "Created",
-											"code": 201,
-											"_postman_previewlanguage": "json",
-											"header": [
-												{
-													"key": "Content-Type",
-													"value": "application/json; charset=utf-8"
-												},
-												{
-													"key": "Date",
-													"value": "Tue, 19 Apr 2022 12:04:50 GMT"
-												},
-												{
-													"key": "Content-Length",
-													"value": "342"
-												}
-											],
-											"cookie": [],
-											"body": "{\n    \"id\": 11,\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\",\n            \"subnet-cidr\": \"192.168.161.0/28\"\n        },\n        {\n            \"network-name\": \"application_net\",\n            \"subnet-cidr\": \"192.168.161.16/28\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net\",\n            \"subnet-cidr\": \"192.168.161.32/28\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"status\": \"CREATED\",\n    \"vim-name\": \"vim1\"\n}"
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 19 Apr 2022 12:04:50 GMT"
+										},
+										{
+											"key": "Content-Length",
+											"value": "342"
 										}
-									]
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 11,\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\",\n            \"subnet-cidr\": \"192.168.161.0/28\"\n        },\n        {\n            \"network-name\": \"application_net\",\n            \"subnet-cidr\": \"192.168.161.16/28\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net\",\n            \"subnet-cidr\": \"192.168.161.32/28\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"status\": \"CREATED\",\n    \"vim-name\": \"vim1\"\n}"
+								}
+							]
+						},
+						{
+							"name": "/net-resources NS2 [B]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"vpn_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"gw_ext_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"ea9e8a25-e14a-49fa-b58c-9a5ba8199549\",\n    \"exclude-subnet\": \"192.168.161.32/28\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": [
 								{
 									"name": "/net-resources NS2 [B]",
-									"request": {
+									"originalRequest": {
 										"method": "POST",
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim1\",\n    \"exclude-subnet\": \"192.168.161.16/28\"\n}",
+											"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim1\",\n    \"exclude-subnet\": \"192.168.161.32/28\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -314,60 +745,381 @@
 											]
 										}
 									},
-									"response": [
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
 										{
-											"name": "/net-resources NS2 [B]",
-											"originalRequest": {
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim1\",\n    \"exclude-subnet\": \"192.168.161.32/28\"\n}",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
-													"protocol": "http",
-													"host": [
-														"{{NSMM_DOMAIN_B_IP}}"
-													],
-													"port": "{{NSMM_DOMAIN_B_PORT}}",
-													"path": [
-														"net-resources"
-													]
-												}
-											},
-											"status": "Created",
-											"code": 201,
-											"_postman_previewlanguage": "json",
-											"header": [
-												{
-													"key": "Content-Type",
-													"value": "application/json; charset=utf-8"
-												},
-												{
-													"key": "Date",
-													"value": "Tue, 19 Apr 2022 12:06:24 GMT"
-												},
-												{
-													"key": "Content-Length",
-													"value": "276"
-												}
-											],
-											"cookie": [],
-											"body": "{\n    \"id\": 12,\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\",\n            \"subnet-cidr\": \"192.168.161.48/28\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net2\",\n            \"subnet-cidr\": \"192.168.161.64/28\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"status\": \"CREATED\",\n    \"vim-name\": \"vim1\"\n}"
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 19 Apr 2022 12:06:24 GMT"
+										},
+										{
+											"key": "Content-Length",
+											"value": "276"
 										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 12,\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\",\n            \"subnet-cidr\": \"192.168.161.48/28\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net2\",\n            \"subnet-cidr\": \"192.168.161.64/28\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"status\": \"CREATED\",\n    \"vim-name\": \"vim1\"\n}"
+								}
+							]
+						},
+						{
+							"name": "/net-resources [A] Copy",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
 									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS1 [A] Copy",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/9/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"9",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS2 [B] Copy",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/10/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"10",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 [A] Copy",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"mgmt-ip\": \"10.30.8.76\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/11/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"11",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS2 [B] Copy",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"mgmt-ip\": \"10.30.8.104\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/10/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"10",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections [B] x demo Copy",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"remote-peer-ip\": \"10.30.6.7\",\n  \"peer-exposed-subnets\": [\n      \"192.168.161.0/28\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/10/gateway/connections",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"10",
+										"gateway",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections/{{id}} [B] Copy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/10/gateway/connections/1",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"10",
+										"gateway",
+										"connections",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 [A] Copy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/9/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"9",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS2 [B] Copy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/10/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"10",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS1 [A] Copy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/9/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"9",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS2 [B] Copy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/10/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"10",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources/ NS1 [A] Copy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources/ NS2 [B] Copy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "test with osm",
+					"item": [
+						{
+							"name": "/net-resources NS 1 [A]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\"\n        },\n        {\n            \"network-name\": \"application_net\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": [
 								{
-									"name": "/net-resources [A]",
-									"request": {
-										"method": "GET",
+									"name": "/net-resources NS 1 [A]",
+									"originalRequest": {
+										"method": "POST",
 										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\"\n        },\n        {\n            \"network-name\": \"application_net\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"vim-name\": \"vim1\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
 											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
 											"protocol": "http",
@@ -380,13 +1132,69 @@
 											]
 										}
 									},
-									"response": []
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 19 Apr 2022 12:04:50 GMT"
+										},
+										{
+											"key": "Content-Length",
+											"value": "342"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 11,\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net\",\n            \"subnet-cidr\": \"192.168.161.0/28\"\n        },\n        {\n            \"network-name\": \"application_net\",\n            \"subnet-cidr\": \"192.168.161.16/28\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net\",\n            \"subnet-cidr\": \"192.168.161.32/28\"\n        }\n    ],\n    \"slice-id\": \"example1\",\n    \"status\": \"CREATED\",\n    \"vim-name\": \"vim1\"\n}"
+								}
+							]
+						},
+						{
+							"name": "/net-resources NS2 [B]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim1\",\n    \"exclude-subnet\": \"192.168.161.16/28\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": [
 								{
-									"name": "/net-resources [B]",
-									"request": {
-										"method": "GET",
+									"name": "/net-resources NS2 [B]",
+									"originalRequest": {
+										"method": "POST",
 										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"network-name\": \"test_net2\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"vim-name\": \"vim1\",\n    \"exclude-subnet\": \"192.168.161.32/28\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
 											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
 											"protocol": "http",
@@ -399,489 +1207,545 @@
 											]
 										}
 									},
-									"response": []
-								},
-								{
-									"name": "/gateway external-IP NS1 [A]",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"external-ip"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway external-IP NS1 [A]",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"external-ip"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway external-IP NS2 [B]",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"external-ip"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway external-IP NS2 [B]",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"external-ip"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway config NS1 [A]",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"mgmt-ip\": \"10.30.8.120\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
 										},
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"config"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway config NS2 [B]",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"mgmt-ip\": \"10.30.8.18\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
+										{
+											"key": "Date",
+											"value": "Tue, 19 Apr 2022 12:06:24 GMT"
 										},
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"config"
-											]
+										{
+											"key": "Content-Length",
+											"value": "276"
 										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway config [A]",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"config"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway config [B]",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"config"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/connections [A]",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"remote-peer-ip\": \"10.30.6.29\",\n  \"peer-exposed-subnets\": [\n      \"192.168.2.1/32\",\n      \"192.168.161.48/28\"\n  ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/connections",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"connections"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/connections [B] x demo",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"remote-peer-ip\": \"10.30.6.7\",\n  \"peer-exposed-subnets\": [\n      \"192.168.161.0/28\"\n  ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/connections",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"connections"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/connections [A]",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/connections",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"connections"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/connections/{{id}} [A]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/connections/2",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"connections",
-												"2"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/connections/{{id}} [B]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/connections/11",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"connections",
-												"11"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway config NS1 [A]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"config"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway config NS2 [B]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"config"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway external-IP NS1 [A]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}",
-												"gateway",
-												"external-ip"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/gateway external-IP NS2 [B]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}",
-												"gateway",
-												"external-ip"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/net-resources with query param Copy 2",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://127.0.0.1:8080/net-resources?slice-id=example1",
-											"protocol": "http",
-											"host": [
-												"127",
-												"0",
-												"0",
-												"1"
-											],
-											"port": "8080",
-											"path": [
-												"net-resources"
-											],
-											"query": [
-												{
-													"key": "slice-id",
-													"value": "example1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/net-resources/ NS1 [A]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_A_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_A_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw1}}"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "/net-resources/ NS2 [B]",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"url": {
-											"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}",
-											"protocol": "http",
-											"host": [
-												"{{NSMM_DOMAIN_B_IP}}"
-											],
-											"port": "{{NSMM_DOMAIN_B_PORT}}",
-											"path": [
-												"net-resources",
-												"{{gw2}}"
-											]
-										}
-									},
-									"response": []
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 12,\n    \"networks\": [\n        {\n            \"network-name\": \"internal_net2\",\n            \"subnet-cidr\": \"192.168.161.48/28\"\n        }\n    ],\n    \"service-access-points\": [\n        {\n            \"floating-network-name\": \"floating_int\",\n            \"network-name\": \"test_net2\",\n            \"subnet-cidr\": \"192.168.161.64/28\"\n        }\n    ],\n    \"slice-id\": \"example2\",\n    \"status\": \"CREATED\",\n    \"vim-name\": \"vim1\"\n}"
 								}
 							]
+						},
+						{
+							"name": "/net-resources [A]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources [B]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS1 [A]",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS1 [A]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS2 [B]",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS2 [B]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 [A]",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"mgmt-ip\": \"10.30.8.120\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS2 [B]",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"mgmt-ip\": \"10.30.8.18\"\n}\n// if subnet-to-expose not specified, networks to be exposed are selected using prefix",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config [A]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config [B]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections [A]",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"remote-peer-ip\": \"10.30.6.29\",\n  \"peer-exposed-subnets\": [\n      \"192.168.2.1/32\",\n      \"192.168.161.48/28\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/connections",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections [B] x demo",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"remote-peer-ip\": \"10.30.6.7\",\n  \"peer-exposed-subnets\": [\n      \"192.168.161.0/28\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/connections",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections [A]",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/connections",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections/{{id}} [A]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/connections/2",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"connections",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/connections/{{id}} [B]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/connections/11",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"connections",
+										"11"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS1 [A]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway config NS2 [B]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/config",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS1 [A]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/gateway external-IP NS2 [B]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}/gateway/external-ip",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}",
+										"gateway",
+										"external-ip"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources with query param Copy 2",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8080/net-resources?slice-id=example1",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"net-resources"
+									],
+									"query": [
+										{
+											"key": "slice-id",
+											"value": "example1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources/ NS1 [A]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_A_IP}}:{{NSMM_DOMAIN_A_PORT}}/net-resources/{{gw1}}",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_A_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_A_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw1}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/net-resources/ NS2 [B]",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{NSMM_DOMAIN_B_IP}}:{{NSMM_DOMAIN_B_PORT}}/net-resources/{{gw2}}",
+									"protocol": "http",
+									"host": [
+										"{{NSMM_DOMAIN_B_IP}}"
+									],
+									"port": "{{NSMM_DOMAIN_B_PORT}}",
+									"path": [
+										"net-resources",
+										"{{gw2}}"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -1564,6 +2428,209 @@
 			"name": "SBI",
 			"item": [
 				{
+					"name": "Barcelona",
+					"item": [
+						{
+							"name": "List ports",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"postman.setEnvironmentVariable(\"port_id\", \"SETME\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Auth-Token",
+										"value": "{{TOKEN}}"
+									}
+								],
+								"url": {
+									"raw": "{{OS_baseUrl}}:{{NEUTRON_PORT}}/v2.0/ports/?network_id=a107636d-916d-473d-8bcb-e7d54d6022b1",
+									"host": [
+										"{{OS_baseUrl}}"
+									],
+									"port": "{{NEUTRON_PORT}}",
+									"path": [
+										"v2.0",
+										"ports",
+										""
+									],
+									"query": [
+										{
+											"key": "network_id",
+											"value": "a107636d-916d-473d-8bcb-e7d54d6022b1"
+										}
+									]
+								},
+								"description": "Lists ports to which the tenant has access.\r\n\r\nDefault policy settings return only those ports that are owned by the tenant who submits the request, unless the request is submitted by a user with administrative rights. Users can control which attributes are returned by using the fields query parameter. You can use query parameters to filter the response."
+							},
+							"response": [
+								{
+									"name": "List ports Copy",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "X-Auth-Token",
+												"value": "{{TOKEN}}"
+											}
+										],
+										"url": {
+											"raw": "{{IP}}:{{NEUTRON_PORT}}/v2.0/ports/?network_id=c81acf00-e787-4890-b1c4-1fca413b8a46",
+											"host": [
+												"{{IP}}"
+											],
+											"port": "{{NEUTRON_PORT}}",
+											"path": [
+												"v2.0",
+												"ports",
+												""
+											],
+											"query": [
+												{
+													"key": "network_id",
+													"value": "c81acf00-e787-4890-b1c4-1fca413b8a46"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "content-type",
+											"value": "application/json"
+										},
+										{
+											"key": "content-length",
+											"value": "2137"
+										},
+										{
+											"key": "x-openstack-request-id",
+											"value": "req-8ad5425d-e37f-48ed-99a5-9827c6dc885d"
+										},
+										{
+											"key": "date",
+											"value": "Mon, 09 May 2022 10:14:47 GMT"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"ports\": [\n        {\n            \"id\": \"233e57b4-9d7d-4dcb-b90e-44324f960ee5\",\n            \"name\": \"\",\n            \"network_id\": \"c81acf00-e787-4890-b1c4-1fca413b8a46\",\n            \"tenant_id\": \"\",\n            \"mac_address\": \"fa:16:3e:5b:d4:90\",\n            \"admin_state_up\": true,\n            \"status\": \"ACTIVE\",\n            \"device_id\": \"b15e00f6-1073-4c20-9e9d-f81962095808\",\n            \"device_owner\": \"network:router_centralized_snat\",\n            \"fixed_ips\": [\n                {\n                    \"subnet_id\": \"f4a3713b-48ed-4c5b-ba53-0c437ce56b35\",\n                    \"ip_address\": \"192.168.161.35\"\n                }\n            ],\n            \"allowed_address_pairs\": [],\n            \"extra_dhcp_opts\": [],\n            \"security_groups\": [],\n            \"description\": \"\",\n            \"binding:vnic_type\": \"normal\",\n            \"port_security_enabled\": false,\n            \"tags\": [],\n            \"created_at\": \"2022-05-09T10:09:23Z\",\n            \"updated_at\": \"2022-05-09T10:09:37Z\",\n            \"revision_number\": 4,\n            \"project_id\": \"\"\n        },\n        {\n            \"id\": \"4a0667e9-4560-4be0-8c0c-15e1a3992a48\",\n            \"name\": \"\",\n            \"network_id\": \"c81acf00-e787-4890-b1c4-1fca413b8a46\",\n            \"tenant_id\": \"e638716e16974584b62d6114b255bdaa\",\n            \"mac_address\": \"fa:16:3e:23:d7:b2\",\n            \"admin_state_up\": true,\n            \"status\": \"ACTIVE\",\n            \"device_id\": \"dhcp547fbf74-214d-59b9-8eec-7168db74d3f8-c81acf00-e787-4890-b1c4-1fca413b8a46\",\n            \"device_owner\": \"network:dhcp\",\n            \"fixed_ips\": [\n                {\n                    \"subnet_id\": \"f4a3713b-48ed-4c5b-ba53-0c437ce56b35\",\n                    \"ip_address\": \"192.168.161.34\"\n                }\n            ],\n            \"allowed_address_pairs\": [],\n            \"extra_dhcp_opts\": [],\n            \"security_groups\": [],\n            \"description\": \"\",\n            \"binding:vnic_type\": \"normal\",\n            \"port_security_enabled\": false,\n            \"tags\": [],\n            \"created_at\": \"2022-05-09T10:09:21Z\",\n            \"updated_at\": \"2022-05-09T10:09:25Z\",\n            \"revision_number\": 3,\n            \"project_id\": \"e638716e16974584b62d6114b255bdaa\"\n        },\n        {\n            \"id\": \"9a71bfcc-51d7-4b49-8401-1add972e0a51\",\n            \"name\": \"\",\n            \"network_id\": \"c81acf00-e787-4890-b1c4-1fca413b8a46\",\n            \"tenant_id\": \"e638716e16974584b62d6114b255bdaa\",\n            \"mac_address\": \"fa:16:3e:27:7e:02\",\n            \"admin_state_up\": true,\n            \"status\": \"ACTIVE\",\n            \"device_id\": \"b15e00f6-1073-4c20-9e9d-f81962095808\",\n            \"device_owner\": \"network:router_interface_distributed\",\n            \"fixed_ips\": [\n                {\n                    \"subnet_id\": \"f4a3713b-48ed-4c5b-ba53-0c437ce56b35\",\n                    \"ip_address\": \"192.168.161.33\"\n                }\n            ],\n            \"allowed_address_pairs\": [],\n            \"extra_dhcp_opts\": [],\n            \"security_groups\": [],\n            \"description\": \"\",\n            \"binding:vnic_type\": \"normal\",\n            \"port_security_enabled\": false,\n            \"tags\": [],\n            \"created_at\": \"2022-05-09T10:09:23Z\",\n            \"updated_at\": \"2022-05-09T10:09:37Z\",\n            \"revision_number\": 6,\n            \"project_id\": \"e638716e16974584b62d6114b255bdaa\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Show networks",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Auth-Token",
+										"value": "{{TOKEN}}"
+									}
+								],
+								"url": {
+									"raw": "{{OS_baseUrl}}:{{NEUTRON_PORT}}/v2.0/networks/",
+									"host": [
+										"{{OS_baseUrl}}"
+									],
+									"port": "{{NEUTRON_PORT}}",
+									"path": [
+										"v2.0",
+										"networks",
+										""
+									]
+								},
+								"description": "Show details for a network.\n"
+							},
+							"response": [
+								{
+									"name": "Show network details Copy",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "X-Auth-Token",
+												"value": "{{TOKEN}}"
+											}
+										],
+										"url": {
+											"raw": "{{IP}}:{{NEUTRON_PORT}}/v2.0/networks/",
+											"host": [
+												"{{IP}}"
+											],
+											"port": "{{NEUTRON_PORT}}",
+											"path": [
+												"v2.0",
+												"networks",
+												""
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "content-type",
+											"value": "application/json"
+										},
+										{
+											"key": "content-length",
+											"value": "4649"
+										},
+										{
+											"key": "x-openstack-request-id",
+											"value": "req-041ca767-1da7-4919-8cbe-5523d7e4978d"
+										},
+										{
+											"key": "date",
+											"value": "Mon, 09 May 2022 10:02:34 GMT"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"networks\": [\n        {\n            \"id\": \"1ca2e31c-5c55-46d8-b876-06cf995f3889\",\n            \"name\": \"VIM_Internal_Network\",\n            \"tenant_id\": \"dde394fb18d547f485c2be3993751c94\",\n            \"admin_state_up\": true,\n            \"mtu\": 1500,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"4c98e8ae-581d-4a67-b199-600afb44c8b3\"\n            ],\n            \"shared\": true,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": false,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"tags\": [],\n            \"created_at\": \"2021-06-07T18:44:00Z\",\n            \"updated_at\": \"2021-06-16T11:41:43Z\",\n            \"revision_number\": 3,\n            \"project_id\": \"dde394fb18d547f485c2be3993751c94\"\n        },\n        {\n            \"id\": \"66be5f22-1671-49d0-9fc2-9e11ce561a0c\",\n            \"name\": \"OperatorA_Slice_nc2\",\n            \"tenant_id\": \"5a7f9e8e30fb4e929795be0451abc41a\",\n            \"admin_state_up\": true,\n            \"mtu\": 1500,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"a01c0912-2b36-4ba4-b103-5f1f72457c9c\"\n            ],\n            \"shared\": true,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": false,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"tags\": [],\n            \"created_at\": \"2021-06-21T18:19:36Z\",\n            \"updated_at\": \"2021-06-22T05:50:17Z\",\n            \"revision_number\": 6,\n            \"project_id\": \"5a7f9e8e30fb4e929795be0451abc41a\"\n        },\n        {\n            \"id\": \"732e270c-4792-4e5f-94cc-72715f648502\",\n            \"name\": \"77-snacloud-vim-floating1\",\n            \"tenant_id\": \"dde394fb18d547f485c2be3993751c94\",\n            \"admin_state_up\": true,\n            \"mtu\": 1500,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"ec635c3c-ead7-460f-afeb-84ad273b8982\"\n            ],\n            \"shared\": false,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": true,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"is_default\": false,\n            \"tags\": [],\n            \"created_at\": \"2021-06-14T15:21:39Z\",\n            \"updated_at\": \"2021-06-14T15:28:39Z\",\n            \"revision_number\": 5,\n            \"project_id\": \"dde394fb18d547f485c2be3993751c94\"\n        },\n        {\n            \"id\": \"928aec04-3766-4f3f-bdf3-9a240d8b7bad\",\n            \"name\": \"OperatorA_Slice_nc1\",\n            \"tenant_id\": \"5a7f9e8e30fb4e929795be0451abc41a\",\n            \"admin_state_up\": true,\n            \"mtu\": 1500,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"888ff995-af5b-46f5-aa4b-d9d39fc86667\"\n            ],\n            \"shared\": true,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": false,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"tags\": [],\n            \"created_at\": \"2021-06-21T18:19:31Z\",\n            \"updated_at\": \"2021-06-21T18:19:32Z\",\n            \"revision_number\": 4,\n            \"project_id\": \"5a7f9e8e30fb4e929795be0451abc41a\"\n        },\n        {\n            \"id\": \"9ae5b903-46b5-4db0-b63f-56274f0a9e62\",\n            \"name\": \"d0912f5c-e4d4-4b9b-853d-718d84d54689_nc1\",\n            \"tenant_id\": \"bf14ce4871004fbfa0f1f30b146342b4\",\n            \"admin_state_up\": true,\n            \"mtu\": 1500,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"b81f14c9-51d9-42ff-b96c-7d8205dba693\"\n            ],\n            \"shared\": true,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": false,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"tags\": [],\n            \"created_at\": \"2021-10-14T15:07:34Z\",\n            \"updated_at\": \"2021-10-14T15:07:35Z\",\n            \"revision_number\": 4,\n            \"project_id\": \"bf14ce4871004fbfa0f1f30b146342b4\"\n        },\n        {\n            \"id\": \"b742e576-087c-4eda-a5a7-0b36dfdef7f4\",\n            \"name\": \"slice-instance-edge-i2cat_nc1\",\n            \"tenant_id\": \"681207b3229e4c41a1c872002f78de5b\",\n            \"admin_state_up\": true,\n            \"mtu\": 1500,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"f9d681c1-68e0-4f61-a376-acca0fa48b11\"\n            ],\n            \"shared\": true,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": false,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"tags\": [],\n            \"created_at\": \"2022-01-21T08:25:00Z\",\n            \"updated_at\": \"2022-01-21T08:25:01Z\",\n            \"revision_number\": 4,\n            \"project_id\": \"681207b3229e4c41a1c872002f78de5b\"\n        },\n        {\n            \"id\": \"bbca00a5-cf7c-40ac-b9ea-38d8d3094c5a\",\n            \"name\": \"dummy-accelleran-network\",\n            \"tenant_id\": \"dde394fb18d547f485c2be3993751c94\",\n            \"admin_state_up\": true,\n            \"mtu\": 1450,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"7ed5b6d8-f1ba-4e02-9027-aa56168c39c0\"\n            ],\n            \"shared\": true,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": false,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"tags\": [],\n            \"created_at\": \"2022-04-29T10:20:55Z\",\n            \"updated_at\": \"2022-04-29T10:20:55Z\",\n            \"revision_number\": 2,\n            \"project_id\": \"dde394fb18d547f485c2be3993751c94\"\n        },\n        {\n            \"id\": \"ce15dcf5-34e6-47ed-ac25-d49fd66c0e2e\",\n            \"name\": \"d0912f5c-e4d4-4b9b-853d-718d84d54689_nc1\",\n            \"tenant_id\": \"bf14ce4871004fbfa0f1f30b146342b4\",\n            \"admin_state_up\": true,\n            \"mtu\": 1500,\n            \"status\": \"ACTIVE\",\n            \"subnets\": [\n                \"4e3d71de-4dc1-4c9f-83ed-c4ae41f132e0\"\n            ],\n            \"shared\": true,\n            \"availability_zone_hints\": [],\n            \"availability_zones\": [\n                \"nova\"\n            ],\n            \"ipv4_address_scope\": null,\n            \"ipv6_address_scope\": null,\n            \"router:external\": false,\n            \"description\": \"\",\n            \"port_security_enabled\": true,\n            \"tags\": [],\n            \"created_at\": \"2021-10-14T15:07:39Z\",\n            \"updated_at\": \"2021-10-14T15:07:41Z\",\n            \"revision_number\": 4,\n            \"project_id\": \"bf14ce4871004fbfa0f1f30b146342b4\"\n        }\n    ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
 					"name": "Create Interface Copy",
 					"event": [
 						{
@@ -1813,6 +2880,11 @@
 		{
 			"key": "gw2",
 			"value": "8",
+			"type": "string"
+		},
+		{
+			"key": "remote",
+			"value": "10.30.8.95",
 			"type": "string"
 		}
 	]

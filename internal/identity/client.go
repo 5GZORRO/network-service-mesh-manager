@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -59,7 +60,8 @@ func (client *IdentityClient) CreateKeyPair() (string, error) {
 		// json.Unmarshal(body, &info)
 		bodyString := string(body)
 		log.Trace("IdentityClient {", client.ip.String(), " ", client.port, "} -- Response Body ", bodyString)
-		return bodyString, nil
+		jwt := strings.Trim(bodyString, "\"")
+		return jwt, nil
 	} else {
 		return "", err
 	}

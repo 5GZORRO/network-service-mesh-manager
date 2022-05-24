@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var timout = 20 // Timout for HTTP client, before returning: context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+var timout = 0 // Timout for HTTP client, before returning: context deadline exceeded (Client.Timeout exceeded while awaiting headers)
 
 // VPNaaSClient contains the VPNaaS Server information such as its IP and port
 // its methods are the API offered by the server (Launch(), Connect_to_VPN(), Disconnect_to_VPN())

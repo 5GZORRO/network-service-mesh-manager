@@ -124,7 +124,8 @@ func (obj *ServerInterfaceImpl) PutNetResourcesIdGatewayConfig(c *gin.Context, i
 	}
 	// go routine with httpclient to configure the VPN server
 	// and the update the state to READY
-	go configureGateway(obj.DB, resource, obj.VpnaasConfig.Environment, &obj.VpnaasConfig.Idep)
+	// TODO test the endpoint in a sync way
+	configureGateway(obj.DB, resource, obj.VpnaasConfig.Environment, &obj.VpnaasConfig.Idep)
 
 	SetGatewayResponse(c, http.StatusCreated, *resource)
 }

@@ -119,9 +119,9 @@ func (obj *ServerInterfaceImpl) PostNetResources(c *gin.Context) {
 	if jsonBody.ExcludeSubnet == nil {
 		netmng = NewNetworkManager(obj.Netconfig.Start, jsonBody.ExcludeSubnet != nil)
 	} else {
+		log.Info("Computing the next starting network to be used in the current domain")
 		netmng = NewNetworkManager(*jsonBody.ExcludeSubnet, jsonBody.ExcludeSubnet != nil)
 	}
-	// log.Info(netmng.next_subnet)
 
 	// create networks:
 	for _, net := range jsonBody.Networks {

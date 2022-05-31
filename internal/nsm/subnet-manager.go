@@ -50,7 +50,8 @@ func NewNetworkManager(start string, skip bool) *Network_manager {
 			log.Error("Error")
 			return nil
 		}
-		net1, v := cidr.NextSubnet(net, 28)
+		net0, v := cidr.NextSubnet(net, 28)
+		net1, v := cidr.NextSubnet(net0, 28)
 		if v {
 			log.Error("Error")
 			return nil

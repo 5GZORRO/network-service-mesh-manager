@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var requestTentatives = 2
+var requestTentatives = 3
 
 // deleteResources is a goroutine to delete in an async way all the network resources
 func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceSet) {
@@ -48,14 +48,13 @@ func deleteResources(database *gorm.DB, vim *vimdriver.VimDriver, res *ResourceS
 	log.Trace("Async routine to delete resources ended")
 }
 
-// configureGateway is a goroutine to configure and start the VPN server in the gateway,
+// configureGateway is a function to configure and start the VPN server in the gateway,
 // First if it is in Production mode - it requests the key pair then it invokes the VPNaaS Client to Launch the Server
 //
 func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, idep *config.IdepConfigurations) {
 
-	log.Trace("Async routine to configure gateway stared.")
-	log.Info("Configuration is in ", vpnaasenv, " mode.")
-
+	log.Info("Configuring VPNaaS in ", vpnaasenv, " mode...")
+	time.Sleep(time.Second * 10)
 	var output = false
 	if vpnaasenv == gatewayconfig.Prod {
 		log.Debug("Configuration is in PROD (testbed) mode.")
@@ -91,7 +90,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 			log.Trace("Connection to VPNaaS for ", i, " tentative...")
 			output = client.Launch(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort), keyPair, idm_enpoint)
 			if output == false {
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * 10)
 			}
 		}
 	} else {
@@ -107,7 +106,7 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 			log.Trace("Connection to VPNaaS for ", i, " tentative...")
 			output = client.LaunchTest(vpnIp, res.Gateway.External.PortName, fmt.Sprint(res.Gateway.Config.MgmtPort))
 			if output == false {
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * 10)
 			}
 		}
 	}
@@ -124,7 +123,6 @@ func configureGateway(database *gorm.DB, res *ResourceSet, vpnaasenv string, ide
 	if result.Error != nil {
 		log.Error("Error updating resource after gateway configuration in DB, resource set with ID: ", res.ID, " and slice-id: ", res.SliceId)
 	}
-	log.Trace("Async routine to configure gateway ended")
 }
 
 // resetGateway is a goroutine to reset the VM gateway, using an HTTP client

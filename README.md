@@ -25,7 +25,7 @@ Minimum requirements:
 ### Software dependencies
 Network Service Mesh Manager is implemented using Go (1.17) and uses:
 - GIN (v1.7.4) as a HTTP server 
-- Postgres (v1.2.3) as DB
+- Postgres Driver (v1.2.3) as DB driver
 - github.com/gophercloud/gophercloud (v0.23) as SBI for openstack VIM
 all the dependecies are listed in the `go.mod` file
 
@@ -109,6 +109,7 @@ vpnaas:
 
 ## Maintainers
 Elena Bucchianeri - Developer and Designer - e.bucchianeri@nextworks.it
+
 Pietro G. Giardina - Developer and Designer - p.giardina@nextworks.it
 
 ## License

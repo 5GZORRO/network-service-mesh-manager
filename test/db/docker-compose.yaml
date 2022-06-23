@@ -27,15 +27,6 @@ services:
     ports:
       - '8082:8080'
 
-  idep:
-    container_name: idep
-    image: 10.30.8.46:5000/nsmm/idep:latest
-    networks:
-      - nsmm_network
-    ports:
-      - '8083:9999'
-
-
 networks:
   nsmm_network:
     name: nsmm_network
